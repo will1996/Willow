@@ -39,6 +39,7 @@ namespace wlo{
             
             size_t m_id = 0;
             bool m_shutting_down = false;
+            bool m_windowResized = false;
 
     };
     

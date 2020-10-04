@@ -56,6 +56,8 @@ namespace wlo{
             WILO_CORE_INFO("Application shutting down");
             m_shutting_down = true;
         }
+        if(msg.getType()==MessageType::WindowResized)
+            m_windowResized = true;
 
  }
     void Application::recieve(const wlo::KeyboardMessage& msg){

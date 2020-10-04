@@ -74,6 +74,10 @@ namespace wlo{
             MouseMessage::Info info;
             info.button = MouseButton(button);  
             info.mod_bundle = KeyModifier(mods);
+            double xpos,ypos;
+            glfwGetCursorPos(window,&xpos,&ypos);
+            info.xPos = xpos;
+            info.yPos = ypos;
             if(action == GLFW_PRESS){
                 instance -> notifyMouseObservers(wlo::MouseMessage(MessageType::MouseButtonPressed, info));
             }else {//action ==GLFW_RELEASE

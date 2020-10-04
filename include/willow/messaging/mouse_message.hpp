@@ -37,7 +37,7 @@ namespace wlo{
             MouseMessage(MessageType type, MouseMessage::Info info);
             std::string toString() const override ;
             MessageType getType() const override ;
-            Info getInfo();
+            Info getInfo() const ;
         private:
             Info m_info;
             MessageType m_type;

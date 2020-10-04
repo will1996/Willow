@@ -12,14 +12,18 @@ namespace wlo{
                 if( ! info.button.has_value()) 
                     throw std::runtime_error("must set button value for MouseButtonPressed signals");
                 ss<<"MouseButtonPressed: ";
-                ss<<info.button.value();
+                ss<<" x:"<<info.xPos.value();
+                ss<<" y:"<<info.yPos.value();
+                ss<<" button code:"<<info.button.value();
                 break;
             
             case MessageType::MouseButtonReleased:
                 if( ! info.button.has_value()) 
                     throw std::runtime_error("must set button value for MouseButtonReleased signals");
                 ss<<"MouseButtonReleased: ";
-                ss<<info.button.value();
+                ss<<" x:"<<info.xPos.value();
+                ss<<" y:"<<info.yPos.value();
+                ss<<" button code:" <<info.button.value();
                 break;
 
             case MessageType::MouseMoved:
@@ -46,7 +50,7 @@ namespace wlo{
             ss<<"Modifier "<<info.unpackModBundleName();
             m_name = ss.str();
     }
-   MouseMessage::Info MouseMessage::getInfo(){
+   MouseMessage::Info MouseMessage::getInfo() const{
         return m_info;
        } 
     std::string MouseMessage::toString() const{

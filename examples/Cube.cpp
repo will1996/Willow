@@ -9,9 +9,14 @@
 
 class CubeExample : public wlo::Application{
 public:
-    void start(){
+    CubeExample(){
         Application::Info inf("cubeExample",0);
         Application::initialize(inf);
+        m_main_window->permit<wlo::MouseMessage,CubeExample,&CubeExample::handleMouse>(this);
+    }
+    void handleMouse(const wlo::MouseMessage& msg){
+        if(msg.getType()==wlo::MessageType::MouseButtonPressed)
+            std::cout<<msg.toString()<<std::endl;
     }
     void run() override{
 
@@ -39,7 +44,7 @@ public:
     }
 
 
-    void stop(){
+   ~ CubeExample(){
         Application::reclaim();
     }
 
@@ -48,9 +53,7 @@ public:
 
 int main(){
     CubeExample app;
-    app.start();
     app.run();
-    app.stop();
 }
 
 

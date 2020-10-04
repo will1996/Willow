@@ -55,7 +55,7 @@ class Subject: public EngineElement{
         virtual void reclaim() override;
 
 
-        template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const Message&)>//register method for objects
+        template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const SUBTYPE&)>//register method for objects
         //TODO enforce Observer interface with concept 
         void permit(Obs* obs){
                 //get the observer's unique ID to track it
@@ -87,7 +87,7 @@ class Subject: public EngineElement{
                     m_registry.erase(id);//remove all bound methods for the ID 
         };
     private:
-            template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const Message& subtype)>
+            template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const SUBTYPE& subtype)>
         static void invoker( Observer* obs, const Message& msg){
                 (static_cast<Obs*>(obs)->*Method)(static_cast<const SUBTYPE&>(msg));
         }

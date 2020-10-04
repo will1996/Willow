@@ -13,33 +13,6 @@ namespace wlo{
         std::string scriptPath(WILO_ENGINE_SCRIPTS_PATH);
         std::string shaderFolder = scriptPath+"../shaders/";
         p_renderCore->buildPipeline(shaderFolder+"vert.spv", shaderFolder+"frag.spv");
-
-//        
-        std::vector<Vertex3D> verticies = {
-            {{-0.5f, -0.5f,0.0f},{1.0f, 0.0f, 0.0f}},
-            {{0.5f, -0.5f,0.0f},{1.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.5f,0.0f},{1.0f, 0.0f, 0.0f}},
-//            {{-0.5f, 0.5f,0.0f},{0.0f, 1.0f, 0.0f}}
-        };
-//        p_vertexBuffer->allocate(verticies.size());
-//        p_vertexBuffer->fill(verticies,verticies.size());
-//
-//
-//
-//        p_indexBuffer = ::renderAPI::getindexBuffer(p_context);
-//        
-        std::vector<uint32_t> indices = {
-            0,1,2//,2,3,0
-        };
-        pushGeometry(verticies, indices, glm::mat4(1));
-//        p_indexBuffer->allocate(indices.size());
-//
-//        p_indexBuffer->fill(indices, indices.size());
-//        
-//        p_taskManager->BindVertexBuffer(p_vertexBuffer);
-//        p_taskManager->BindIndexBuffer(p_indexBuffer);
-//
-//        WILO_CORE_INFO("Renderer initialized!");
     }
 
     void Renderer::initialize()
@@ -75,20 +48,21 @@ namespace wlo{
 
     void Renderer::submitDrawCall()
     {
-        p_renderCore->submitVertexBuffer(m_vertexBuffer, 3);
-        p_renderCore->submitIndexBuffer(m_indexBuffer, 3);
+        p_renderCore->submitVertexBuffer(m_vertexBuffer, m_vertexBuffer.size());
+        p_renderCore->submitIndexBuffer(m_indexBuffer, m_indexBuffer.size());
         p_renderCore->submitUniforms(m_uniforms[0], m_uniforms[1], m_uniforms[2]);
         p_renderCore->submitDrawCall();
     }
 
 
-    void Renderer::handleWindowResize(const wlo::Message& m){
+    void Renderer::handleWindowResize(const WindowMessage &m){
          const wlo::WindowMessage& msg = static_cast<const WindowMessage&>(m);
          p_renderCore->resizeRenderSurface(msg.getInfo().height, msg.getInfo().width);
     }
 
     void Renderer::reclaim()
     {
+        p_renderCore->waitForLastFrame();
     }
 
     Renderer::~Renderer(){
@@ -104,5 +78,10 @@ namespace wlo{
         //p_swapChain->reclaim();
         //p_context->reclaim();
         //WILO_CORE_INFO("Renderer reclaimed");
+    }
+
+    void Renderer::setClearColor(glm::vec4 color) {
+        p_renderCore->setClearColor(color);
+
     }
 }

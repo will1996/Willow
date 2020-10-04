@@ -15,12 +15,12 @@ namespace wlo{
  Application::~Application(){
      //do nothing, as is our way. 
  }
- void Application::initialize(){
+ void Application::initialize(Application::Info inf){
 
      wlo::Window::Info window_info;
      window_info.m_height = 600;
      window_info.m_width = 800;
-     window_info.m_title = "Astral!";
+     window_info.m_title = inf.appName;
 
      m_main_window = wlo::SharedPointer<Window>(wilo_get_window(window_info));
      m_main_window->initialize();//initialize a platform specific window, making indirected calls
@@ -38,9 +38,6 @@ namespace wlo{
      rendererInfo.enableGraphicsDebugging = true;
     m_renderer = wlo::CreateUniquePointer<Renderer>(m_main_window, rendererInfo);
     m_main_window->permit<WindowMessage,Renderer,&Renderer::handleWindowResize>(m_renderer.get());
-     glm::mat4x4 view = glm::lookAt(glm::vec3(2.0f,2.0f,2.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,1.0f));
-     glm::mat4x4 proj = glm::perspective(glm::radians(45.0f), 600.0f/800.0f, 0.1f, 10.0f);
-     m_renderer->setCamera(view, proj);
    WILO_CORE_INFO("application initialized!");
  }
  void Application::run(){
@@ -61,10 +58,9 @@ namespace wlo{
         }
 
  }
-    void Application::recieve(const wlo::Message& msg){
+    void Application::recieve(const wlo::KeyboardMessage& msg){
       if(msg.getType()==MessageType::KeyPressed){
-          wlo::KeyboardMessage::Info keyInfo = dynamic_cast<const wlo::KeyboardMessage&>(msg).getInfo();
-
+          wlo::KeyboardMessage::Info keyInfo = msg.getInfo();
       }
      }
  

@@ -212,7 +212,6 @@ namespace wlo {
         }
 
         GLFWwindow* glfwWindow = (GLFWwindow*)(p_window->getNativeWindow());
-        glfwSetWindowTitle(glfwWindow, "This totally worked lmao");
         assert(glfwWindow);//if this is null we're humped
 
         VkResult res = glfwCreateWindowSurface(m_instance, glfwWindow, nullptr, &m_surface);

@@ -16,11 +16,12 @@ namespace wlo{
         Renderer(wlo::SharedPointer<wlo::Window> p_window, wlo::Renderer::Info info);
         void initialize();
         void beginDrawCall();
+        void setClearColor(glm::vec4 color);
         void setCamera(glm::mat4x4 View, glm::mat4x4 Proj);
         void pushGeometry(const std::vector<Vertex3D> & vertices, const std::vector<uint32_t> & indices, glm::mat4x4 transform);
         void submitDrawCall();
 
-        void handleWindowResize( const wlo::Message& msg);
+        void handleWindowResize(const WindowMessage &m);
         void reclaim();
         ~Renderer();
         private:

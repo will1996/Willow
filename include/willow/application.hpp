@@ -25,13 +25,13 @@ namespace wlo{
             };
 
             Application();
-            virtual void recieve(const wlo::Message& msg);
+            virtual void recieve(const wlo::KeyboardMessage& msg);
             virtual void recieve(const wlo::WindowMessage& msg);
-            virtual void initialize();
-            void run();
+            virtual void initialize(Application::Info inf);
+            virtual void run();
             virtual void reclaim();
             virtual ~Application();
-        private:
+        protected:
             wlo::SharedPointer<Window> m_main_window;
             wlo::SharedPointer<wlo::lua::Environment> m_scriptEnv;
             wlo::UniquePointer<Console> m_main_console;
@@ -39,9 +39,7 @@ namespace wlo{
             
             size_t m_id = 0;
             bool m_shutting_down = false;
-            float xTranslation = 0.0;
-            float yTranslation = 0.0;
-        
+
     };
     
 }

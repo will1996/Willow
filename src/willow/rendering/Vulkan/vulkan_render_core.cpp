@@ -56,7 +56,10 @@ namespace wlo{
 		}
 
 
-		void beginDrawCommand() {
+        void setClearColor(VkClearValue color){
+            clearColor = color;
+        }
+        void beginDrawCommand() {
 			vkWaitForFences(context.getDevice(), 1, &commandBufferExecutingFences[curFrameIdx], VK_TRUE, UINT64_MAX);
 
 			VkCommandBufferBeginInfo bufferBeginInfo{};
@@ -71,12 +74,10 @@ namespace wlo{
 			passBeginInfo.framebuffer = frameBufferArray[curFrameIdx];
 			passBeginInfo.renderArea.extent = swapchain.getSwapSurfaceExtent();
 			passBeginInfo.clearValueCount = 1;
-			VkClearValue clearColor = { 0.0,1.0,0.0,1.0 };//make the clear color GREEN
 			passBeginInfo.pClearValues = &clearColor;
 
 			vkCmdBeginRenderPass(m_drawCommandBuffers[curFrameIdx], &passBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 		}
-
 		void drawCmdBindPipeline() {
 
 			vkCmdBindPipeline(m_drawCommandBuffers[curFrameIdx], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[0].get());
@@ -294,13 +295,13 @@ namespace wlo{
 
 		VulkanUniformBufferArray uniformBufferArray;
 		VulkanFrameBufferArray frameBufferArray;
+		VkClearValue clearColor = {0,0,0,1};
 		size_t curFrameIdx;
 		VkCommandPool m_vkCommandPool;
 
 
 		VkDescriptorPool m_vkDescriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
-
 		std::vector<VkSemaphore> imageAvailableSemaphores;
 		std::vector<VkSemaphore> renderFinishedSemaphores;
 		std::vector<VkFence> commandBufferExecutingFences;
@@ -337,7 +338,7 @@ namespace wlo{
 	{
 //		WILO_CORE_INFO("started Draw Call");
 		p_Impl->beginDrawCommand();
-		p_Impl->drawCmdBindPipeline();
+        p_Impl->drawCmdBindPipeline();
 	}
 
 	void VulkanRenderCore::resizeRenderSurface(uint32_t width, uint32_t height)
@@ -375,5 +376,9 @@ namespace wlo{
 		p_Impl->submitDrawCommand();
 	}
 
+    void VulkanRenderCore::setClearColor(glm::vec4 color) {
+	   VkClearValue value = {color[0],color[1],color[2],color[3]};
+	   p_Impl->setClearColor(value);
+	}
 
 }

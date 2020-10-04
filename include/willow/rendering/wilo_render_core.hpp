@@ -19,6 +19,7 @@ namespace wlo{
 		virtual void beginDrawCall() = 0;
 		virtual void resizeRenderSurface(uint32_t width, uint32_t height) = 0;
 		virtual void buildPipeline(std::string vertexShaderPath, std::string FragmentShaderPath) = 0;
+		virtual void setClearColor(glm::vec4 color) =0;
 		virtual void submitVertexBuffer(const std::vector<Vertex3D>& vertices, size_t count) = 0;
 		virtual void submitIndexBuffer(const std::vector<uint32_t>& indices, size_t count) = 0;
 		virtual void submitUniforms(glm::mat4x4 model,glm::mat4x4 view, glm::mat4x4 projection) = 0;

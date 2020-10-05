@@ -101,11 +101,17 @@ namespace wlo{
     
         glfwSetWindowSizeCallback(p_impl->getWindow(),[](GLFWwindow* window, int width, int height){
             MacWindow* instance = (MacWindow*)(glfwGetWindowUserPointer(window));
+
+            //resize the window
+            instance->m_info.m_height = height;
+            instance->m_info.m_width = width;
+
             WindowMessage::Info info;
             info.height = height;
             info.width = width;
             info.title = instance->getInfo().m_title;
             instance -> notifyWindowObservers( WindowMessage(MessageType::WindowResized,info));
+
         });
 
         glfwSetWindowFocusCallback(p_impl->getWindow(),[](GLFWwindow* window, int Focused){

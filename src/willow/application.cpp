@@ -35,7 +35,7 @@ namespace wlo{
      wlo::Renderer::Info rendererInfo;
      rendererInfo.frameHeight = 600;
      rendererInfo.frameHeight = 800;
-     rendererInfo.enableGraphicsDebugging = true;
+     rendererInfo.enableGraphicsDebugging = false;
     m_renderer = wlo::CreateUniquePointer<Renderer>(m_main_window, rendererInfo);
     m_main_window->permit<WindowMessage,Renderer,&Renderer::handleWindowResize>(m_renderer.get());
    WILO_CORE_INFO("application initialized!");

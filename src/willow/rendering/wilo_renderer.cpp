@@ -52,6 +52,8 @@ namespace wlo{
         p_renderCore->submitIndexBuffer(m_indexBuffer, m_indexBuffer.size());
         p_renderCore->submitUniforms(m_uniforms[0], m_uniforms[1], m_uniforms[2]);
         p_renderCore->submitDrawCall();
+        m_vertexBuffer.clear();
+        m_indexBuffer.clear();
     }
 
 

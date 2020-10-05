@@ -16,7 +16,7 @@ namespace wlo{
 			curFrameIdx(0)
 		{
 			VulkanRenderingContext::Info contextInfo;
-			contextInfo.enableValidationLayers = true;
+			contextInfo.enableValidationLayers = info.enableDebugging;
 			context.initialize(window, contextInfo);
 			swapchain.initialize(&context, window->getInfo().m_width, window->getInfo().m_height);
 
@@ -281,6 +281,7 @@ namespace wlo{
 		void submitUniforms(glm::mat4x4 model, glm::mat4x4 view, glm::mat4x4 proj) {
 			uniformBufferArray.setModel(curFrameIdx,model);
 			uniformBufferArray.setView(curFrameIdx,view);
+//			proj[1][1]*=-1;
 			uniformBufferArray.setProjection(curFrameIdx,proj);
 			uniformBufferArray.upload(curFrameIdx);
 		}

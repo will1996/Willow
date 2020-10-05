@@ -76,7 +76,7 @@ namespace wlo{
                 std::string msg = lua_tostring(m_env->getL(),-1);
                 WILO_CORE_ERROR("invalid Lua_base script, failed with:  "+ msg);
                 #else    
-                raise runtime_error("invalid Lua_base script please validate your install");
+//                raise runtime_error("invalid Lua_base script please validate your install");
                 #endif
             }
             

@@ -126,8 +126,10 @@ namespace wlo {
 
 
 
-        if (m_enableValidationLayers)
+        if (m_enableValidationLayers) {
             instanceLayers.insert(instanceLayers.end(), validationLayers.begin(), validationLayers.end());
+            std::cout<<"inserting validation layers"<<std::endl;
+        }
 
 
         validateLayers(instanceLayers);

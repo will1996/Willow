@@ -21,6 +21,8 @@ namespace wlo{
          //set size to zero, free all memory
         void reclaim() ;
 
+        void reallocate(size_t nElements);
+
         size_t size() ;//must return the number of elements
         size_t memSizeBytes() ;//must return the memory footprint in bytes
         VkBuffer get();

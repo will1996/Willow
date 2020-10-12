@@ -9,7 +9,7 @@
 
 class CubeExample : public wlo::Application{
 public:
-    CubeExample(){
+    CubeExample(std::string entryPoint):Application(entryPoint){
         Application::Info inf("cubeExample",0);
         Application::initialize(inf);
         m_main_window->permit<wlo::MouseMessage,CubeExample,&CubeExample::handleMouse>(this);
@@ -19,7 +19,6 @@ public:
             std::cout<<msg.toString()<<std::endl;
     }
     void run() override{
-
         WILO_INFO("running!")
         while(!m_shutting_down){
             m_renderer->setClearColor({0,0,0,1});
@@ -40,6 +39,7 @@ public:
             m_renderer->pushGeometry(triangle,indices,model);
             m_renderer->submitDrawCall();
             m_main_window->checkIn();
+            m_console->render();
         }
     }
 
@@ -51,9 +51,5 @@ public:
 };
 
 
-int main(){
-    CubeExample app;
-    app.run();
-}
-
+WILLOW_TRUNK(CubeExample);
 

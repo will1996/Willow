@@ -24,7 +24,12 @@ namespace wlo{
                 vkBindBufferMemory(p_context->getDevice(), m_vkBuffer, m_vkMemory, 0);
 			}
 			virtual void resize(size_t newsize) {
-				throw std::runtime_error("Unimplemented");
+                vkDestroyBuffer(p_context->getDevice(), m_vkBuffer, nullptr);
+			    vkFreeMemory(p_context->getDevice(),m_vkMemory,nullptr);
+                m_size = newsize;
+                createVkBuffer();
+                allocateVkBufferMemory();
+                vkBindBufferMemory(p_context->getDevice(), m_vkBuffer, m_vkMemory, 0);
 			}
 
 			virtual void setDataTarget(const T* data, size_t ammount , size_t offset = 0) {

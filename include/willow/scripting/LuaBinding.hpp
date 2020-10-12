@@ -6,39 +6,26 @@
 #include<iostream>
 #include "willow/messaging/wilo_subject.hpp"
 #include "willow/messaging/wilo_observer.hpp"
-#include "LuaBasics.h"
+#include "LuaEnvironment.h"
 //TODO add Cmake defined install settings header, which specifies scriptable base script
 namespace wlo{
 
-    
+
     //TODO implement tracking of scriptables in the global environment (maybe)
 
         template <class T>
-        class Scriptable {
+        class LuaBinding {
             //static std::vector<std::pair<std::string,lua_State*>> Instances;
         public:
 
-            Scriptable(std::string name, T* instance_ptr,wlo::SharedPointer<wlo::lua::Environment> env): m_env(env),m_name(name),m_instancePtr(instance_ptr){
+            LuaBinding(std::string name, T* instance_ptr, wlo::SharedPointer<wlo::lua::Environment> env): m_env(env), m_name(name), m_instancePtr(instance_ptr){
                 runBaseScript();
                 LT_instantiate();
             }
 
-
-            virtual ~Scriptable() {}
-        protected:
-            //Grant the oppourtunity to refine the Lua environment that is coarsely
-            //defined by the LT methods. Since this Lua script has access to 
-            //all of the globals henceforth defined in the lua state, we can do 
-            //almost anything we want here, it is intended to restrict access 
-            //and built structure into the otherwise almost completely plastic 
-            //Lua environemtn
-            virtual void initialize() = 0;
-            wlo::SharedPointer<wlo::lua::Environment> m_env;
-            const std::string m_name;
-
             template< int(T::* Method)(lua_State*)>
             //add the member function in the template to this Luatable with the name "name"
-            void LT_appendMember(std::string name) {
+            void Register(std::string name) {
                 lua_getglobal(m_env->getL(), m_name.c_str());//retrieve the class table from the global namespace
 
                 lua_pushstring(m_env->getL(), name.c_str());//push a key value pair of the string name
@@ -48,6 +35,26 @@ namespace wlo{
 
                 lua_setglobal(m_env->getL(), m_name.c_str());//update the global variable with the new entries
             }
+
+            lua::Environment * getEnv() {
+                    return m_env.get();
+            }
+
+
+
+            virtual ~LuaBinding() {
+                LT_destruct();
+            }
+        protected:
+            //Grant the oppourtunity to refine the Lua environment that is coarsely
+            //defined by the LT methods. Since this Lua script has access to
+            //all of the globals henceforth defined in the lua state, we can do
+            //almost anything we want here, it is intended to restrict access
+            //and built structure into the otherwise almost completely plastic
+            //Lua environemtn
+            wlo::SharedPointer<wlo::lua::Environment> m_env;
+            const std::string m_name;
+
             /*create or add to a lua table, with string pairs. Useful for pretty much just sending paths... */
 
 #ifndef ndebug
@@ -56,7 +63,7 @@ namespace wlo{
             }
 #endif
         private:
-            T* m_instancePtr; 
+            T* m_instancePtr;
         //invoke the template method on the 'this' pointer, calling a non-static member function
             template<int(T::*Method)(lua_State* L) >
         static int call(lua_State* L){
@@ -75,16 +82,16 @@ namespace wlo{
                 #ifndef NDEBUG
                 std::string msg = lua_tostring(m_env->getL(),-1);
                 WILO_CORE_ERROR("invalid Lua_base script, failed with:  "+ msg);
-                #else    
+                #else
 //                raise runtime_error("invalid Lua_base script please validate your install");
                 #endif
             }
-            
+
         }
 
       void LT_failOnNameConflict(){
             lua_getglobal(m_env->getL(), m_name.c_str());
-            
+
             if (! lua_isnil(m_env->getL(), -1) ) {
                 throw std::runtime_error("invalid Lua configuration, name " + m_name + " is already in this lua Namespace");
             }
@@ -109,7 +116,7 @@ namespace wlo{
         void LT_destruct(){
             lua_pushnil(m_env->getL());
             lua_setglobal(m_env->getL(), m_name.c_str());
-        } 
+        }
 
     };
 

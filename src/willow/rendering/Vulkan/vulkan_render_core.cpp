@@ -32,8 +32,25 @@ namespace wlo{
 			indexBuffer.allocate(info.maxVertices);
 		}
 
-		void initialize() {
+		void reclaim(){
+		    waitOnCurrentTasks();
+		    vertexBuffer.reclaim();
+		    indexBuffer.reclaim();
+		    frameBufferArray.reclaim(context.getDevice());
+            context.reclaim();
+		}
 
+	    void reallocateVertexBuffer(size_t size)	{
+		    waitOnCurrentTasks();
+		    vertexBuffer.reallocate(size);
+		}
+
+		void reallocateIndexBuffer(size_t size){
+            waitOnCurrentTasks();
+		   indexBuffer.reallocate(size);
+		}
+
+		void initialize() {
 			vk::QueueFamilyIndices queueIndices = vk::findQueueFamilies(context.getPhysicalDevice(), context.getSurface());
 			vkGetDeviceQueue(context.getDevice(), queueIndices.graphicsFamily.value(), 0, &graphicsQueue);
 			vkGetDeviceQueue(context.getDevice(), queueIndices.presentFamily.value(), 0, &presentQueue);
@@ -43,8 +60,6 @@ namespace wlo{
 			uniformBufferArray.initialize(&context,swapchain.getImageViews().size());
             createDescriptorPool();
             allocateDescriptorSets();
-            
-
 		}
 
 		virtual void resizeRenderSurface(uint32_t width, uint32_t height) {
@@ -381,5 +396,21 @@ namespace wlo{
 	   VkClearValue value = {color[0],color[1],color[2],color[3]};
 	   p_Impl->setClearColor(value);
 	}
+
+    void VulkanRenderCore::clearScreen() {
+        WILO_CORE_WARNING("CLEAR SCREEN DOESN'T DO ANYTHING");
+    }
+
+    void VulkanRenderCore::allocateVertexBuffer(size_t size) {
+        p_Impl->reallocateVertexBuffer(size);
+    }
+
+    void VulkanRenderCore::allocateIndexBuffer(size_t size) {
+        p_Impl->reallocateIndexBuffer(size);
+    }
+
+    void VulkanRenderCore::reclaim() {
+        p_Impl->reclaim();
+    }
 
 }

@@ -25,7 +25,7 @@ namespace wlo{
 }
 //core logging functions
 #define WILO_CORE_INFO(...) ::wlo::logr::getCoreLogger()->info(__VA_ARGS__);
-#define WILO_CORE_WARNING(...) ::wilo::logr::getCoreLogger()->warn(__VA_ARGS__)
+#define WILO_CORE_WARNING(...) ::wlo::logr::getCoreLogger()->warn(__VA_ARGS__)
 #define WILO_CORE_ERROR(...) ::wlo::logr::getCoreLogger()->error(__VA_ARGS__);
 #define WILO_CORE_CRITICAL(...) ::wilo::logr::getCoreLogger()->critical(__VA_ARGS__);
 //app_level logging functions

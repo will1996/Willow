@@ -59,7 +59,6 @@ target_sources(WillowDevUtils
      PUBLIC willow/rendering/Vulkan/vkcore.cpp
      PUBLIC willow/rendering/Vulkan/vkutil.cpp
      PUBLIC willow/rendering/Vulkan/vkdevice.cpp
-     PUBLIC willow/rendering/Vulkan/vkinit.cpp
      PUBLIC willow/rendering/Vulkan/vkswapchain.cpp
      PUBLIC ../include/willow/dev-utils/Vulkan/vkdevice.hpp
      PUBLIC ../include/willow/dev-utils/Vulkan/vkinit.hpp
@@ -95,6 +94,7 @@ target_sources(WillowRendering
         PUBLIC ../include/willow/rendering/wilo_rendering_API.hpp
         PUBLIC ../include/willow/rendering/wilo_shader.hpp
         PUBLIC ../include/willow/rendering/wilo_vertex_types.hpp
+        PUBLIC ../include/willow/rendering/camera/OrthographicCamera3D.hpp
         PUBLIC willow/rendering/Vulkan/vulkan_context.cpp
         PUBLIC willow/rendering/Vulkan/vulkan_frame_buffer_array.cpp
         PUBLIC willow/rendering/Vulkan/vulkan_graphics_pipeline.cpp
@@ -108,6 +108,7 @@ target_sources(WillowRendering
         PUBLIC willow/rendering/Vulkan/vulkan_vertex_buffer.cpp
         PUBLIC willow/rendering/wilo_renderer.cpp
         PUBLIC willow/rendering/wilo_shader.cpp
+        PUBLIC willow/rendering/camera/OrthographicCamera3D.cpp
         )
 
 add_library(WillowWindow )
@@ -126,23 +127,29 @@ add_library(WillowScripting ../include/willow/ECS/ECS.h)
 target_link_libraries(WillowScripting PUBLIC WillowRoot)
 target_link_libraries(WillowScripting PUBLIC Lua)
 target_link_libraries(WillowScripting PUBLIC WillowMessaging)
+target_include_directories(WillowScripting PUBLIC ../include)
 target_sources(WillowScripting
-        PUBLIC ../include/willow/scripting/Scriptable.hpp
-        PUBLIC willow/scripting/Scriptable.cpp
-        PUBLIC ../include/willow/scripting/LuaBasics.h
-        willow/scripting/LuaBasics.cpp
+        PUBLIC ../include/willow/scripting/LuaBinding.hpp
+        PUBLIC willow/scripting/LuaBinding.cpp
+        PUBLIC ../include/willow/scripting/LuaEnvironment.h
+        willow/scripting/LuaEnvironment.cpp
         )
 
 
 add_library(Willow
         ../include/willow/application.hpp
-        ../include/willow/wilo_console.hpp
+        ../include/willow/console/wilo_console.hpp
+        ../include/willow/console/ConsoleCore.hpp
+        ../include/willow/console/FontMap.hpp
         ../include/willow.hpp
         willow/application.cpp
-        willow/wilo_console.cpp
+        willow/console/FontMap.cpp
+        willow/console/wilo_console.cpp
+        willow/console/ConsoleCore.cpp
         )
 target_link_libraries(Willow PUBLIC WillowWindow)
 target_link_libraries(Willow PUBLIC WillowScripting)
 target_link_libraries(Willow PUBLIC WillowRendering)
 target_link_libraries(Willow PUBLIC WillowRoot)
 target_link_libraries(Willow PUBLIC WillowDevUtils)
+target_include_directories(Willow PUBLIC willow/include)

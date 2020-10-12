@@ -10,6 +10,10 @@
  target_link_libraries(ObserverMessageTest PRIVATE Willow)
  target_include_directories(ObserverMessageTest PRIVATE ../include)
 
+ add_executable(ConsoleCoreTest ConsoleCoreTest.cpp catch.hpp)
+ target_link_libraries(ConsoleCoreTest PRIVATE Willow)
+ target_include_directories(ConsoleCoreTest PRIVATE ../include)
+
 
 
  add_executable(GLFWWindowTest GLFWWindowTest.cpp)
@@ -17,3 +21,5 @@
  target_link_libraries(GLFWWindowTest PRIVATE glfw)
  target_link_libraries(GLFWWindowTest PUBLIC Vulkan::Vulkan)
 
+ add_executable(RenderStressTest RenderStressTest.cpp)
+ target_link_libraries(RenderStressTest PRIVATE Willow)

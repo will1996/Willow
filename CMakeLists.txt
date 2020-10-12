@@ -7,10 +7,15 @@ add_subdirectory(external)
 add_subdirectory(test)
 add_subdirectory(src)
 
-add_executable(CubeExample examples/Cube.cpp)
+add_executable(CubeExample examples/Cube.cpp src/willow/console/ConsoleCore.cpp include/willow/console/ConsoleCore.hpp src/willow/rendering/camera/OrthographicCamera3D.cpp include/willow/rendering/camera/OrthographicCamera3D.hpp)
 target_include_directories(CubeExample PRIVATE include)
-target_link_libraries(CubeExample Willow)
+target_link_libraries(CubeExample PRIVATE Willow)
 
+add_executable(FontRenderer examples/FontRenderer.cpp)
+target_include_directories(FontRenderer PRIVATE include)
+target_link_libraries(FontRenderer PRIVATE Willow)
+
+#target_compile_options(CubeExample PRIVATE -Werror)
 
 set(WILO_ENGINE_SCRIPTS_PATH "\"${PROJECT_SOURCE_DIR}/scripts/\"" )
 set(WILO_TESTS_SCRIPTS_PATH "" )

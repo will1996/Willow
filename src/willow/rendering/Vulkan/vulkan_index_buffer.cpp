@@ -44,5 +44,9 @@ namespace wlo{
 	VkBuffer VulkanIndexBuffer::get(){
 		return m_buffer.get();
 	}
-	
-	}
+
+    void VulkanIndexBuffer::reallocate(size_t nElements) {
+	    m_buffer.resize(nElements);
+    }
+
+}

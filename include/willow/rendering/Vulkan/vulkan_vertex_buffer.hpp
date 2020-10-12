@@ -10,6 +10,7 @@ namespace wlo{
             VulkanVertexBuffer();
             void initialize(VulkanRenderingContext* contextRef);
              void allocate(size_t nElements) ;
+             void reallocate(size_t nElements);
              void fill(const std::vector<Vertex3D>& data, size_t nElements, size_t offset = 0) ;
              void reclaim() ;
              size_t size() ;//must return the number of elements

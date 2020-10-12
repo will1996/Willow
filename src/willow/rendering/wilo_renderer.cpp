@@ -1,13 +1,17 @@
 #include "willow/rendering/wilo_renderer.hpp"
 #include "willow/root/wilo_dev_core.hpp"
+#include "glm/gtx/string_cast.hpp"
 namespace wlo{
     Renderer::Renderer(wlo::SharedPointer<wlo::Window> window, wlo::Renderer::Info rendererInfo)
     {
         wlo::RenderCore::Info coreInfo;
         coreInfo.enableDebugging = rendererInfo.enableGraphicsDebugging;
         coreInfo.enableProfiling = rendererInfo.enableRendererStatistics;
-        coreInfo.maxVertices = 100000;
-
+        coreInfo.maxVertices = rendererInfo.vertexBufferStartingSize;
+        m_vertexBuffer.resize(rendererInfo.vertexBufferStartingSize);
+        m_indexBuffer.resize(rendererInfo.indexBufferStartingSize);
+        m_vertexBufferWritePoint = 0;
+        m_indexBufferWritePoint = 0;
         p_renderCore = wlo::renderAPI::getRenderingCore(window, coreInfo);
         p_renderCore->initialize();
         std::string scriptPath(WILO_ENGINE_SCRIPTS_PATH);
@@ -29,19 +33,29 @@ namespace wlo{
         m_uniforms[1] = View;
         m_uniforms[2] = Projection;
     }
+    void Renderer::setView(glm::mat4x4 View) {
+        m_uniforms[1] = View;
+    }
+
+    void Renderer::setProjection(glm::mat4x4 Proj) {
+        m_uniforms[2] = Proj;
+    }
 
     void Renderer::pushGeometry(const std::vector<Vertex3D>& vertices, const std::vector<uint32_t>& indices, glm::mat4x4 transform)
     {
-        DrawDescription call;
-        call.vertexCount = vertices.size();
-        call.vertices = 0;//&m_vertexBuffer[m_vertexBuffer.size() - 1];
-        m_vertexBuffer.insert(m_vertexBuffer.end(), vertices.begin(), vertices.end());
+        if(m_vertexBufferWritePoint+vertices.size()<m_vertexBuffer.size())
+        std::copy(vertices.begin(),vertices.end(),m_vertexBuffer.begin()+m_vertexBufferWritePoint);
+        else{
+            WILO_CORE_WARNING("PUSHED MORE VERTICIES TO RENDERER ( {0} ) than are available ({1})  reallocating",vertices.size(),m_vertexBuffer.size());
+            resizeVertexBuffer(m_vertexBuffer.size()+vertices.size());
+        }
+        if(m_indexBufferWritePoint+indices.size()<m_indexBuffer.size())
+            std::copy(indices.begin(),indices.end(),m_indexBuffer.begin()+m_indexBufferWritePoint);
+        else{
+            WILO_CORE_WARNING("PUSHED MORE INDICES TO RENDERER ( {0} ) than are available ({1}) reallocating",indices.size(),m_indexBuffer.size());
+            resizeIndexBuffer(m_indexBuffer.size() + indices.size());
+        }
 
-        call.indexCount = indices.size();
-        call.indices = 0;// &m_indexBuffer[m_indexBuffer.size() - 1];
-        m_indexBuffer.insert(m_indexBuffer.end(), indices.begin(), indices.end());
-        
-        //call.modelTransform = transform;
         m_uniforms[0] = transform;
         
     }
@@ -52,25 +66,24 @@ namespace wlo{
         p_renderCore->submitIndexBuffer(m_indexBuffer, m_indexBuffer.size());
         p_renderCore->submitUniforms(m_uniforms[0], m_uniforms[1], m_uniforms[2]);
         p_renderCore->submitDrawCall();
-        m_vertexBuffer.clear();
-        m_indexBuffer.clear();
+        m_indexBufferWritePoint = 0;
+        m_vertexBufferWritePoint = 0;
     }
 
 
     void Renderer::handleWindowResize(const WindowMessage &m){
          const wlo::WindowMessage& msg = static_cast<const WindowMessage&>(m);
-         p_renderCore->resizeRenderSurface(msg.getInfo().height, msg.getInfo().width);
+         p_renderCore->resizeRenderSurface(msg.getInfo().width, msg.getInfo().height);
     }
 
     void Renderer::reclaim()
     {
         p_renderCore->waitForLastFrame();
+        p_renderCore->reclaim();
     }
 
     Renderer::~Renderer(){
             //let all in-flight tasks finish up before calling quit;
-        //p_taskManager->waitOnCurrentTasks();
-
         //p_taskManager->reclaim();
         //p_vertexBuffer->reclaim();
         //p_indexBuffer->reclaim();
@@ -86,4 +99,37 @@ namespace wlo{
         p_renderCore->setClearColor(color);
 
     }
+
+    void Renderer::clearGeometryBuffers() {
+        m_vertexBuffer.assign(m_vertexBuffer.size(),Vertex3D{});
+        m_indexBuffer.assign(m_indexBuffer.size(),0);
+        m_indexBufferWritePoint =0;
+        m_vertexBufferWritePoint = 0;
+    }
+
+    void Renderer::resizeVertexBuffer(size_t size) {
+        m_vertexBuffer.resize(size);
+    }
+
+    size_t Renderer::getVertexBufferSize() {
+        return m_vertexBufferWritePoint;
+    }
+
+    size_t Renderer::getVertexBufferReservedSize() {
+        return m_vertexBuffer.size();
+    }
+
+    size_t Renderer::getIndexBufferSize() {
+        return m_indexBufferWritePoint;
+    }
+
+    size_t Renderer::getIndexBufferReservedSize() {
+        return m_indexBuffer.size();
+    }
+
+    void Renderer::resizeIndexBuffer(size_t size) {
+        m_indexBuffer.resize(size);
+    }
+
+
 }

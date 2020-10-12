@@ -49,4 +49,8 @@ namespace wlo{
 		return m_data.get();
 	}
 
+    void VulkanVertexBuffer::reallocate(size_t nElements) {
+	    m_data.resize(nElements);
+    }
+
 }

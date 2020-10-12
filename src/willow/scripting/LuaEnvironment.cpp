@@ -1,7 +1,7 @@
 //
 // Created by W on 10/2/20.
 //
-#include "willow/scripting/LuaBasics.h"
+#include "willow/scripting/LuaEnvironment.h"
 #include "willow/root/wilo_dev_core.hpp"
 namespace wlo::lua{
    Environment::Environment():m_L(luaL_newstate()) {
@@ -10,6 +10,14 @@ namespace wlo::lua{
     lua_State* Environment::getL(){
        return m_L;
    }
+
+    void Environment::LT_failOnNameConflict(std::string name){
+        lua_getglobal(m_L, name.c_str());
+
+        if (! lua_isnil(m_L, -1) ) {
+            throw std::runtime_error("invalid Lua configuration, name " + name + " is already in this lua Namespace");
+        }
+    }
 
     void Environment::setglobal(std::string name, std::string data) {
         lua_pushstring(m_L, data.c_str());

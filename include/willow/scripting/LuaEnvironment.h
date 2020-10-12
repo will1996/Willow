@@ -7,6 +7,7 @@
 #include "lua.hpp"
 #include "willow/dev-utils/Helpers.h"
 #include "willow/root/logr.hpp"
+
 #include <string>
 namespace wlo::lua{
    class Environment {
@@ -23,6 +24,7 @@ namespace wlo::lua{
        lua_State* getL();
 
    private:
+       void LT_failOnNameConflict(std::string name);
        bool L_checklua( int res);
 
        lua_State * m_L;

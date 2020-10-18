@@ -17,7 +17,7 @@ namespace wlo{
     
     
     */
-    class Application: public Observer{
+class Application: public MessageSystem::Observer{
         public:
 
             struct Info{

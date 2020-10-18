@@ -12,11 +12,10 @@ public:
     CubeExample(std::string entryPoint):Application(entryPoint){
         Application::Info inf("cubeExample",0);
         Application::initialize(inf);
-        m_main_window->permit<wlo::MouseMessage,CubeExample,&CubeExample::handleMouse>(this);
+        m_main_window->permit<wlo::MouseButtonMessage,CubeExample,&CubeExample::handleMouse>(this);
     }
-    void handleMouse(const wlo::MouseMessage& msg){
-        if(msg.getType()==wlo::MessageType::MouseButtonPressed)
-            std::cout<<msg.toString()<<std::endl;
+    void handleMouse(const wlo::MouseButtonMessage& msg){
+
     }
     void run() override{
         WILO_INFO("running!")

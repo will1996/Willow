@@ -16,7 +16,7 @@ class VulkanSwapchain {
 		void reclaim() ;
 private:
 	//member variables
-		//data used by this class to populate and build itself
+		//content used by this class to populate and build itself
 	const VulkanRenderingContext* p_context;
 	vk::SwapChainSupportDetails m_supportDetails;
 		

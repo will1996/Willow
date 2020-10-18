@@ -34,9 +34,6 @@ namespace wlo{
      window_info.m_width = 800;
      window_info.m_title = inf.appName;
      m_main_window = wlo::SharedPointer<Window>(wilo_get_window(window_info));
-
-
-     m_main_window->initialize();//initialize a platform specific window, making indirected calls
      m_main_window->permit<KeyboardMessage, Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
      //m_main_window->permit<MouseMessage,Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
      m_main_window->permit<WindowMessage,Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
@@ -46,7 +43,7 @@ namespace wlo{
      rendererInfo.vertexBufferStartingSize = 100000;
      rendererInfo.indexBufferStartingSize = 100000;
     m_renderer = wlo::CreateUniquePointer<Renderer>(m_main_window, rendererInfo);
-    m_main_window->permit<WindowMessage,Renderer,&Renderer::handleWindowResize>(m_renderer.get());
+    m_main_window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_renderer.get());
 
     m_initialized = true;
    WILO_CORE_INFO("application initialized!");
@@ -61,18 +58,15 @@ namespace wlo{
  }
 
     void Application::recieve(const wlo::WindowMessage& msg){
-        if(msg.getType()==MessageType::WindowClose){
+        if(msg.content.action==WindowAction::Closed) {
             WILO_CORE_INFO("Application shutting down");
             m_shutting_down = true;
         }
-        if(msg.getType()==MessageType::WindowResized)
+        if(msg.content.action==WindowAction::Resized)
             m_windowResized = true;
-
  }
     void Application::recieve(const wlo::KeyboardMessage& msg){
-      if(msg.getType()==MessageType::KeyPressed){
-          wlo::KeyboardMessage::Info keyInfo = msg.getInfo();
-      }
+
      }
 
 
@@ -80,7 +74,6 @@ namespace wlo{
  void Application::reclaim(){
  //    m_main_console->reclaim();//destroy console
      Observer::reclaim();//free observer resources
-     m_main_window->reclaim();//destroy window
      m_renderer->reclaim();
      
      WILO_CORE_INFO("reclamation complete")

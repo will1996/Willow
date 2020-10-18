@@ -29,7 +29,7 @@ namespace wlo {
 
         void moveCursor(CursorMovement);
 
-        void placeChar(wlo::KeyCode code);
+        void placeChar(wlo::Key::Code code,wlo::Key::Modifier);
 
         void nextLine();
 

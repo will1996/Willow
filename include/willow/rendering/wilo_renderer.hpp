@@ -5,7 +5,7 @@
 #include <array>
 #include <glm/glm.hpp>
 namespace wlo{
-    class Renderer : public Observer{
+class Renderer : public MessageSystem::Observer{
         public:
             struct Info {
                 size_t vertexBufferStartingSize = 1000;
@@ -31,7 +31,7 @@ namespace wlo{
         void resizeVertexBuffer(size_t size);
         void resizeIndexBuffer(size_t size);
 
-        void handleWindowResize(const WindowMessage &m);
+        void handleWindowResize(const WindowResized &m);
         void reclaim();
         ~Renderer();
         private:
@@ -58,7 +58,7 @@ namespace wlo{
 
         std::vector<DrawDescription> m_drawBuffer;
 
-        wlo::Observer m_messageReciever;
+        wlo::MessageSystem::Observer m_messageReciever;
 
         wlo::UniquePointer<wlo::RenderCore> p_renderCore;
         

@@ -13,20 +13,18 @@ namespace wlo{
 
                     struct Info   {
                         bool enableValidationLayers;
-                        
-                    
                     };
                 //creating a rendering context grants the context, and by extension the renderer
                 //shared ownership of the window
                 VulkanRenderingContext();
                 void initialize(wlo::SharedPointer<Window> window, Info info) ;
                 void reclaim() ;
-                VkInstance getInstance() const;
-                VkPhysicalDevice getPhysicalDevice()const ;
-                VkDevice getDevice()const ;
-                VkSurfaceKHR getSurface()const ;
+                [[nodiscard]] VkInstance getInstance() const;
+                [[nodiscard]] VkPhysicalDevice getPhysicalDevice()const ;
+                [[nodiscard]] VkDevice getDevice()const ;
+                [[nodiscard]] VkSurfaceKHR getSurface()const ;
                 std::string getShadersPath()const ;
-                vk::SwapChainSupportDetails getSwapChainSupportDetails() const ;
+                [[nodiscard]] vk::SwapChainSupportDetails getSwapChainSupportDetails() const ;
                 ~VulkanRenderingContext();
                 private:
                 bool m_enableValidationLayers;

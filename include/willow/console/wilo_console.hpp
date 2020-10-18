@@ -12,16 +12,16 @@
 
 
 namespace wlo{
-class Console : public Observer {
+class Console : public MessageSystem::Observer {
     public:
         Console(wlo::SharedPointer<wlo::lua::Environment>);
-        void initialize() override;
+        void initialize() ;
         void evaluate(std::string command);
         void run();
         void render();
         void checkIn();
-        virtual void reclaim() override;
-        Subject* asSubject();
+        virtual void reclaim();
+        MessageSystem::Subject* asSubject();
         ~Console();
 
 
@@ -36,16 +36,17 @@ class Console : public Observer {
         const std::string m_testScriptsPath;
         const std::string m_engineScriptsPath;
         std::string m_userScriptsPath;
-        Subject subject;
+        MessageSystem::Subject subject;
         LuaBinding<Console> scriptable;
         ConsoleCore core;
         void recieve(const wlo::KeyboardMessage& msg ) ;
 
         void notifyWindowObservers  (const wlo::WindowMessage& msg);
-        void notifyMouseObservers   (const wlo::MouseMessage& msg);
+        void notifyMouseObservers   (const wlo::MouseMoved& msg);
         void notifyKeyboardObservers(const wlo::KeyboardMessage& msg);
         void recieve(const wlo::WindowMessage& msg);
-        void recieve(const wlo::MouseMessage& msg);
+        void recieve(const wlo::MouseMoved& msg);
+        void recieve(const wlo::MouseButtonMessage& msg);
         static std::string readInput();
         int quit(::lua_State *L);
         int resize(::lua_State* L);

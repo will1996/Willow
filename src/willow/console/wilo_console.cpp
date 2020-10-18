@@ -22,7 +22,6 @@ namespace wlo{
         windowInfo.m_height = startingHeight;
         windowInfo.m_title = "Willow Script Console";
         window = wlo::SharedPointer<Window>(wilo_get_window(windowInfo));
-        window->initialize();
         window->permit<KeyboardMessage, Console,&Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
 
         wlo::Renderer::Info rendererInfo;
@@ -43,7 +42,7 @@ namespace wlo{
         proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(windowInfo.m_width)/2,-float(windowInfo.m_height)/2,0));
         m_console_renderer->setCamera(glm::mat4x4(1),proj);
         m_console_renderer->setClearColor({0,0,0,1});
-        window->permit<WindowMessage,Renderer,&Renderer::handleWindowResize>(m_console_renderer.get()) ;//register as an observer with the window, so we recieve events;
+        window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_console_renderer.get()) ;//register as an observer with the window, so we recieve events;
         window->permit<WindowMessage,Console, &Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
         WILO_CORE_INFO("console initialized!")
     }
@@ -57,7 +56,7 @@ namespace wlo{
     }
 
     void Console::recieve(const wlo::WindowMessage& msg){
-         auto info =  msg.getInfo();
+         auto info =  msg.content;
         glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/info.width,2/info.height,1));
         proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(info.width)/2,-float(info.height)/2,0));
         m_console_renderer->setProjection(proj);
@@ -67,25 +66,26 @@ namespace wlo{
     }
 
     void Console::recieve(const KeyboardMessage &msg) {
-        if (msg.getType() == wlo::MessageType::KeyPressed || msg.getType() == wlo::MessageType::KeyHeld) {
-            if (msg.getInfo().button == wlo::KeyCode::DOWN) {
+        if (msg.content.action == KeyAction::Pressed || msg.content.action == KeyAction::Held) {
+            if (msg.content.button == wlo::Key::Code::DOWN) {
                // core.moveCursor(ConsoleCore::CursorMovement::DOWN);
-            } else if (msg.getInfo().button == wlo::KeyCode::UP) {
+            } else if (msg.content.button == wlo::Key::Code::UP) {
                 //core.moveCursor(ConsoleCore::CursorMovement::UP);
-            } else if (msg.getInfo().button == wlo::KeyCode::LEFT) {
+            } else if (msg.content.button == wlo::Key::Code::LEFT) {
                 core.moveCursor(ConsoleCore::CursorMovement::LEFT);
-            } else if (msg.getInfo().button == wlo::KeyCode::RIGHT) {
+            } else if (msg.content.button == wlo::Key::Code::RIGHT) {
                 core.moveCursor(ConsoleCore::CursorMovement::RIGHT);
-            } else if (msg.getInfo().button == KeyCode::BACKSPACE) {
+            } else if (msg.content.button == Key::Code::BACKSPACE) {
                 core.deleteChar();
-            } else if (msg.getInfo().button == KeyCode::ENTER) {
+            } else if (msg.content.button == Key::Code::ENTER) {
                 evaluate(core.flushInputBuffer());
                 core.nextLine();
-            } else if (msg.getInfo().button == KeyCode::ESCAPE) {
-               notifyWindowObservers(wlo::WindowMessage(wlo::MessageType::WindowClose,{"Console"})) ;
-
+            } else if (msg.content.button == Key::Code::ESCAPE) {
+               notifyWindowObservers(wlo::WindowClosed("consoleWindow",0,0)) ;
+            } else if (msg.content.button == Key::Code::LEFT_SHIFT || msg.content.button==Key::Code::RIGHT_SHIFT) {
+                //Do nothing, modifier keys shouldn't place letters
             } else
-                core.placeChar(msg.getInfo().button);
+                core.placeChar(msg.content.button,wlo::Key::Modifier(msg.content.mod_bundle));
         }
     }
 
@@ -109,7 +109,7 @@ namespace wlo{
         WILO_CORE_INFO("console shutdown properly");
     }
 
-    Subject* Console::asSubject()
+    MessageSystem::Subject* Console::asSubject()
     {
         return &this->subject;
     }
@@ -125,9 +125,9 @@ namespace wlo{
         subject.notify<WindowMessage>(msg);
     }
 
-    void Console::notifyMouseObservers(const wlo::MouseMessage& msg)
+    void Console::notifyMouseObservers(const wlo::MouseMoved& msg)
     {
-        subject.notify<MouseMessage>(msg);
+        subject.notify<MouseMoved>(msg);
     }
 
     void Console::notifyKeyboardObservers(const wlo::KeyboardMessage& msg)
@@ -136,9 +136,8 @@ namespace wlo{
     }
 
     int Console::quit(::lua_State* L ){
-        WindowMessage::Info info;
-        info.title = "app window";
-        notifyWindowObservers(wlo::WindowMessage(MessageType::WindowClose, info));
+        std::string title = "app window";
+        notifyWindowObservers(wlo::WindowClosed(title,0,0));
         return 0;
     }
 
@@ -147,12 +146,9 @@ namespace wlo{
         int width = ::lua_tointeger(L, 1);
         int height = ::lua_tointeger(L, 2);
 
-        WindowMessage::Info info;
-        info.title = "app window";
-        info.height = height;
-        info.width = width;
+        std::string title = "app window";
 
-        notifyWindowObservers(wlo::WindowMessage(MessageType::WindowResized, info));
+        notifyWindowObservers(wlo::WindowResized(title,width,height));
         return 0;
     }
 
@@ -160,19 +156,14 @@ namespace wlo{
     {
         int x = ::lua_tointeger(L, 1);
         int y = ::lua_tointeger(L, 2);
-        MouseMessage::Info info;
-        info.xPos = x;
-        info.yPos = x;
-        notifyMouseObservers(wlo::MouseMessage(MessageType::MouseMoved, info));
+        notifyMouseObservers(wlo::MouseMoved{double(x),double(y)});
         return 0;
     }
 
     int Console::pressKey(::lua_State* L)
     {
         int code = ::lua_tointeger(L, -1);
-        KeyboardMessage::Info info;
-        info.button = wlo::KeyCode(code);
-        notifyKeyboardObservers(wlo::KeyboardMessage(MessageType::KeyPressed, info));
+        notifyKeyboardObservers(wlo::KeyPressed(Key::Code(code),Key::Modifier(0)));
         return 0;
     }
     int Console::reinitialize(::lua_State* L){
@@ -184,12 +175,11 @@ namespace wlo{
         //do nothing
     }
 
-    void Console::recieve(const MouseMessage &msg) {
-        if(msg.getType()==MessageType::MouseScrolled){
-           if(msg.getInfo().yScroll_Offset>0) {
+    void Console::recieve(const MouseMoved &msg) {
 
-           }
-        }
+    }
+    void Console::recieve(const MouseButtonMessage &msg) {
+
     }
 
 }

@@ -4,7 +4,7 @@
 
 
 
-/*Vulkan buffer handles the creation and destruction of a vkBuffer object. Manages the upload of data.*/
+/*Vulkan buffer handles the creation and destruction of a vkBuffer object. Manages the upload of content.*/
 
 namespace wlo{
 	template <typename T> class VulkanBuffer {
@@ -99,9 +99,9 @@ namespace wlo{
 		size_t m_size;	
 
 
-		//a pointer to the data we will read from the CPU 
+		//a pointer to the content we will read from the CPU
 		const T* m_dataTarget;
-		//the size of the data we will read from the CPU in elements
+		//the size of the content we will read from the CPU in elements
 		size_t m_dataTargetReadSize;
 
         VkDeviceMemory m_vkMemory;

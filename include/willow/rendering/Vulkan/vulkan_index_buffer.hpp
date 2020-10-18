@@ -14,8 +14,8 @@ namespace wlo{
 
         void allocate(size_t nElements) ;
 
-         //populate the array with new data, usually this will put elements into the front of the array,
-         //but the optional offset lets you write data to any position 
+         //populate the array with new content, usually this will put elements into the front of the array,
+         //but the optional offset lets you write content to any position
         void fill(const std::vector<uint32_t>& data,size_t nElements, size_t offset = 0) ;
 
          //set size to zero, free all memory

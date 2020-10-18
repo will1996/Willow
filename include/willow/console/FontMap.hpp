@@ -11,13 +11,13 @@ namespace wlo {
     class FontMap {
     public:
         struct Character{
-            wchar_t textValue;
+            char textValue;
             std::vector<wlo::Vertex3D> verts;
             std::vector<uint32_t > inds;
         };
 
         FontMap();
-        std::unordered_map<wlo::KeyCode,Character> get(size_t font_height, size_t font_width);
+        std::unordered_map<wlo::Key::Code,Character> get(size_t font_height, size_t font_width);
     private:
         struct LineSegment{
             glm::vec2 start;
@@ -25,7 +25,7 @@ namespace wlo {
         };
         Character build_Q();
         Character build_0();
-        std::unordered_map<wlo::KeyCode, Character> m_fontMap;
+        std::unordered_map<wlo::Key::Code, Character> m_fontMap;
          std::pair<std::vector<wlo::Vertex3D> , std::vector<uint32_t> > segmentToTri(LineSegment);
     };
 }

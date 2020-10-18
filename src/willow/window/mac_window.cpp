@@ -28,6 +28,7 @@ namespace wlo{
         m_info.m_height = info.m_height;
         m_info.m_title = info.m_title;
         m_info.API = info.API;
+        initialize();
     }
     
     void MacWindow::initialize(){
@@ -54,49 +55,39 @@ namespace wlo{
 
         glfwSetKeyCallback(p_impl->getWindow(),[](GLFWwindow* window, int key, int scancode, int action,int mods){
             MacWindow* instance  =  (MacWindow*) (glfwGetWindowUserPointer(window));
-            KeyboardMessage::Info info; 
-            info.button = KeyCode(key);
-            info.mod_bundle = KeyModifier(mods);
+            Key::Code button = Key::Code(key);
+            Key::Modifier mod_bundle = Key::Modifier(mods);
             if(action==GLFW_PRESS){
-                info.repeat_length = 0;
-                instance -> notifyKeyObservers(wlo::KeyboardMessage(MessageType::KeyPressed, info));
+                instance -> notifyKeyObservers(wlo::KeyPressed{button,mod_bundle});
             }else if(action ==GLFW_REPEAT){
-                info.repeat_length = 1;
-                instance -> notifyKeyObservers(wlo::KeyboardMessage(MessageType::KeyHeld, info));
+                instance -> notifyKeyObservers(wlo::KeyHeld{button,mod_bundle});
             }else{//action == GLFW_RELEASE
-                info.repeat_length = -1;
-                instance -> notifyKeyObservers(wlo::KeyboardMessage(MessageType::KeyReleased, info));
+                instance -> notifyKeyObservers(wlo::KeyReleased{button,mod_bundle});
             } 
         });
 
         glfwSetMouseButtonCallback(p_impl->getWindow(),[](GLFWwindow* window, int button, int action,int mods){
             MacWindow* instance = (MacWindow*) (glfwGetWindowUserPointer(window));
-            MouseMessage::Info info;
-            info.button = MouseButton(button);  
-            info.mod_bundle = KeyModifier(mods);
+            Mouse::Code buttoncode = Mouse::Code(button);
+            Key::Modifier mod_bundle = Key::Modifier(mods);
             double xpos,ypos;
             glfwGetCursorPos(window,&xpos,&ypos);
-            info.xPos = xpos;
-            info.yPos = ypos;
+
             if(action == GLFW_PRESS){
-                instance -> notifyMouseObservers(wlo::MouseMessage(MessageType::MouseButtonPressed, info));
-            }else {//action ==GLFW_RELEASE
-                instance -> notifyMouseObservers(wlo::MouseMessage(MessageType::MouseButtonReleased, info));
+                instance -> notifyMouseObservers(MouseButtonPressed{MousePositionInfo{xpos,ypos},buttoncode,mod_bundle});
+            }else if(action ==GLFW_REPEAT) {
+                instance -> notifyMouseObservers(MouseButtonHeld{MousePositionInfo{xpos,ypos},buttoncode,mod_bundle});
+            }else{//action ==GLFW_RELEASE
+                instance -> notifyMouseObservers(MouseButtonReleased{MousePositionInfo{xpos,ypos},buttoncode,mod_bundle});
             }
         });
         glfwSetCursorPosCallback(p_impl->getWindow(),[](GLFWwindow* window, double xpos, double ypos){
             MacWindow* instance = (MacWindow*)(glfwGetWindowUserPointer(window));
-            MouseMessage::Info info;
-            info.xPos = xpos;
-            info.yPos = ypos;
-            instance ->notifyMouseObservers(wlo::MouseMessage(MessageType::MouseMoved, info));
+            instance -> notifyMouseObservers(MouseMoved{xpos,ypos});
         });
         glfwSetScrollCallback(p_impl->getWindow(),[](GLFWwindow* window, double xpos, double ypos){
             MacWindow* instance = (MacWindow*)(glfwGetWindowUserPointer(window));
-            MouseMessage::Info info;
-            info.xScroll_Offset = xpos;
-            info.yScroll_Offset = ypos;
-            instance ->notifyMouseObservers(wlo::MouseMessage(MessageType::MouseScrolled, info));
+            instance ->notifyMouseObservers(MouseScrolled{xpos,ypos});
         });
     
         glfwSetWindowSizeCallback(p_impl->getWindow(),[](GLFWwindow* window, int width, int height){
@@ -106,33 +97,24 @@ namespace wlo{
             instance->m_info.m_height = height;
             instance->m_info.m_width = width;
 
-            WindowMessage::Info info;
-            info.height = height;
-            info.width = width;
-            info.title = instance->getInfo().m_title;
-            instance -> notifyWindowObservers( WindowMessage(MessageType::WindowResized,info));
-
+             std::string title = instance->getInfo().m_title;
+            instance -> notifyWindowObservers( WindowResized{title,double(width),double(height)});
         });
 
         glfwSetWindowFocusCallback(p_impl->getWindow(),[](GLFWwindow* window, int Focused){
 
             MacWindow* instance = (MacWindow*)(glfwGetWindowUserPointer(window));
-            WindowMessage::Info info;
-            info.title = instance->getInfo().m_title;
-            if(Focused==GLFW_FOCUSED){
-            instance -> notifyWindowObservers( WindowMessage(MessageType::WindowResized,info));
+            if(Focused==GLFW_FOCUSED) {
+                instance->notifyWindowObservers(WindowGainedFocus{instance->getInfo().m_title,instance->getInfo().m_width,instance->getInfo().m_height});
+            }else{
+                instance->notifyWindowObservers(WindowLostFocus{instance->getInfo().m_title,instance->getInfo().m_width,instance->getInfo().m_height});
             }
 
-        });
-
+            });
         glfwSetWindowCloseCallback(p_impl->getWindow(),[](GLFWwindow* window ){
 
             MacWindow* instance = (MacWindow*)(glfwGetWindowUserPointer(window));
-            WindowMessage::Info info;
-            info.title = instance->getInfo().m_title;
-            instance -> notifyWindowObservers( WindowMessage(MessageType::WindowClose,info));
-
-
+            instance->notifyWindowObservers(WindowClosed{instance->getInfo().m_title,instance->getInfo().m_width,instance->getInfo().m_height});
         });
 
         WILO_CORE_INFO("Window initialized!")
@@ -141,8 +123,15 @@ namespace wlo{
     void MacWindow::notifyKeyObservers(const wlo::KeyboardMessage& msg){
             this->notify<KeyboardMessage>(msg);
     }
-    void MacWindow::notifyMouseObservers(const wlo::MouseMessage& msg){
-            this->notify<MouseMessage>(msg);
+    void MacWindow::notifyMouseObservers(const wlo::MouseButtonMessage& msg){
+            this->notify<MouseButtonMessage>(msg);
+    }
+    void MacWindow::notifyMouseObservers(const wlo::MouseMoved& msg){
+        this->notify<MouseMoved>(msg);
+    }
+
+    void MacWindow::notifyMouseObservers(const wlo::MouseScrolled & msg){
+        this->notify<MouseScrolled>(msg);
     }
     void MacWindow::notifyWindowObservers(const wlo::WindowMessage& msg){
             this->notify<WindowMessage>(msg);

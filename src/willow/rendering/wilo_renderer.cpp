@@ -7,7 +7,8 @@ namespace wlo{
         wlo::RenderCore::Info coreInfo;
         coreInfo.enableDebugging = rendererInfo.enableGraphicsDebugging;
         coreInfo.enableProfiling = rendererInfo.enableRendererStatistics;
-        coreInfo.maxVertices = rendererInfo.vertexBufferStartingSize;
+        m_vertexBuffer.resize(rendererInfo.vertexBufferStartingSize);
+        coreInfo.maxVertices = 500000;
         m_vertexBuffer.resize(rendererInfo.vertexBufferStartingSize);
         m_indexBuffer.resize(rendererInfo.indexBufferStartingSize);
         m_vertexBufferWritePoint = 0;
@@ -71,9 +72,9 @@ namespace wlo{
     }
 
 
-    void Renderer::handleWindowResize(const WindowMessage &m){
+    void Renderer::handleWindowResize(const WindowResized &m){
          const wlo::WindowMessage& msg = static_cast<const WindowMessage&>(m);
-         p_renderCore->resizeRenderSurface(msg.getInfo().width, msg.getInfo().height);
+         p_renderCore->resizeRenderSurface(msg.content.width, msg.content.height);
     }
 
     void Renderer::reclaim()

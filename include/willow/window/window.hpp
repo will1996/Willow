@@ -1,7 +1,7 @@
 #pragma once
 #include "willow/messaging/wilo_observer_system.hpp"
 namespace wlo{
-    class Window: public Subject{
+class Window: public MessageSystem::Subject{
         public:
         struct Info{
             double m_height = 600;

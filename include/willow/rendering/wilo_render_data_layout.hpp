@@ -9,7 +9,7 @@ Vertex_Data_Types are a set of structs that together create a cross platform, cl
 
 
 Verticies are Structs, which follow a non-oo nameing convention based form of validation. They all must have a static member function which returns a const RenderDataLayout named Layout();
-This function is invoked by the templated vertexBuffer class to check that the data it is trying to load is indeed a vertex. TODO make a way that sucks less. 
+This function is invoked by the templated vertexBuffer class to check that the data it is trying to load is indeed a vertex. TODO make a way that sucks less.
 
 
 

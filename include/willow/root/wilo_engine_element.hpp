@@ -10,11 +10,6 @@ namespace wlo {
 		EngineElement(ID_type);
 
 		virtual ~EngineElement();
-
-
-		virtual void initialize() = 0;
-		virtual void reclaim() = 0;
-		protected:
 		ID_type m_ID;
 		};
 

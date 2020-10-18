@@ -49,7 +49,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
       ss<< "WARNING " ;
 
      ss<< pCallbackData->pMessage <<std::endl;
-     ss<<"user data size:"<<sizeof(pUserData)<<endl;
+     ss<<"user content size:"<<sizeof(pUserData)<<endl;
      std::cerr<<ss.str()<<endl;
 
     return VK_FALSE;
@@ -134,14 +134,14 @@ bool checkValidationLayerSupport(){
 //
 //        auto extensions = f_getInstanceExtensions(info.requestedExtensions);
 //        createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-//        createInfo.ppEnabledExtensionNames = extensions.data();
+//        createInfo.ppEnabledExtensionNames = extensions.content();
 //
 //        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 //        if (m_enableValidation) {
 //            std::cout<<"instance validation enabled"<<std::endl;
 //            for( auto layer: validationLayers)
 //            createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-//            createInfo.ppEnabledLayerNames = validationLayers.data();
+//            createInfo.ppEnabledLayerNames = validationLayers.content();
 //
 //            populateDebugMessengerCreateInfo(debugCreateInfo);
 //            createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;

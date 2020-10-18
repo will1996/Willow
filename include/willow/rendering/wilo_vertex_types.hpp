@@ -5,7 +5,7 @@
 #include<iostream>
 
 namespace wlo {
-    //basic defintions of vertex data types, this list will grow as it makes sense to
+    //basic defintions of vertex content types, this list will grow as it makes sense to
 
     struct Vertex2D {
         glm::vec2 position;

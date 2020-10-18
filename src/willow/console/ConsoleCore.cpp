@@ -50,10 +50,10 @@ namespace wlo {
     }
 
 
-    void ConsoleCore::placeChar(wlo::KeyCode code) {
+    void ConsoleCore::placeChar(wlo::Key::Code code,wlo::Key::Modifier mod) {
         std::cout << "placing char" << std::endl;
         std::vector<wlo::Vertex3D> verts;
-        insertChar(m_cursorPos, FontMap::Character{'0', colorVerts(m_cursorModel.verts, {1, 0, 0}), m_cursorModel.inds});
+        insertChar(m_cursorPos, FontMap::Character{wlo::Key::toText(code,mod).c_str()[0], colorVerts(m_cursorModel.verts, {1, 0, 0}), m_cursorModel.inds});
         moveCursor(RIGHT);
     }
 
@@ -65,7 +65,7 @@ namespace wlo {
     std::string ConsoleCore::flushInputBuffer() {
         std::stringstream ss;
         for (auto &c : m_characterBuffer[m_cursorPos.row])
-            ss << c.textValue;
+            ss<<c.textValue;
         return ss.str();
     }
 

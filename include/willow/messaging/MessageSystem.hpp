@@ -1,6 +1,6 @@
 #ifndef WILLOW_MESSAGE_SYSTEM_H
 #define WILLOW_MESSAGE_SYSTEM_H
-#include"wilo_message.hpp"
+#include"Messages.hpp"
 #include"wilo_observer.hpp"
 #include"wilo_subject.hpp"
 

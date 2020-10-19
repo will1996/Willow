@@ -1,5 +1,4 @@
 #include "willow/window/mac_window.hpp"
-#include "willow/messaging/keyboard_message.hpp"
 #include<vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 

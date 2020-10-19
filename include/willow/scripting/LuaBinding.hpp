@@ -4,8 +4,7 @@
 #include "lua.hpp"
 #include "willow/root/wilo_dev_core.hpp"
 #include<iostream>
-#include "willow/messaging/wilo_subject.hpp"
-#include "willow/messaging/wilo_observer.hpp"
+#include"willow/messaging/MessageSystem.hpp"
 #include "LuaEnvironment.h"
 //TODO add Cmake defined install settings header, which specifies scriptable base script
 namespace wlo{

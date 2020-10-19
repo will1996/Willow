@@ -1,16 +1,17 @@
 #ifndef WILLOW_MESSAGE_SYSTEM_H
 #define WILLOW_MESSAGE_SYSTEM_H
 #include"Messages.hpp"
-#include"wilo_observer.hpp"
-#include"wilo_subject.hpp"
-
+#include"willow/root/wilo_engine_element.hpp"
+#include<typeindex>
+#include<functional>
 /*
+ MessageSystem:
+ Enables generic, high speed messaging between unrelated components.
  uses classic observers-subjects circa gang of four observers and subjecst.
 
-Core phiosophy - 
-Classes may extend subject, doing so allows classes inheriting from observer to register
-to recieve messages from them. This process enables loosely coupled communication between unrelated 
-sub-systems. 
+ TODO:
+ Fold in some sort of direct message system if it would be faster
+ Create an async queue mode
 
 */
 

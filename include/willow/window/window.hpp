@@ -1,5 +1,5 @@
 #pragma once
-#include "willow/messaging/wilo_observer_system.hpp"
+#include "willow/messaging/MessageSystem.hpp"
 namespace wlo{
 class Window: public MessageSystem::Subject{
         public:

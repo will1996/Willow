@@ -34,22 +34,12 @@ add_library(WillowMessaging )
 target_link_libraries(WillowMessaging PUBLIC WillowRoot)
 target_include_directories(WillowMessaging PRIVATE willow/messaging)
 target_sources(WillowMessaging
-        PUBLIC ../include/willow/messaging/keyboard_message.hpp
-        PUBLIC ../include/willow/messaging/mouse_message.hpp
-        PUBLIC ../include/willow/messaging/wilo_observer.hpp
-        PUBLIC ../include/willow/messaging/wilo_subject.hpp
-        PUBLIC ../include/willow/messaging/window_message.hpp
-        PUBLIC ../include/willow/messaging/wilo_message.hpp
-        PUBLIC ../include/willow/messaging/wilo_observer_system.hpp
+        PUBLIC ../include/willow/messaging/Messages.hpp
+        PUBLIC ../include/willow/messaging/MessageSystem.hpp
         PUBLIC ../include/willow/messaging/Xylem.h
         PRIVATE willow/messaging/Xylem.cpp
-        PRIVATE willow/messaging/keyboard_message.cpp
-        PRIVATE willow/messaging/mouse_message.cpp
         PRIVATE willow/messaging/messages.cpp
-        PRIVATE willow/messaging/wilo_observer.cpp
-        PRIVATE willow/messaging/wilo_subject.cpp
         PRIVATE willow/messaging/MessageSystem.cpp
-        PRIVATE willow/messaging/window_message.cpp
 
         )
 

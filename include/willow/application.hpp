@@ -1,6 +1,6 @@
 #pragma once
 #include "willow/root/wilo_dev_core.hpp"
-#include "willow/messaging/wilo_observer_system.hpp"
+#include "willow/messaging/MessageSystem.hpp"
 #include "willow/window/wilo_window.hpp"
 #include "willow/scripting/LuaBinding.hpp"
 #include "willow/console/wilo_console.hpp"

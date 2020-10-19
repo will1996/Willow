@@ -1,8 +1,6 @@
 #pragma once
 #include "willow/root/wilo_dev_core.hpp"
-#include "willow/messaging/keyboard_message.hpp"
-#include "willow/messaging/mouse_message.hpp"
-#include "willow/messaging/window_message.hpp"
+#include "willow/messaging/Messages.hpp"
 #include "window.hpp"
 
 namespace wlo{

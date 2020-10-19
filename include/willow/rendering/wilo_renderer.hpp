@@ -1,7 +1,7 @@
 /*fully abstracted top_level renderer */
 #pragma once
 #include "willow/rendering/wilo_rendering_API.hpp"
-#include "willow/messaging/wilo_observer.hpp"
+#include "willow/messaging/MessageSystem.hpp"
 #include <array>
 #include <glm/glm.hpp>
 namespace wlo{

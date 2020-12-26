@@ -53,7 +53,7 @@ namespace wlo {
     void ConsoleCore::placeChar(wlo::Key::Code code,wlo::Key::Modifier mod) {
         std::cout << "placing char" << std::endl;
         std::vector<wlo::Vertex3D> verts;
-        insertChar(m_cursorPos, FontMap::Character{wlo::Key::toText(code,mod).c_str()[0], colorVerts(m_cursorModel.verts, {1, 0, 0}), m_cursorModel.inds});
+//        insertChar(m_cursorPos, FontMap::Character{wlo::Key::toText(code,mod).c_str()[0], colorVerts(m_cursorModel.verts, {1, 0, 0}), m_cursorModel.inds});
         moveCursor(RIGHT);
     }
 
@@ -72,8 +72,8 @@ namespace wlo {
 
     std::vector<wlo::Vertex3D> ConsoleCore::buildVertexBuffer() {
         std::vector<wlo::Vertex3D> vertexBuffer;
-        std::vector<wlo::Vertex3D> cursorVerts = offsetVertsToCursorPos(m_cursorModel.verts);
-        vertexBuffer.insert(vertexBuffer.begin(), cursorVerts.begin(), cursorVerts.end());
+//        std::vector<wlo::Vertex3D> cursorVerts = offsetVertsToCursorPos(m_cursorModel.verts);
+ //       vertexBuffer.insert(vertexBuffer.begin(), cursorVerts.begin(), cursorVerts.end());
         for (size_t row = 0; row < m_characterBuffer.size(); row++)
             for (size_t col = 0; col < m_characterBuffer[row].size(); col++) {
                 std::vector<wlo::Vertex3D> offsetCharVerts = offsetVerts(m_characterBuffer[row][col].verts, row, col);
@@ -105,8 +105,8 @@ namespace wlo {
     ConsoleCore::offsetVerts(const std::vector<wlo::Vertex3D> &verts, size_t row, size_t col) {
         std::vector<wlo::Vertex3D> outVerts;
         outVerts.reserve(verts.size());
-        for (auto vert : verts)
-            outVerts.push_back(glm::translate(glm::mat4x4(1), glm::vec3(fontWidth * col, fontHeight * row, 0)) * vert);
+  //      for (auto vert : verts)
+ //           outVerts.push_back(glm::translate(glm::mat4x4(1), glm::vec3(fontWidth * col, fontHeight * row, 0)) * vert);
         return outVerts;
     }
 
@@ -127,7 +127,7 @@ namespace wlo {
         std::vector<wlo::Vertex3D> outVerts;
         outVerts.reserve(verts.size());
         for (const auto &vert : verts) {
-            outVerts.push_back(wlo::Vertex3D::setColor(vert, color));
+//            outVerts.push_back(wlo::Vertex3D::setColor(vert, color));
         }
 
         return outVerts;

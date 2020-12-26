@@ -8,15 +8,16 @@ namespace wlo{
     class MacWindowImpl;
 
     class MacWindow : public Window{
+
         public:
-         
-         MacWindow(Window::Info &info);
-         wlo::Window::Info getInfo() const override;
-         void initialize()  ;
-         void checkIn()     override;
-         void reclaim()     ;
-         bool shouldClose() override;
-         void* getNativeWindow() override;
+            MacWindow(Window::Info &info);
+            ~MacWindow();
+            wlo::Window::Info getInfo() const override;
+            void initialize()  ;
+            void checkIn()     override;
+            void reclaim();
+            bool shouldClose() override;
+            void* getNativeWindow() const override;
         
         private:
             wlo::UniquePointer<MacWindowImpl> p_impl;
@@ -26,8 +27,6 @@ namespace wlo{
             void notifyMouseObservers(const wlo::MouseButtonMessage& msg);
             void notifyWindowObservers(const wlo::WindowMessage& msg);
             Window::Info m_info;
-            
-            
-
     };
+
 }

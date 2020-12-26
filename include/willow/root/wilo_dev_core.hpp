@@ -39,4 +39,10 @@ namespace wlo {
 	{
 		return std::make_shared<T>(std::forward<Args>(args)... );
 	}
+    template<typename T>
+    using Ref = std::reference_wrapper<T>;
+
+
+	using byte = std::byte;
+
 }

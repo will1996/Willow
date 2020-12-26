@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libGroveWindow.a  CMakeFiles/GroveWindow.dir/willow/window/mac_window.cpp.o CMakeFiles/GroveWindow.dir/willow/root/wilo_engine_element.cpp.o CMakeFiles/GroveWindow.dir/willow/root/wilo_object_counter.cpp.o CMakeFiles/GroveWindow.dir/willow/root/logr.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libGroveWindow.a

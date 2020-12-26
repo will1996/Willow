@@ -54,7 +54,6 @@ namespace wlo{
             wlo::SharedPointer<wlo::lua::Environment> m_env;
             const std::string m_name;
 
-            /*create or add to a lua table, with string pairs. Useful for pretty much just sending paths... */
 
 #ifndef ndebug
             void L_reinitialize(){

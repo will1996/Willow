@@ -8,13 +8,20 @@ namespace wlo{
             static void initalize();
             static void reclaim();
             static std::shared_ptr<spdlog::logger>& getCoreLogger(){
+                if(!initialized)
+                    throw std::runtime_error("Call to core logger before initialize, call wlo::logr::initialize");
                 return s_CoreLogger;
             }
             static std::shared_ptr<spdlog::logger>& getAppLogger(){
+                if(! initialized)
+                throw std::runtime_error("Call to app logger before initialize, call wlo::logr::initialize");
                 return s_AppLogger;
             }
             private:
-            logr(){};
+            static bool initialized;
+            logr(){
+
+            };
             ~logr(){};
             static std::shared_ptr<spdlog::logger> s_CoreLogger;
             static std::shared_ptr<spdlog::logger> s_AppLogger;

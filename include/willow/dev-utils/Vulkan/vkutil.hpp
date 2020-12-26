@@ -5,7 +5,7 @@
 #include<stdexcept>
 #include<string>
 namespace wlo{
-  namespace vk{
+  namespace wk{
     void checkResult(VkResult res,std::string);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice,VkSurfaceKHR);
   

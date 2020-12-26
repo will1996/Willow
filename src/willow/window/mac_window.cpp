@@ -7,17 +7,9 @@ namespace wlo{
 
     class MacWindowImpl{
     public:
-        MacWindowImpl(GLFWwindow* window): m_window(window){
-             
-        
-        }
-        GLFWwindow* getWindow() {
-            return m_window;
-        };
-
-
-            GLFWwindow* m_window = nullptr;
-    
+        MacWindowImpl(GLFWwindow* window): m_window(window){ }
+        GLFWwindow* getWindow() { return m_window; };
+        GLFWwindow* m_window = nullptr;
     };
 
 
@@ -28,6 +20,10 @@ namespace wlo{
         m_info.m_title = info.m_title;
         m_info.API = info.API;
         initialize();
+    }
+
+    MacWindow::~MacWindow() {
+
     }
     
     void MacWindow::initialize(){
@@ -97,7 +93,7 @@ namespace wlo{
             instance->m_info.m_width = width;
 
              std::string title = instance->getInfo().m_title;
-            instance -> notifyWindowObservers( WindowResized{title,double(width),double(height)});
+            instance -> notifyWindowObservers( WindowResized{title,static_cast<uint32_t>(width),static_cast<uint32_t>(height)});
         });
 
         glfwSetWindowFocusCallback(p_impl->getWindow(),[](GLFWwindow* window, int Focused){
@@ -150,7 +146,7 @@ namespace wlo{
         return glfwWindowShouldClose(p_impl->getWindow());
     }
 
-    void* MacWindow::getNativeWindow()
+    void* MacWindow::getNativeWindow() const
     {
         std::cout << "getting native Window!" << std::endl;
         return p_impl->getWindow();

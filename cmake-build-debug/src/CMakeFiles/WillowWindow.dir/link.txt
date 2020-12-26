@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libWillowWindow.a  CMakeFiles/WillowWindow.dir/willow/window/mac_window.cpp.o CMakeFiles/WillowWindow.dir/willow/root/wilo_engine_element.cpp.o CMakeFiles/WillowWindow.dir/willow/root/wilo_object_counter.cpp.o CMakeFiles/WillowWindow.dir/willow/root/logr.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libWillowWindow.a

@@ -45,7 +45,7 @@ class Application: public MessageSystem::Observer{
             wlo::SharedPointer<Window> m_main_window;
             wlo::SharedPointer<wlo::lua::Environment> m_scriptEnv;
             wlo::UniquePointer<Console> m_console;
-            wlo::UniquePointer<Renderer> m_renderer;
+            wlo::UniquePointer<rendering::Renderer> m_renderer;
 
 
         std::string m_runtimeRoot;

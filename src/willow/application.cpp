@@ -38,12 +38,8 @@ namespace wlo{
      //m_main_window->permit<MouseMessage,Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
      m_main_window->permit<WindowMessage,Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
 
-     wlo::Renderer::Info rendererInfo;
-     rendererInfo.enableGraphicsDebugging = inf.debugging;
-     rendererInfo.vertexBufferStartingSize = 100000;
-     rendererInfo.indexBufferStartingSize = 100000;
-    m_renderer = wlo::CreateUniquePointer<Renderer>(m_main_window, rendererInfo);
-    m_main_window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_renderer.get());
+   // m_renderer = wlo::CreateUniquePointer<Renderer>(m_main_window, rendererInfo);
+    //m_main_window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_renderer.get());
 
     m_initialized = true;
    WILO_CORE_INFO("application initialized!");
@@ -74,7 +70,7 @@ namespace wlo{
  void Application::reclaim(){
  //    m_main_console->reclaim();//destroy console
      Observer::reclaim();//free observer resources
-     m_renderer->reclaim();
+     //m_renderer->reclaim();
      
      WILO_CORE_INFO("reclamation complete")
  }
@@ -88,7 +84,7 @@ namespace wlo{
     }
 
     bool Application::isInitialized() {
-       m_initialized;
+     return   m_initialized;
     }
 
 

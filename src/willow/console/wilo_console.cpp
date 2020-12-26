@@ -4,7 +4,8 @@
 #include<thread>
 #include<future>
 #include<chrono>
-#include"willow/rendering/camera/OrthographicCamera3D.hpp"
+#include"willow/window/window.hpp"
+#include"willow/rendering/OrthographicCamera3D.hpp"
 namespace wlo{
     Console::Console(wlo::SharedPointer<wlo::lua::Environment> env):scriptable("console",this,env),m_testScriptsPath(WILO_TESTS_SCRIPTS_PATH),m_engineScriptsPath(WILO_ENGINE_SCRIPTS_PATH){
         scriptable.Register<&Console::quit>("quit");
@@ -21,16 +22,17 @@ namespace wlo{
         windowInfo.m_width = startingWidth;
         windowInfo.m_height = startingHeight;
         windowInfo.m_title = "Willow Script Console";
-        window = wlo::SharedPointer<Window>(wilo_get_window(windowInfo));
+        //window = wlo::SharedPointer<Window>(wilo_get_window(windowInfo));
         window->permit<KeyboardMessage, Console,&Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
 
-        wlo::Renderer::Info rendererInfo;
-        rendererInfo.enableRendererStatistics = false;
-        rendererInfo.enableGraphicsDebugging = true;
-        rendererInfo.vertexBufferStartingSize = 100000;
-        rendererInfo.indexBufferStartingSize = 120000;
-        m_console_renderer =  wlo::CreateUniquePointer<Renderer>(window, rendererInfo);
-        m_console_renderer->initialize();
+       // wlo::Renderer::Info rendererInfo;
+
+        //rendererInfo.enableRendererStatistics = false;
+        //rendererInfo.enableGraphicsDebugging = true;
+        //rendererInfo.vertexBufferStartingSize = 100000;
+        //rendererInfo.indexBufferStartingSize = 120000;
+        //m_console_renderer =  wlo::CreateUniquePointer<Renderer>(window, rendererInfo);
+        //m_console_renderer->initialize();
         OrthographicCamera3D::BoundingBox viewingVolume;
         viewingVolume.left = 0;
         viewingVolume.right = windowInfo.m_width;
@@ -40,26 +42,26 @@ namespace wlo{
         float scale = 10;
         glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/windowInfo.m_width,2/windowInfo.m_height,1));
         proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(windowInfo.m_width)/2,-float(windowInfo.m_height)/2,0));
-        m_console_renderer->setCamera(glm::mat4x4(1),proj);
-        m_console_renderer->setClearColor({0,0,0,1});
-        window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_console_renderer.get()) ;//register as an observer with the window, so we recieve events;
+        //m_console_renderer->setCamera(glm::mat4x4(1),proj);
+        //m_console_renderer->setClearColor({0,0,0,1});
+        //window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_console_renderer.get()) ;//register as an observer with the window, so we recieve events;
         window->permit<WindowMessage,Console, &Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
         WILO_CORE_INFO("console initialized!")
     }
 
     void Console::render() {
-        m_console_renderer->setClearColor({0,0,0,1});
-        m_console_renderer->beginDrawCall();
-        m_console_renderer->pushGeometry(core.getVertexBuffer(),core.getIndexBuffer(),glm::mat4x4(1));
-        m_console_renderer->submitDrawCall();
-        m_console_renderer->clearGeometryBuffers();
+        //m_console_renderer->setClearColor({0,0,0,1});
+        //m_console_renderer->beginDrawCall();
+        //m_console_renderer->pushGeometry(core.getVertexBuffer(),core.getIndexBuffer(),glm::mat4x4(1));
+        //m_console_renderer->submitDrawCall();
+        //m_console_renderer->clearGeometryBuffers();
     }
 
     void Console::recieve(const wlo::WindowMessage& msg){
          auto info =  msg.content;
         glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/info.width,2/info.height,1));
         proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(info.width)/2,-float(info.height)/2,0));
-        m_console_renderer->setProjection(proj);
+        //m_console_renderer->setProjection(proj);
     }
     void Console::evaluate( std::string command ){
         scriptable.getEnv()->runScript(command);

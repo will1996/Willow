@@ -4,46 +4,80 @@
 
 #ifndef WILLOW_RENDER_DATA_TYPES_HPP
 #define WILLOW_RENDER_DATA_TYPES_HPP
-#include "willow/root/wilo_dev_core.hpp"
-
+#include "willow/rendering/DataLayout.hpp"
 #include<glm/glm.hpp>
-
+#include "glm/gtx/string_cast.hpp"
 namespace wlo {
-    namespace gfx{
-        struct LayoutElement{
-           size_t size;
-           size_t offset;
-        };
-
-
-
-    template<class ... Bases>
-    struct Vertex : public Bases ... {
-    constexpr static std::array<LayoutElement,sizeof...(Bases)> DataLayout(){
-        std::array<LayoutElement,sizeof...(Bases)> dataLayout;
-        size_t i =0;
-        size_t offset  =0;
-        (void(dataLayout[i++] = {sizeof(Bases),  [&offset](size_t size ){size_t old = offset; offset+= size; return old;}(sizeof(Bases))}),...);
-
-        return dataLayout;
-    }
-    };
-
-
-    struct posWrap{
-        glm::vec3 position;
-    };
-    struct colorWrap{
+    struct Color{
         glm::vec4 color;
+        static rendering::DataLayout Layout() {
+            return rendering::DataLayout({
+                {rendering::DataLayout::DataType::Float,4}
+                                         });
+        }
     };
 
+    struct Vertex2D{
+        glm::vec2 position;
+        static rendering::DataLayout Layout() {
+           return rendering::DataLayout({
+               {rendering::DataLayout::DataType::Float,2}
+           });
+        }
+    };
+    using fVec2 = Vertex2D;
 
-    using ColorVert3D = Vertex<posWrap,colorWrap> ;
+    struct ColorVertex2D: Vertex2D, Color{
+        static rendering::DataLayout Layout() {
+            return rendering::DataLayout({Vertex2D::Layout(),Color::Layout()});
+        }
+    };
 
+    struct Vertex3D{
+        glm::vec3 position;
+        static rendering::DataLayout Layout() {
+            return rendering::DataLayout({
+               {rendering::DataLayout::DataType::Float,3}
+                                       });
+        }
+    };
+    using fVec3 = Vertex3D;
 
-    }
+    struct ColorVertex3D : Vertex3D, Color{
+        static rendering::DataLayout Layout() {
+            return rendering::DataLayout({Vertex3D::Layout(),Color::Layout()});
+        }
+    };
+
+    using Index = size_t;
+
 
 }
 
+inline    std::ostream& operator <<(std::ostream& os, const wlo::Vertex3D& vert){
+    os<<"Vertex {\n"
+      <<"Position: "<<glm::to_string(vert.position)<<"\n"
+      <<"}";
+    return os;
+}
+
+template <typename T>
+const wlo::rendering::DataLayout Layout(){
+    static_assert(std::is_fundamental<T>(),"Failed to find layout for the specified type");
+    return wlo::rendering::DataLayout::fromFundamental<T>();
+}
+template<>
+inline const wlo::rendering::DataLayout Layout<wlo::Vertex3D>(){return wlo::Vertex3D::Layout(); };
+template<>
+inline const wlo::rendering::DataLayout Layout<wlo::Vertex2D>(){return wlo::Vertex2D::Layout(); };
+template<>
+inline const wlo::rendering::DataLayout Layout<wlo::ColorVertex2D>(){return wlo::ColorVertex2D::Layout(); };
+template<>
+inline const wlo::rendering::DataLayout Layout<wlo::ColorVertex3D>(){return wlo::ColorVertex3D::Layout(); };
+
+template<>
+inline const wlo::rendering::DataLayout Layout<glm::mat4x4>(){return wlo::rendering::DataLayout{
+            {wlo::rendering::DataLayout::DataType::Float,16}
+                                                                }; };
 
 #endif //WILLOW_RENDER_DATA_TYPES_HPP

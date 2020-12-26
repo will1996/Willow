@@ -7,7 +7,7 @@ include_directories(../include/willow/dev-utils/Vulkan)
 include_directories(../include/willow/input)
 include_directories(../include/willow/messaging)
 include_directories(../include/willow/rendering)
-include_directories(../include/willow/rendering/Vulkan)
+include_directories(../include/willow/Vulkan)
 include_directories(../include/willow/root)
 include_directories(../include/willow/scripting)
 include_directories(../include/willow/window)
@@ -48,13 +48,10 @@ add_library(WillowDevUtils SHARED ../include/willow/dev-utils/Helpers.h)
 target_link_libraries(WillowDevUtils PUBLIC Vulkan::Vulkan)
 target_link_libraries(WillowDevUtils PUBLIC WillowRoot)
 target_sources(WillowDevUtils
-     PUBLIC ../include/willow/dev-utils/Vulkan/vkcore.hpp
-     PUBLIC willow/rendering/Vulkan/vkcore.cpp
-     PUBLIC willow/rendering/Vulkan/vkutil.cpp
-     PUBLIC willow/rendering/Vulkan/vkdevice.cpp
-     PUBLIC willow/rendering/Vulkan/vkswapchain.cpp
+     PUBLIC willow/Vulkan/vkutil.cpp
+     PUBLIC willow/Vulkan/vkdevice.cpp
+     PUBLIC willow/Vulkan/vkswapchain.cpp
      PUBLIC ../include/willow/dev-utils/Vulkan/vkdevice.hpp
-     PUBLIC ../include/willow/dev-utils/Vulkan/vkinit.hpp
      PUBLIC ../include/willow/dev-utils/Vulkan/vkswapchain.hpp
      PUBLIC ../include/willow/dev-utils/Vulkan/vkutil.hpp
      PUBLIC ../include/willow/dev-utils/Vulkan/vktypes.hpp
@@ -69,39 +66,45 @@ target_link_libraries(WillowRendering PUBLIC WillowDevUtils)
 target_link_libraries(WillowRendering PUBLIC glfw)
 target_link_libraries(WillowRendering PUBLIC WillowRoot)
 target_sources(WillowRendering
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_context.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_frame_buffer_array.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_graphics_pipeline.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_index_buffer.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_render_buffer.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_render_core.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_render_pass.hpp
-        #PUBLIC ../include/willow/rendering/Vulkan/vulkan_render_task_manager.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_shader.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_swapchain.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_uniform_buffer_array.hpp
-        PUBLIC ../include/willow/rendering/Vulkan/vulkan_vertex_buffer.hpp
-        PUBLIC ../include/willow/rendering/wilo_render_core.hpp
-        PUBLIC ../include/willow/rendering/wilo_render_data_layout.hpp
-        PUBLIC ../include/willow/rendering/wilo_renderer.hpp
-        PUBLIC ../include/willow/rendering/wilo_rendering_API.hpp
-        PUBLIC ../include/willow/rendering/wilo_shader.hpp
-        PUBLIC ../include/willow/rendering/wilo_vertex_types.hpp
-        PUBLIC ../include/willow/rendering/camera/OrthographicCamera3D.hpp
-        PUBLIC willow/rendering/Vulkan/vulkan_context.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_frame_buffer_array.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_graphics_pipeline.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_index_buffer.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_render_core.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_render_pass.cpp
-        #PUBLICwillow /rendering/Vulkan/vulkan_render_task_manager.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_shader.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_swapchain.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_uniform_buffer_array.cpp
-        PUBLIC willow/rendering/Vulkan/vulkan_vertex_buffer.cpp
-        PUBLIC willow/rendering/wilo_renderer.cpp
-        PUBLIC willow/rendering/wilo_shader.cpp
-        PUBLIC willow/rendering/camera/OrthographicCamera3D.cpp
+        PUBLIC ../include/willow/rendering/Tag.hpp
+        PUBLIC ../include/willow/rendering/Renderer.hpp
+        PUBLIC ../include/willow/rendering/DataLayout.hpp
+        PUBLIC ../include/willow/rendering/RenderDataTypes.hpp
+        PUBLIC ../include/willow/rendering/RenderPath.hpp
+        PUBLIC ../include/willow/rendering/Frame.hpp
+        PUBLIC ../include/willow/rendering/Buffer.hpp
+        PUBLIC ../include/willow/rendering/Attachment.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanSetup.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanSwapchain.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanRoot.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanMemoryManager.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanBuffer.hpp
+        PUBLIC willow/rendering/Tag.cpp
+        PUBLIC willow/rendering/Renderer.cpp
+        PUBLIC willow/rendering/DataLayout.cpp
+        PUBLIC willow/rendering/RenderPath.cpp
+        PUBLIC willow/rendering/Shader.cpp
+        PUBLIC willow/rendering/Attachment.cpp
+        PUBLIC willow/dev-utils/Vulkan/VulkanSetup.cpp
+        PUBLIC willow/Vulkan/VulkanSwapchain.cpp
+        PUBLIC willow/Vulkan/VulkanRoot.cpp
+        PUBLIC willow/Vulkan/VulkanBuffer.cpp
+        PUBLIC willow/rendering/OrthographicCamera3D.cpp
+       #TO DELETE
+        #PUBLIC willow/rendering/Vulkan/vkdevice.cpp
+        #PUBLIC willow/rendering/Vulkan/vkutil.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_context.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_frame_buffer_array.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_graphics_pipeline.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_index_buffer.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_render_core.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_render_pass.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_shader.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_uniform_buffer_array.cpp
+        #PUBLIC willow/rendering/Vulkan/vulkan_vertex_buffer.cpp
+        #PUBLIC willow/rendering/wilo_renderer.cpp
+
+
         )
 
 add_library(WillowWindow )

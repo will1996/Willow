@@ -5,7 +5,7 @@
 #ifndef WILLOW_CONSOLECORE_HPP
 #define WILLOW_CONSOLECORE_HPP
 #include"willow/root/wilo_dev_core.hpp"
-#include"willow/rendering/wilo_vertex_types.hpp"
+#include"willow/rendering/RenderDataTypes.hpp"
 #include"willow/input/keycodes.hpp"
 #include"FontMap.hpp"
 namespace wlo {
@@ -67,20 +67,14 @@ namespace wlo {
 
 
         struct CursorModel {
-            const std::vector<wlo::Vertex3D> verts{{{0,         0,          0}, {0, .7, 0}},
-                                                   {{fontWidth, 0,          0}, {0, .7, 0}},
-                                                   {{fontWidth, fontHeight, 0}, {0, .7, 0}},
-                                                   {{0,         fontHeight, 0}, {0, .7, 0}}
+            const std::vector<wlo::ColorVertex2D> verts{
             };
             const std::vector<uint32_t> inds{0, 1, 2, 2, 3, 0};
         };
         CursorModel m_cursorModel;
 
         struct EmptyModel {
-            const std::vector<wlo::Vertex3D> verts{{{0,         0,          0}, {0, 0, 0}},
-                                                   {{fontWidth, 0,          0}, {0, 0, 0}},
-                                                   {{fontWidth, fontHeight, 0}, {0, 0, 0}},
-                                                   {{0,         fontHeight, 0}, {0, 0, 0}}
+            const std::vector<wlo::ColorVertex3D> verts{
             };
             const std::vector<uint32_t> inds{0, 1, 2, 2, 3, 0};
         };

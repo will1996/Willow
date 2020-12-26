@@ -1,11 +1,11 @@
 #ifndef vktypes_h
 #define vktypes_h
-#include "vkinit.hpp"
 #include <cstdint>
 #include<optional>
+#include <vulkan/vulkan.hpp>
 #include<vector>
 namespace wlo{
-  namespace vk{
+  namespace wk{
   
         struct SwapChainSupportDetails {
             VkSurfaceCapabilitiesKHR capabilities;

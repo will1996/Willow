@@ -1,13 +1,12 @@
 #ifndef vkdevice_h
 #define vkdevice_h
 #include "vktypes.hpp"
-#include "vkinit.hpp"
 #include "vkutil.hpp"
 #include <cstdint>
 #include<optional>
 #include<vector>
 namespace wlo{
-  namespace vk{
+  namespace wk{
       
      class Device{
         //unifies VkPhysical devices and logical devices. 
@@ -39,7 +38,8 @@ namespace wlo{
          //this toggle is set to a default value in the constructor based on 
          //compiler flags, but can be set with setValdidationState if you want
          bool m_enableValidation;
-
+        std::vector<const char *> m_enabledLayers;
+         std::vector<const char *> m_enabledExtensions;
          bool f_physicalDeviceSuitable(VkPhysicalDevice device,VkSurfaceKHR);
          void f_selectPhysicalDevice(VkInstance,VkSurfaceKHR);
          void f_createLogicalDevice(VkSurfaceKHR);

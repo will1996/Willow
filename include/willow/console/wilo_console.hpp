@@ -1,7 +1,7 @@
 #include"willow/root/wilo_dev_core.hpp"
 #include "willow/messaging/MessageSystem.hpp"
 #include"willow/scripting/LuaBinding.hpp"
-#include "willow/rendering/wilo_renderer.hpp"
+#include "willow/rendering/Renderer.hpp"
 #include"ConsoleCore.hpp"
 #include<atomic>
 
@@ -29,7 +29,7 @@ class Console : public MessageSystem::Observer {
         const static size_t startingWidth = 400;
         const static size_t startingHeight = 900;
     wlo::SharedPointer<Window> window;
-        wlo::UniquePointer<Renderer> m_console_renderer;
+        wlo::UniquePointer<rendering::Renderer> m_console_renderer;
         const std::string m_testScriptsPath;
         const std::string m_engineScriptsPath;
         std::string m_userScriptsPath;

@@ -21,7 +21,7 @@ namespace wlo{
                {{.5,1.5},{.75,1.25}} ,
                {{.75,1.25},{.75,1.25}} ,
        };
-
+       throw std::runtime_error("UNIMPLEMENTED");
     }
 
     FontMap::Character FontMap::build_0() {
@@ -45,9 +45,7 @@ namespace wlo{
                 {{9,2},{8,1}} ,
                 {{8,1},{2,1}}
         };
-
-
-
+        throw std::runtime_error("UNIMPLEMENTED");
     }
 
 

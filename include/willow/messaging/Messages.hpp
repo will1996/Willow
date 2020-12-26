@@ -50,27 +50,27 @@ enum class KeyAction{
 //Window Messages
     struct WindowInfo  {
         std::string title;
-        double width;
-        double height;
+        uint32_t width;
+        uint32_t height;
         WindowAction action;
     };
 
 struct WindowMessage : public Message<WindowInfo>{};
 struct WindowClosed : public WindowMessage{
-    WindowClosed(std::string title, double width, double height):
+    WindowClosed(std::string title, uint32_t width, uint32_t height):
     WindowMessage { title, width, height, WindowAction::Closed }{}
 };
 struct WindowResized : public WindowMessage{
-    WindowResized(std::string title, double width, double height):
+    WindowResized(std::string title, uint32_t width, uint32_t height):
     WindowMessage { title, width, height, WindowAction::Resized }{}
 
 };
 struct WindowGainedFocus: public WindowMessage{
-    WindowGainedFocus(std::string title, double width, double height):
+    WindowGainedFocus(std::string title, uint32_t width, uint32_t height):
     WindowMessage { title, width, height, WindowAction::GainedFocus}{}
 };
 struct WindowLostFocus: public WindowMessage{
-    WindowLostFocus(std::string title, double width, double height):
+    WindowLostFocus(std::string title, uint32_t width, uint32_t height):
     WindowMessage { title, width, height, WindowAction::LostFocus}{}
 };
 

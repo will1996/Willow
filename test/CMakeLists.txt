@@ -23,3 +23,9 @@
 
  add_executable(RenderStressTest RenderStressTest.cpp)
  target_link_libraries(RenderStressTest PRIVATE Willow)
+
+ add_executable(NewRendererBootStrapTest NewRendererBootStrap.cpp)
+ target_link_libraries(NewRendererBootStrapTest PRIVATE Willow)
+
+ add_executable(RenderDataTest RenderDataTest.cpp)
+ target_link_libraries(RenderDataTest PRIVATE Willow)

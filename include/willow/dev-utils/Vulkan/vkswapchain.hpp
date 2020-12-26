@@ -1,7 +1,6 @@
-#include "vkinit.hpp"
 #include "vkdevice.hpp"
 namespace wlo{
-  namespace vk{
+  namespace wk{
     class Swapchain{
       public:
           Swapchain(Device,VkSurfaceKHR);

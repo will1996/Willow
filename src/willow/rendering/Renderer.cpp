@@ -11,6 +11,8 @@ namespace wlo::rendering{
 #else
         VulkanImplementation(std::initializer_list<Renderer::Features>,SharedPointer<Window>, bool enableDebugging = false);
 #endif
+        void setup(wlo::rendering::RenderPath);
+
         ~VulkanImplementation();
     private:
         wk::VulkanRoot m_vulkanRoot;
@@ -38,6 +40,10 @@ namespace wlo::rendering{
 
     }
 
+    void VulkanImplementation::setup(wlo::rendering::RenderPath) {
+
+    }
+
 //RENDERER
 
 
@@ -55,10 +61,6 @@ namespace wlo::rendering{
 
 
    void Renderer::Setup(const RenderPath & path) {
-        WILO_CORE_INFO("setting up renderpath: id {0}",path.id);
-        for(auto & attachment: path.attachments) {
-
-        }
 
 
     }

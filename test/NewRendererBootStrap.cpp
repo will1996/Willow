@@ -4,6 +4,7 @@
 #include "willow/rendering/Renderer.hpp"
 #include "willow/window/mac_window.hpp"
 #include "willow/rendering/Buffer.hpp"
+#include <filesystem>
 using namespace  wlo::rendering;
 using namespace wlo;
 int main(){
@@ -31,8 +32,14 @@ wlo::rendering::Buffer<Index> IndexBuffer(Attachment::Type::IndexBuffer,{0,1,2})
 
 //The special sauce with this renderer is render paths. Render Paths are roughly analagous to the graphics pipeline under the hood
 //they also describe where the data ends up, let's make one now
-auto vertShader = CreateSharedPointer<VertexShader> ("/Users/w/Projects/Willow/shaders/vert.spv");
-auto fragShader = CreateSharedPointer<FragmentShader> ("/Users/w/Projects/Willow/shaders/frag.spv");
+
+//wlo::filesystem is in the works, but for now let's just use: 
+
+std::filesystem::path vertexShaderRoot = std::filesystem::current_path().parent_path().parent_path().parent_path().parent_path().append("shaders");
+std::filesystem::path fragmentShaderRoot = std::filesystem::current_path().parent_path().parent_path().parent_path().parent_path().append("shaders");
+auto vertShader = CreateSharedPointer<VertexShader> (vertexShaderRoot.append("vert.spv").string());
+auto fragShader = CreateSharedPointer<FragmentShader> (fragmentShaderRoot.append("frag.spv").string());
+
 
 RenderPath basicIndexed{
     .attachments = {VertexBuffer.attachment(),IndexBuffer.attachment()},//attachments are typeless versions of buffers bound to the renderer, they allocate memory on the GPU

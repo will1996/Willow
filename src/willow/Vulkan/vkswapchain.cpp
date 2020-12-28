@@ -1,7 +1,7 @@
 #include "willow/dev-utils/Vulkan/vkswapchain.hpp"
 #include "willow/dev-utils/Vulkan/vkdevice.hpp"
 #include "willow/dev-utils/Vulkan/vkutil.hpp"
-
+#include "willow/root/wilo_dev_core.hpp"
 namespace wlo{
   namespace wk{
 
@@ -12,8 +12,8 @@ namespace wlo{
 
             VkExtent2D actualExtent = { width, height };
 
-            actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-            actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+            actualExtent.width = max(capabilities.minImageExtent.width, min(capabilities.maxImageExtent.width, actualExtent.width));
+            actualExtent.height = max(capabilities.minImageExtent.height, min(capabilities.maxImageExtent.height, actualExtent.height));
 
             return actualExtent;
         }

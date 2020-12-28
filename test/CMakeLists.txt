@@ -29,3 +29,6 @@
 
  add_executable(RenderDataTest RenderDataTest.cpp)
  target_link_libraries(RenderDataTest PRIVATE Willow)
+
+ add_executable(FileSystemTest FileSystemTest.cpp)
+ target_link_libraries(FileSystemTest PRIVATE Willow)

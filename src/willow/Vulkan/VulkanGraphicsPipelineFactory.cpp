@@ -4,8 +4,8 @@
 
 #include <willow/Vulkan/VulkanGraphicsPipelineFactory.hpp>
 
-wlo::wk::VulkanGraphicsPipelineFactory::VulkanGraphicsPipelineFactory(VulkanRoot &root)
-
+wlo::wk::VulkanGraphicsPipelineFactory::VulkanGraphicsPipelineFactory(VulkanRoot& root):
+m_root(root)
 {
 }
 

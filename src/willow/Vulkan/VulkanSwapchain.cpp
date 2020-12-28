@@ -16,7 +16,7 @@ namespace wlo::wk{
         if(res!=VK_SUCCESS)
             throw std::runtime_error("something went wrong with GLFW");
         m_surface = vk::SurfaceKHR(mainWindowSurface);
-        if(not m_root.supportSurface(m_surface))
+        if(! m_root.supportSurface(m_surface))
             throw std::runtime_error("CreatedVulkan root does not support swapchain present surface");
         createVkSwapchain();
         createImageViews();

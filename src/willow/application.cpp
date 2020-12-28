@@ -15,7 +15,7 @@ namespace wlo{
      reclaim();
  }
  void Application::initialize(Application::Info inf, bool reinitialize){
-     if(m_initialized and !reinitialize){
+     if(m_initialized && !reinitialize){
         WILO_CORE_WARNING("Called Application::initialize but application is already intiailzied, to force this, set reinitialize optional argument to true");
          return;
      }

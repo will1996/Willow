@@ -44,7 +44,7 @@ target_sources(WillowMessaging
         )
 
 find_package(Vulkan REQUIRED)
-add_library(WillowDevUtils SHARED ../include/willow/dev-utils/Helpers.h)
+add_library(WillowDevUtils ../include/willow/dev-utils/Helpers.h)
 target_link_libraries(WillowDevUtils PUBLIC Vulkan::Vulkan)
 target_link_libraries(WillowDevUtils PUBLIC WillowRoot)
 target_sources(WillowDevUtils

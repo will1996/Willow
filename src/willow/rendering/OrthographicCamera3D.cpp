@@ -20,6 +20,7 @@ namespace wlo{
 
     glm::mat4x4 OrthographicCamera3D::getView() {
        assert(false);
+       return glm::mat4x4{};
     }
 
     glm::mat4x4 OrthographicCamera3D::getProj() {

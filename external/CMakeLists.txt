@@ -15,4 +15,6 @@ add_subdirectory(glfw-3.3.2)
 
 add_subdirectory(lua-5.3.5)
 
+add_subdirectory(glslang)
+
 

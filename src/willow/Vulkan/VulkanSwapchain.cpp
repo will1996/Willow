@@ -29,6 +29,7 @@ namespace wlo::wk{
         if(res!=VK_SUCCESS)
             throw std::runtime_error("something went wrong with GLFW");
         m_surface = vk::SurfaceKHR(mainWindowSurface);//wrap that in a much better surface object
+        m_swapSurfaceExtent = vk::Extent2D{window->getInfo().m_width,window->getInfo().m_height};
         if(! m_root.supportSurface(m_surface)) throw std::runtime_error("CreatedVulkan root does not support swapchain present surface");
         createVkSwapchain();
         createImageViews();
@@ -149,7 +150,7 @@ namespace wlo::wk{
 
 	    vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_root.PhysicalDevice().getSurfaceCapabilitiesKHR(m_surface);
 
-	    if(surfaceCapabilities.currentExtent==std::numeric_limits<uint32_t>::max()){
+	    if(surfaceCapabilities.currentExtent.width==std::numeric_limits<uint32_t>::max()){
             m_swapSurfaceExtent.width = std::clamp(m_swapSurfaceExtent.width,surfaceCapabilities.minImageExtent.width,surfaceCapabilities.maxImageExtent.width);
             m_swapSurfaceExtent.height = std::clamp(m_swapSurfaceExtent.height,surfaceCapabilities.minImageExtent.height,surfaceCapabilities.maxImageExtent.height);
 	    }else{

@@ -10,8 +10,8 @@ using namespace wlo;
 int main(){
     //first, let's make something to render to:
     MacWindow::Info windowInfo{
-            .m_height = 800,
-            .m_width = 600,
+            .m_height = 500,
+            .m_width = 500,
             .m_title = "rendering setup test",
             .API = WindowingAPICode::GLFW        ,
     };
@@ -74,17 +74,17 @@ wlo::rendering::Buffer<glm::mat4x4> UniformBuffer(Attachment::Type::UniformBuffe
 
 //wlo::filesystem is in the works, but for now let's just use: 
 
-std::filesystem::path vertexShaderRoot = std::filesystem::current_path().parent_path().append("Willow").append("shaders");
-std::filesystem::path fragmentShaderRoot = std::filesystem::current_path().parent_path().append("Willow").append("shaders");
-std::string vertShaderPath = vertexShaderRoot.append("vert.spv").string();
-std::string fragShaderPath = fragmentShaderRoot.append("frag.spv").string();
+//std::filesystem::path vertexShaderRoot = std::filesystem::current_path().parent_path().append("Willow").append("shaders");
+//std::filesystem::path fragmentShaderRoot = std::filesystem::current_path().parent_path().append("Willow").append("shaders");
+//std::string vertShaderPath = vertexShaderRoot.append("vert.spv").string();
+//std::string fragShaderPath = fragmentShaderRoot.append("frag.spv").string();
 
 
 RenderPath basicIndexed{
     .attachments = {VertexBuffer.attachment(),IndexBuffer.attachment()},//attachments are typeless versions of buffers bound to the renderer, they allocate memory on the GPU
     .camera = OrthographicCamera3D(window),//we need a camera, the simplest one just takes in the whole window
-    .vertexShaderPath = vertShaderPath,// just give the render path file paths to the shader text files
-    .fragmentShaderPath = fragShaderPath,
+    .vertexShaderPath = "/Users/w/Projects/Willow/shaders/vert.spv",// just give the render path file paths to the shader text files
+    .fragmentShaderPath = "/Users/w/Projects/Willow/shaders/frag.spv",
 };
 //this contains all of the information necessary to build a graphics pipeline.
 // The data that the RenderPath can accept is determined by the vertex shader input layout

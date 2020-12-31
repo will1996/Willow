@@ -309,13 +309,11 @@ namespace wlo::rendering{
     }
 
     void VulkanImplementation::submit(const Frame & frame) {
-        WILO_CORE_INFO("SUBMITTING FRAME")
         const uint64_t FenceTimeout = 100000000;
         // Get the index of the next available swapchain image:
         vk::UniqueSemaphore       imageAcquiredSemaphore = m_root.Device().createSemaphoreUnique( vk::SemaphoreCreateInfo() );
         vk::ResultValue<uint32_t> currentBuffer          = m_root.Device().acquireNextImageKHR(
                 m_swapchain.get(), FenceTimeout, imageAcquiredSemaphore.get(), nullptr );
-        WILO_CORE_INFO("Current Buffer:  {0}",currentBuffer.value);
         assert( currentBuffer.result == vk::Result::eSuccess );
         assert( currentBuffer.value < m_swapchain.getSwapSurfaceViews().size() );
 

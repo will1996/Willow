@@ -22,3 +22,5 @@ set(WILO_ENGINE_SCRIPTS_PATH "\"${PROJECT_SOURCE_DIR}/scripts/\"" )
 set(WILO_TESTS_SCRIPTS_PATH "" )
 set(WILO_ENGINE_VERSION "0")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/willow/root/WiloConfig.h.in "${CMAKE_CURRENT_SOURCE_DIR}/include/willow/root/WiloConfig.h")
+
+file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR}/Willow)

@@ -7,6 +7,7 @@
 #include<map>
 #include<functional>
 #include<assert.h>
+#include<algorithm>
 #include<memory>
 #include<atomic>
 #include "logr.hpp"
@@ -44,5 +45,8 @@ namespace wlo {
 
 
 	using byte = std::byte;
+
+	using std::max;
+	using std::min;
 
 }

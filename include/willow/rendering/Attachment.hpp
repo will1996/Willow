@@ -13,16 +13,17 @@ namespace wlo::rendering{
         const byte * source;
         const DataLayout layout;
         const size_t count;
+        const size_t memSize;
         template<typename T>
         explicit DataView(const std::vector<T>& resource):
-                source(resource.data()),layout(Layout<T>()),count(resource.size())
+                source(resource.data()),layout(Layout<T>()),count(resource.size()),memSize(count*layout.memSize())
         { }
         template<typename T>
         DataView(const std::vector<T>& resource,size_t offset, size_t count):
-                source(&resource.data()[offset]),layout(Layout<T>()),count(count)
+                source(&resource.data()[offset]),layout(Layout<T>()),count(count),memSize(count*layout.memSize())
         { }
 
-    inline    DataView(byte * data,DataLayout layout,size_t count):source(data),layout(layout),count(count){}
+    inline    DataView(byte * data,DataLayout layout,size_t count):source(data),layout(layout),count(count),memSize(count*layout.memSize()){}
 
 
     };
@@ -41,11 +42,11 @@ namespace wlo::rendering{
         };
         template<typename T>
         Attachment(std::vector<T> data,Type attachmentType,const size_t & dynamicSize,size_t id):m_description(attachmentType,data),m_data((byte*)data.data()),m_count(dynamicSize),m_id(id){}
-        DataView operator[](std::pair<size_t,size_t> slice){
+        DataView operator[](std::pair<size_t,size_t> slice) const{
             auto [offset,count] =slice;
             return DataView(m_data+offset, m_description.layout,count);
         }
-        DataView operator[](int member){
+        DataView operator[](int member)const {
             if(member==-1)
                 return DataView(m_data,m_description.layout,m_count);
             else if(member>=0)

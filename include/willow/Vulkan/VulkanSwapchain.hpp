@@ -19,11 +19,11 @@ class VulkanSwapchain: public wlo::MessageSystem::Observer {
 	public:	
 		VulkanSwapchain( wk::VulkanRoot &,wlo::SharedPointer<Window>);
         ~VulkanSwapchain();
-        const vk::ImageView& getCurView()const ;//gets the image view that can be written to
-
-        vk::Semaphore& getImageAvailableSemaphore();
-        vk::Semaphore* getRenderFinishedSemaphore();
-        vk::SurfaceKHR Surface();
+         const std::vector<vk::ImageView>& getSwapSurfaceViews() ;//gets the image view that can be written to
+         const vk::ImageView& getDepthImageView();
+         vk::Semaphore& getImageAvailableSemaphore();
+         vk::Semaphore* getRenderFinishedSemaphore();
+         vk::SurfaceKHR Surface();
 
 		vk::SwapchainKHR get();
 		vk::Extent2D getSwapSurfaceExtent()const ;
@@ -43,9 +43,12 @@ private:
 	std::vector<vk::ImageView> m_imageViews;
 	std::vector<vk::Framebuffer> m_frameBuffers;
 
+	vk::Image m_depthImage;
+	vk::ImageView m_depthView;
+    vk::DeviceMemory m_depthBufferMemory;
+
 	//member functions
 	void createVkSwapchain();
-	void getSwapchainImages();
 	void createImageViews();
 	void createFrameBuffers();
 	void createDepthBuffers();

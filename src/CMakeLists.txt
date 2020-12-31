@@ -72,6 +72,7 @@ target_sources(WillowRendering
         PUBLIC ../include/willow/rendering/RenderDataTypes.hpp
         PUBLIC ../include/willow/rendering/RenderPath.hpp
         PUBLIC ../include/willow/rendering/Frame.hpp
+        PUBLIC ../include/willow/rendering/Geometry.hpp
         PUBLIC ../include/willow/rendering/Buffer.hpp
         PUBLIC ../include/willow/rendering/Attachment.hpp
         PUBLIC ../include/willow/Vulkan/VulkanSetup.hpp
@@ -80,6 +81,7 @@ target_sources(WillowRendering
         PUBLIC ../include/willow/Vulkan/VulkanGraphicsPipelineFactory.hpp
         PUBLIC ../include/willow/Vulkan/VulkanMemoryManager.hpp
         PUBLIC ../include/willow/Vulkan/VulkanBuffer.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanShaderCompiler.hpp
         PUBLIC willow/rendering/Tag.cpp
         PUBLIC willow/rendering/Renderer.cpp
         PUBLIC willow/rendering/DataLayout.cpp
@@ -90,6 +92,7 @@ target_sources(WillowRendering
         PUBLIC willow/Vulkan/VulkanSwapchain.cpp
         PUBLIC willow/Vulkan/VulkanRoot.cpp
         PUBLIC willow/Vulkan/VulkanBuffer.cpp
+        PUBLIC willow/Vulkan/VulkanShaderCompiler.cpp
         PUBLIC willow/Vulkan/VulkanGraphicsPipelineFactory.cpp
         PUBLIC willow/rendering/OrthographicCamera3D.cpp
        #TO DELETE

@@ -6,7 +6,6 @@
 #define WILLOW_RENDERPATH_HPP
 #include"RenderDataTypes.hpp"
 #include"willow/window/window.hpp"
-#include "willow/rendering/Shader.hpp"
 #include "OrthographicCamera3D.hpp"
 #include"Attachment.hpp"
 #include"Tag.hpp"
@@ -16,8 +15,8 @@ namespace wlo::rendering {
         public:
         std::vector<Attachment> attachments = {};
         OrthographicCamera3D camera;
-        SharedPointer<VertexShader> vertexShader;
-        SharedPointer<FragmentShader> fragmentShader;
+        std::string vertexShaderPath;
+        std::string fragmentShaderPath;
         bool depthBuffer = true;
         std::pair<float,float> viewport = {-1,-1};
     };

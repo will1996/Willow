@@ -4,6 +4,17 @@
 
 
 namespace wlo::wk{
+   /*
+    * Swapchains are a piece of machinery that alternately presents images to the screen for viewing,
+    * and returns the images to the renderer for drawing.
+    *
+    *
+    *
+    *
+    */
+
+
+
     VulkanSwapchain::VulkanSwapchain( wk::VulkanRoot& root,wlo::SharedPointer<Window> window):
     m_root(root),
     m_swapSurfaceExtent{window->getInfo().m_width,window->getInfo().m_height}
@@ -11,15 +22,18 @@ namespace wlo::wk{
     {
         WILO_CORE_INFO("Creating swapchain...");
         window->permit<WindowResized,VulkanSwapchain,&VulkanSwapchain::resize>(this);
+
+        //create an oldschool VKSurface because glfw is a hoe
         VkSurfaceKHR mainWindowSurface;
         VkResult res = glfwCreateWindowSurface(m_root.Instance(),(GLFWwindow*)window->getNativeWindow(),nullptr,&mainWindowSurface );
         if(res!=VK_SUCCESS)
             throw std::runtime_error("something went wrong with GLFW");
-        m_surface = vk::SurfaceKHR(mainWindowSurface);
-        if(! m_root.supportSurface(m_surface))
-            throw std::runtime_error("CreatedVulkan root does not support swapchain present surface");
+        m_surface = vk::SurfaceKHR(mainWindowSurface);//wrap that in a much better surface object
+        if(! m_root.supportSurface(m_surface)) throw std::runtime_error("CreatedVulkan root does not support swapchain present surface");
         createVkSwapchain();
         createImageViews();
+        createDepthBuffers();
+        createFrameBuffers();
         WILO_CORE_INFO("Swapchain created!");
     }
 
@@ -143,16 +157,90 @@ namespace wlo::wk{
 	    }
 	}
 
-    const vk::ImageView &VulkanSwapchain::getCurView() const {
-        return m_imageViews[m_curFrameIndex];
-    }
 
     VulkanSwapchain::~VulkanSwapchain() {
 	    m_root.Device().destroy(m_vkSwapchain);
+        m_root.Device().free(m_depthBufferMemory);
+	    m_root.Device().destroy(m_depthView);
+        m_root.Device().destroy(m_depthImage);
         m_root.Instance().destroy(m_surface);
         for(auto & imageView : m_imageViews)
             m_root.Device().destroy(imageView);
 
     }
+
+    void VulkanSwapchain::createFrameBuffers() {
+
+    }
+
+    void VulkanSwapchain::createDepthBuffers(){
+	    const vk::Format     depthFormat      = vk::Format::eD16Unorm;
+        vk::FormatProperties formatProperties = m_root.PhysicalDevice().getFormatProperties( depthFormat );
+        vk::ImageTiling tiling;
+        if ( formatProperties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment )
+        {
+            tiling = vk::ImageTiling::eLinear;
+        }
+        else if ( formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment )
+        {
+        tiling = vk::ImageTiling::eOptimal;
+        }
+        else
+        {
+        throw std::runtime_error( "DepthStencilAttachment is not supported for D16Unorm depth format." );
+        }
+
+        vk::ImageCreateInfo depthImageCreateInfo( vk::ImageCreateFlags(),
+                                             vk::ImageType::e2D,
+                                             depthFormat,
+                                             vk::Extent3D( m_swapSurfaceExtent, 1 ),
+                                             1,
+                                             1,
+                                             vk::SampleCountFlagBits::e1,
+                                             tiling,
+                                             vk::ImageUsageFlagBits::eDepthStencilAttachment );
+        m_depthImage = m_root.Device().createImage(depthImageCreateInfo);
+
+        vk::PhysicalDeviceMemoryProperties memoryProperties   = m_root.PhysicalDevice().getMemoryProperties();
+        vk::MemoryRequirements             memoryRequirements = m_root.Device().getImageMemoryRequirements( m_depthImage );
+
+        uint32_t                           typeBits           = memoryRequirements.memoryTypeBits;//simple memory requirement check
+        uint32_t                           typeIndex          = uint32_t( ~0 );
+        for ( uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++ )
+        {
+            if ( ( typeBits & 1 ) &&
+                 ( ( memoryProperties.memoryTypes[i].propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal ) ==
+                   vk::MemoryPropertyFlagBits::eDeviceLocal ) )
+            {
+                typeIndex = i;
+                break;
+            }
+            typeBits >>= 1;
+        }
+
+        assert( typeIndex != uint32_t( ~0 ) );
+       m_depthBufferMemory = m_root.Device().allocateMemory(vk::MemoryAllocateInfo{memoryRequirements.size,typeIndex});
+
+       m_root.Device().bindImageMemory(m_depthImage,m_depthBufferMemory,0);
+        vk::ComponentMapping componentMapping(
+                vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA );
+        vk::ImageSubresourceRange subResourceRange( vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1 );
+
+        m_depthView = m_root.Device().createImageView( vk::ImageViewCreateInfo( vk::ImageViewCreateFlags(),
+                                                                                                m_depthImage,
+                                                                                                vk::ImageViewType::e2D,
+                                                                                                depthFormat,
+                                                                                                componentMapping,
+                                                                                                subResourceRange ) );
+    }
+
+    const std::vector<vk::ImageView> &VulkanSwapchain::getSwapSurfaceViews() {
+	    return m_imageViews;
+    }
+
+    const vk::ImageView &VulkanSwapchain::getDepthImageView() {
+	    return m_depthView;
+    }
+
 
 }

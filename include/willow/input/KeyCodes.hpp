@@ -61,7 +61,7 @@ namespace wlo{
             TAB = 258,
             BACKSPACE = 259,
             INSERT = 260,
-            DELETE = 261,
+            DEL= 261,
             RIGHT = 262,
             LEFT = 263,
             DOWN = 264,
@@ -125,7 +125,7 @@ namespace wlo{
             RIGHT_CONTROL = 345,
             RIGHT_ALT = 346,
             RIGHT_SUPER = 347,
-            MENU = 348
+            MENU = 348,
         };
 
         enum Modifier : uint16_t {
@@ -136,7 +136,6 @@ namespace wlo{
             SUPER = 0x0008,
             CAPS_LOCK = 0x0010,
             NUM_LOCK = 0x0020,
-
         };
        static inline std::string toText(const Code & code,const Modifier& mod = Modifier::NONE ) {
         if(isLetter(code)||isDigit(code)||isSymbol(code))
@@ -462,7 +461,7 @@ namespace wlo{
                 {Key::Code::TAB ,           "TAB"},
                 {Key::Code::BACKSPACE , "BACKSPACE"},
                 {Key::Code::INSERT ,    "INSERT"},
-                {Key::Code::DELETE ,    "DELETE"},
+                {Key::Code::DEL ,    "DELETE"},
                 {Key::Code::RIGHT ,     "RIGHT"},
                 {Key::Code::LEFT ,      "LEFT"},
                 {Key::Code::DOWN ,      "DOWN"},

@@ -5,7 +5,7 @@ cmake_policy(VERSION CMAKE_MAJOR_VERSION.CMAKE_MINOR_VERSION)
 
 endif()
     
-add_library(Lua SHARED)
+add_library(Lua)
 
 target_sources(
     Lua

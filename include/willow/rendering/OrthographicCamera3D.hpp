@@ -8,6 +8,8 @@
 #include"willow/window/window.hpp"
 #include "RenderDataTypes.hpp"
 #include"willow/messaging/MessageSystem.hpp"
+#undef near
+#undef far
 namespace wlo{
 class OrthographicCamera3D: public MessageSystem::Observer {
 public:

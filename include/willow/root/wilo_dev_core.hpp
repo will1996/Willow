@@ -45,4 +45,7 @@ namespace wlo {
 
 	using byte = std::byte;
 
+	using std::max;
+	using std::min;
+
 }

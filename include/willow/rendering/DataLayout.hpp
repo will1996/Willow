@@ -32,17 +32,17 @@ namespace  wlo::rendering{
         static DataLayout fromFundamental();
 
         template<>
-         DataLayout fromFundamental<float>(){
+        static  DataLayout fromFundamental<float>(){
             return DataLayout({{DataType::Float,1}});
         }
 
         template<>
-        DataLayout fromFundamental<double>(){
+        static DataLayout fromFundamental<double>(){
             return DataLayout({{DataType::Double,1}});
         }
 
         template<>
-        DataLayout fromFundamental<size_t>(){
+        static DataLayout fromFundamental<size_t>(){
             return DataLayout({{DataType::Long,1}});
         }
 

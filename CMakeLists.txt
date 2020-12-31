@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
-project(Willow)
-
+project(Willow) 
 set(CMAKE_CXX_STANDARD 20)
-add_definitions(-Werror=return-type)
+#add_definitions(-Werror=return-type)
 
 add_subdirectory(external)
 add_subdirectory(test)

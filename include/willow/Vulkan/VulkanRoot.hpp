@@ -17,9 +17,12 @@ namespace wlo::wk {
         vk::Instance& Instance();
         vk::PhysicalDevice & PhysicalDevice();
         vk::Device & Device();
+
+        uint32_t findMemoryType(vk::MemoryRequirements memRequirements, vk::MemoryPropertyFlags);
         auto & QueueFamilyIndices(){return m_queueFamilyIndices;}
         ~VulkanRoot();
     private:
+
         struct {
             uint32_t graphics;
             uint32_t present;

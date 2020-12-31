@@ -17,22 +17,24 @@ namespace wlo::rendering{
    class Frame{
 
    public:
-       struct SetClearColor {
-           glm::vec4 color;
-           SetClearColor(glm::vec4 Color):color(Color){};
+            struct TransformedGeometry{
+               Attachment verticies;
+               Attachment indices;
+               glm::mat4x4* ModelMatrix = nullptr;
             };
+
             struct Draw {
-                Attachment verts;
+                TransformedGeometry geo;
                 const RenderPath & path;
-                std::vector<Attachment> attachments;
-                Draw(Attachment VertexAttachment, const RenderPath & Path,std::vector<Attachment> Attachments = {} ):verts(std::move(VertexAttachment)),path(Path),attachments(std::move(Attachments)){};
             };
-    using Stage = std::variant<SetClearColor,Draw>;
-    Frame(std::initializer_list<Stage > stages):m_stages(stages){
+    Frame(std::initializer_list<Draw > draws):m_draws(draws){
+    }
+    inline const std::vector<Draw> & getDraws() const {
+       return  m_draws;
     }
 
    private:
-       std::vector< Stage > m_stages;
+       std::vector< Draw > m_draws;
 
 
 
@@ -42,7 +44,6 @@ namespace wlo::rendering{
 
 
     using Draw = Frame::Draw;
-    using SetClearColor = Frame::SetClearColor;
 
 
 }

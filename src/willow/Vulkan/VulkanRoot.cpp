@@ -103,6 +103,8 @@ namespace wlo::wk{
     VulkanRoot::getDeviceExtensions(std::initializer_list<wlo::rendering::Renderer::Features> features) {
         std::vector<const char *> extensionNames;
         extensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        //extensionNames.push_back("VK_KHR_portability_subset");
+        //extensionNames.push_back("VK_KHR_get_physical_device_properties2");
         for(auto & feature: features){
             for(auto & name : m_deviceExtensionLookup[feature])
                 extensionNames.push_back(name);
@@ -205,6 +207,25 @@ namespace wlo::wk{
     bool VulkanRoot::supportSurface(vk::SurfaceKHR & surface) {
         m_physicalDevice.getSurfaceSupportKHR(m_queueFamilyIndices.present,surface);
         return physicalDeviceSupportsSurface(surface,m_physicalDevice);
+    }
+
+    uint32_t VulkanRoot::findMemoryType(vk::MemoryRequirements memoryRequirements, vk::MemoryPropertyFlags memoryPropertyFlags) {
+        vk::PhysicalDeviceMemoryProperties memoryProperties = m_physicalDevice.getMemoryProperties();
+        uint32_t                           typeBits           = memoryRequirements.memoryTypeBits;
+        uint32_t                           typeIndex          = uint32_t( ~0 );
+        for ( uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++ )
+        {
+            if ( ( typeBits & 1 ) &&
+                 ( ( memoryProperties.memoryTypes[i].propertyFlags & memoryPropertyFlags ) ==
+                   memoryPropertyFlags ) )
+            {
+                typeIndex = i;
+                break;
+            }
+            typeBits >>= 1;
+        }
+        assert( typeIndex != uint32_t( ~0 ) );
+        return typeIndex;
     }
 
 

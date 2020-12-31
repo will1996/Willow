@@ -7,6 +7,7 @@
 #include<map>
 #include<functional>
 #include<assert.h>
+#include<algorithm>
 #include<memory>
 #include<atomic>
 #include "logr.hpp"

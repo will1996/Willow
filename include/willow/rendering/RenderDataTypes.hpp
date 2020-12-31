@@ -18,10 +18,10 @@ namespace wlo {
     };
 
     struct Vertex2D{
-        glm::vec2 position;
+        glm::vec3 position;
         static rendering::DataLayout Layout() {
            return rendering::DataLayout({
-               {rendering::DataLayout::DataType::Float,2}
+               {rendering::DataLayout::DataType::Float,3}
            });
         }
     };
@@ -34,16 +34,18 @@ namespace wlo {
     };
 
     struct Vertex3D{
-        glm::vec3 position;
+        glm::vec4 position;
         static rendering::DataLayout Layout() {
             return rendering::DataLayout({
-               {rendering::DataLayout::DataType::Float,3}
+               {rendering::DataLayout::DataType::Float,4}
                                        });
         }
     };
     using fVec3 = Vertex3D;
 
-    struct ColorVertex3D : Vertex3D, Color{
+    struct ColorVertex3D{
+        glm::vec4 position;
+        glm::vec4 color;
         static rendering::DataLayout Layout() {
             return rendering::DataLayout({Vertex3D::Layout(),Color::Layout()});
         }

@@ -75,7 +75,7 @@ target_sources(WillowRendering
         PUBLIC ../include/willow/rendering/Frame.hpp
         PUBLIC ../include/willow/rendering/Geometry.hpp
         PUBLIC ../include/willow/rendering/Buffer.hpp
-        PUBLIC ../include/willow/rendering/Attachment.hpp
+        PUBLIC ../include/willow/rendering/DataView.hpp
         PUBLIC ../include/willow/Vulkan/VulkanSetup.hpp
         PUBLIC ../include/willow/Vulkan/VulkanSwapchain.hpp
         PUBLIC ../include/willow/Vulkan/VulkanRoot.hpp
@@ -88,7 +88,7 @@ target_sources(WillowRendering
         PUBLIC willow/rendering/DataLayout.cpp
         PUBLIC willow/rendering/RenderPath.cpp
         PUBLIC willow/rendering/Shader.cpp
-        PUBLIC willow/rendering/Attachment.cpp
+        PUBLIC willow/rendering/DataView.cpp
         PUBLIC willow/dev-utils/Vulkan/VulkanSetup.cpp
         PUBLIC willow/Vulkan/VulkanSwapchain.cpp
         PUBLIC willow/Vulkan/VulkanRoot.cpp

@@ -20,7 +20,7 @@ auto window = CreateSharedPointer<MacWindow> (windowInfo);//the window is going 
 //now, lets create the most basic renderer, it requires a window
 //you can specify optional features here, things like triangle fans, poly lines, ray tracing, ect.  (currently there are none supported
 wlo::rendering::Renderer renderer(window);
-    Buffer<wlo::ColorVertex3D> VertexBuffer(wlo::rendering::Attachment::Type::VertexBuffer,
+ std::vector<wlo::ColorVertex3D> VertexBuffer
             {
                     // red face
                     {.position = {-1.0f, -1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
@@ -66,8 +66,6 @@ wlo::rendering::Renderer renderer(window);
                     {.position = {-1.0f, -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
             });
 
-wlo::rendering::Buffer<Index> IndexBuffer(Attachment::Type::IndexBuffer,{0,1,2});
-
 wlo::rendering::Buffer<glm::mat4x4> UniformBuffer(Attachment::Type::UniformBuffer, {glm::mat4x4{1}});
 //The special sauce with this renderer is render paths. Render Paths are roughly analagous to the graphics pipeline under the hood
 //they also describe where the data ends up, let's make one now
@@ -81,7 +79,7 @@ wlo::rendering::Buffer<glm::mat4x4> UniformBuffer(Attachment::Type::UniformBuffe
 
 
 RenderPath basicIndexed{
-    .attachments = {VertexBuffer.attachment(),IndexBuffer.attachment()},//attachments are typeless versions of buffers bound to the renderer, they allocate memory on the GPU
+    .vertexInput = VertexBuffer.attachment(),//attachments are typeless versions of buffers bound to the renderer, they allocate memory on the GPU
     .camera = OrthographicCamera3D(window),//we need a camera, the simplest one just takes in the whole window
     .vertexShaderPath = "/Users/w/Projects/Willow/shaders/vert.spv",// just give the render path file paths to the shader text files
     .fragmentShaderPath = "/Users/w/Projects/Willow/shaders/frag.spv",
@@ -111,7 +109,7 @@ renderer.Setup(basicIndexed);
 glm::mat4x4 modelMatrx{1};
 
 Frame next({
-                    Draw{{VertexBuffer.attachment(),IndexBuffer.attachment(),&modelMatrx}, basicIndexed},
+                    Draw{{DataView,&modelMatrx}, basicIndexed},
           }
 );
 // a frame is a sequence of events, all of which culminate in creating a frame on the screen sometime after submission

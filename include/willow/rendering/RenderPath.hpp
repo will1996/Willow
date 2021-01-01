@@ -7,13 +7,13 @@
 #include"RenderDataTypes.hpp"
 #include"willow/window/window.hpp"
 #include "OrthographicCamera3D.hpp"
-#include"Attachment.hpp"
+#include"DataView.hpp"
 #include"Tag.hpp"
 
 namespace wlo::rendering {
     struct RenderPath:Tag {
         public:
-        std::vector<Attachment> attachments = {};
+        std::pair<DataLayout,size_t> vertexInputDescription;
         OrthographicCamera3D camera;
         std::string vertexShaderPath;
         std::string fragmentShaderPath;

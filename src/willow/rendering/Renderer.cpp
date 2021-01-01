@@ -173,10 +173,10 @@ namespace wlo::rendering{
                                                                                                 m_swapchain.getSwapSurfaceExtent().height,
                                                                                                 1 ) ) );
         }
-        DataView vertexView = path.attachments[0][-1];
+        auto [vertexLayout,count] = path.vertexInputDescription;
         // create a vertex buffer for some vertex and color data
         m_VertexBuffers[path.id] = m_root.Device().createBufferUnique( vk::BufferCreateInfo(
-                vk::BufferCreateFlags(), vertexView.memSize, vk::BufferUsageFlagBits::eVertexBuffer ) );
+                vk::BufferCreateFlags(), vertexLayout.memSize()*count, vk::BufferUsageFlagBits::eVertexBuffer ) );
 
         // allocate device memory for that buffer
         vk::MemoryRequirements memoryRequirements = m_root.Device().getBufferMemoryRequirements( m_VertexBuffers[path.id].get() );
@@ -184,8 +184,10 @@ namespace wlo::rendering{
         m_VertexBufferMemory[path.id] =
                 m_root.Device().allocateMemoryUnique( vk::MemoryAllocateInfo( memoryRequirements.size,vertexMemoryTypeIndex ) );
 
-        byte* write = (byte*) m_root.Device().mapMemory(m_VertexBufferMemory[path.id].get(),0,vertexView.memSize);
-        memcpy(write,vertexView.source,vertexView.memSize);
+        byte* write = (byte*) m_root.Device().mapMemory(m_VertexBufferMemory[path.id].get(),0,vertexLayout.memSize()*count);
+
+
+        memset(write,0,count*vertexLayout.memSize());
         m_root.Device().unmapMemory(m_VertexBufferMemory[path.id].get());
 
         // and bind the device memory to the vertex buffer
@@ -198,9 +200,9 @@ namespace wlo::rendering{
                         vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragmentShaderModule.get(), "main" )
         };
 
-        vk::VertexInputBindingDescription                  vertexInputBindingDescription( 0, vertexView.layout.memSize() );
+        vk::VertexInputBindingDescription                  vertexInputBindingDescription( 0, vertexLayout.memSize() );
 
-
+        WILO_CORE_WARNING("VERTEX INPUT CURRENTLY FIXED TO DEFAULT FORMAT, WILL FAIL if vertices are anything other than a pair of glm::vec4");
         std::array<vk::VertexInputAttributeDescription, 2> vertexInputAttributeDescriptions = {
                 vk::VertexInputAttributeDescription( 0, 0, vk::Format::eR32G32B32A32Sfloat, 0 ),
                 vk::VertexInputAttributeDescription( 1, 0, vk::Format::eR32G32B32A32Sfloat, 16 )
@@ -328,7 +330,7 @@ namespace wlo::rendering{
 
         for( const Draw & draw : frame.getDraws()){
             ID_type  pathId = draw.path.id;
-            writeVertexBuffer(pathId,draw.geo.verticies[-1]);
+            //writeVertexBuffer(pathId,draw.geo.verticies[-1]);
             vk::RenderPassBeginInfo renderPassBeginInfo( m_RenderPasses[pathId].get(),
                                                          m_FrameBuffers[pathId][currentBuffer.value].get(),
                                                          vk::Rect2D( vk::Offset2D( 0, 0 ), m_swapchain.getSwapSurfaceExtent()),

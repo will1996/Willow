@@ -18,8 +18,8 @@ namespace wlo::rendering{
 
    public:
             struct TransformedGeometry{
-               Attachment verticies;
-               Attachment indices;
+               DataView vertices;
+               DataView indices;
                glm::mat4x4* ModelMatrix = nullptr;
             };
 

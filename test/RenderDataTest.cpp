@@ -3,7 +3,8 @@
 //
 #include"willow/rendering/DataLayout.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
-#include"willow/rendering/Attachment.hpp"
+#include"willow/rendering/DataView.hpp"
+#include"willow/rendering/Buffer.hpp"
 #include<iostream>
 using namespace wlo::rendering;
 using namespace std;
@@ -42,8 +43,29 @@ if(Layout<wlo::Vertex3D>() == Layout<wlo::Vertex3D>())
 cout<<"description"<<ss.str()<<endl;
 
 
+std::vector<wlo::ColorVertex3D> VertexData = {
+        {.position = {-.5,.5,0,1},.color = {0,1,0,1}},
+        {.position = {0,.5,0,1},.color = {0,1,0,1}},
+        {.position = {.5,-.5,0,1},.color = {0,1,0,1}}
+};
 
+byte* typelessData = reinterpret_cast< byte*> (VertexData.data());
 
+glm::vec4 pos0 = *((glm::vec4*)typelessData);
 
+cout<<"This should be: -.5,.5,0,1"<<endl;
+cout<<glm::to_string(pos0)<<endl;
+
+wlo::rendering::Buffer<wlo::ColorVertex3D> vertBuffer(wlo::rendering::Attachment::Type::VertexBuffer,{
+        {.position = {-.5,.5,0,1},.color = {0,1,0,1}},
+        {.position = {0,.5,0,1},.color = {0,1,0,1}},
+        {.position = {.5,-.5,0,1},.color = {0,1,0,1}}
+});
+
+wlo::rendering::DataView vertView = vertBuffer.attachment()[-1];
+
+glm::vec4 pos1 = *((glm::vec4*)vertView.source);
+    cout<<"This should be: -.5,.5,0,1"<<endl;
+    cout<<glm::to_string(pos0)<<endl;
 
 }

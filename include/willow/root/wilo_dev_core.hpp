@@ -10,6 +10,7 @@
 #include<algorithm>
 #include<memory>
 #include<atomic>
+#include<set>
 #include "logr.hpp"
 #include "WiloConfig.h"
 #include "wilo_APICodes.hpp"
@@ -48,5 +49,10 @@ namespace wlo {
 
 	using std::max;
 	using std::min;
+	using std::cout;
+	using std::endl;
+	using std::vector;
+	using std::set;
+	using std::map;
 
 }

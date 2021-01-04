@@ -15,12 +15,10 @@ namespace wlo ::rendering{
             DebuggingTools,
         };
         Renderer(SharedPointer<Window>,
-                std::initializer_list<RenderPath> paths = {},
                 std::initializer_list<Features> features = {});
         ~Renderer();
 
-        void Setup(const RenderPath &);//create shader modules,  graphics pipelines, renderpasses
-        void Prepare(const Frame &);
+        void PrepareFrameClass(const Frame &);//needed once before submitting any frame of this class. Frames that use the same input types, number of draw calls, renderpaths needn't be set up again. 
         void Submit(const Frame &);//upload data to the GPU, build submit command buffers for associated Draws, present
 
 

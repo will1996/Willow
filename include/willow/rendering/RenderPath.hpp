@@ -13,12 +13,9 @@
 namespace wlo::rendering {
     struct RenderPath:Tag {
         public:
-        std::pair<DataLayout,size_t> vertexInputDescription;
         OrthographicCamera3D camera;
         std::string vertexShaderPath;
         std::string fragmentShaderPath;
-        bool depthBuffer = true;
-        std::pair<float,float> viewport = {-1,-1};
     };
 
 

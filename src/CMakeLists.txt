@@ -65,6 +65,7 @@ target_link_libraries(WillowRendering PUBLIC WillowMessaging)
 target_link_libraries(WillowRendering PUBLIC WillowDevUtils)
 target_link_libraries(WillowRendering PUBLIC glslang)
 target_link_libraries(WillowRendering PUBLIC glfw)
+target_link_libraries(WillowRendering PUBLIC vma)
 target_link_libraries(WillowRendering PUBLIC WillowRoot)
 target_sources(WillowRendering
         PUBLIC ../include/willow/rendering/Tag.hpp

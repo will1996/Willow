@@ -31,13 +31,14 @@ cout<<Layout<wlo::Vertex3D>()<<endl;
 std::stringstream ss;
 ss<<Layout<float>()<<endl;
 
-Attachment::Description desc(Attachment::Type::VertexBuffer,Layout<wlo::Vertex3D>());
-ss<<desc<<endl;
-
 if(Layout<wlo::Vertex2D>() != Layout<wlo::Vertex3D>())
     cout<<"LAYOUT COMPARISON Vert2D to Vert3D CORRECTLY FAILS"<<endl;
 if(Layout<wlo::Vertex3D>() == Layout<wlo::Vertex3D>())
     cout<<"LAYOUT COMPARISON Vert3D to Vert3D CORRECTLY PASSES"<<endl;
+
+
+
+
 
 
 cout<<"description"<<ss.str()<<endl;
@@ -56,16 +57,23 @@ glm::vec4 pos0 = *((glm::vec4*)typelessData);
 cout<<"This should be: -.5,.5,0,1"<<endl;
 cout<<glm::to_string(pos0)<<endl;
 
-wlo::rendering::Buffer<wlo::ColorVertex3D> vertBuffer(wlo::rendering::Attachment::Type::VertexBuffer,{
-        {.position = {-.5,.5,0,1},.color = {0,1,0,1}},
-        {.position = {0,.5,0,1},.color = {0,1,0,1}},
-        {.position = {.5,-.5,0,1},.color = {0,1,0,1}}
-});
 
-wlo::rendering::DataView vertView = vertBuffer.attachment()[-1];
 
-glm::vec4 pos1 = *((glm::vec4*)vertView.source);
-    cout<<"This should be: -.5,.5,0,1"<<endl;
-    cout<<glm::to_string(pos0)<<endl;
+std::unordered_map<DataLayout, size_t> layoutMap;
+
+vector<DataLayout> layouts = { Layout<wlo::ColorVertex2D>(),Layout<wlo::ColorVertex2D>(),Layout<wlo::ColorVertex2D>(),Layout<wlo::Vertex2D>() };
+
+for (auto& layout : layouts)
+layoutMap[layout]++;
+
+if (layoutMap[Layout<wlo::ColorVertex2D>()] == 3)
+cout << "LAYOUT MAPPING FOR ColorVertex2D works great! ";
+else
+cout << "LAYOUT MAPPING FAILED ";
+
+if (layoutMap[Layout<wlo::Vertex2D>()] == 1)
+cout << "LAYOUT MAPPING FOR Vertex2D works great! ";
+else
+cout << "LAYOUT MAPPING FAILED ";
 
 }

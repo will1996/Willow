@@ -20,7 +20,7 @@ namespace wlo::rendering{
             struct TransformedGeometry{
                DataView vertices;
                DataView indices;
-               glm::mat4x4* ModelMatrix = nullptr;
+               const glm::mat4x4& ModelMatrix;
             };
 
             struct Draw {

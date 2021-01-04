@@ -4,6 +4,10 @@
 #include"willow/rendering/DataLayout.hpp"
 
 namespace wlo::rendering{
+
+
+    
+
    DataLayout::DataLayout(std::initializer_list<Element> elements):m_memSize(0) {
        size_t offset =0;
         for(auto element : elements) {
@@ -48,6 +52,5 @@ namespace wlo::rendering{
    }
 
 }
-
 
 

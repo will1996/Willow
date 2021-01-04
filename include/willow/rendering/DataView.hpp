@@ -17,7 +17,7 @@ namespace wlo::rendering {
 
         template<typename T>
         explicit DataView(const std::vector<T> &resource):
-                source(resource.data()), layout(Layout<T>()), count(resource.size()),
+                source(reinterpret_cast<const byte*>(resource.data())), layout(Layout<T>()), count(resource.size()),
                 memSize(count * layout.memSize()) {}
 
         template<typename T>

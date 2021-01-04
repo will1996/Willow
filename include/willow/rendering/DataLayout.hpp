@@ -8,19 +8,36 @@
 namespace  wlo::rendering{
     class DataLayout{
     public:
-        enum class DataType {
-            Float, Double, Int, Long,  Bool
+        enum class DataType:size_t {
+            Float = 1, Double = 2, Int = 3, Long = 4,  Bool = 5
         };
 
        struct Element{
             DataType type;
             size_t count;
+            inline bool operator ==(Element other) {
+                return type == other.type && count == other.count;
+            }
        };
 
 
         DataLayout(std::initializer_list<Element> elements);
         DataLayout(std::initializer_list<const DataLayout> layouts);
+        inline bool operator==(DataLayout other) {
+            if (m_memSize != other.m_memSize)
+                return false;
+            if (m_elementList.size() != other.m_elementList.size())
+                return false;
 
+            for (size_t i = 0; i < m_elementList.size(); i++) {
+                if (m_elementList[i].first != other.m_elementList[i].first)
+                    return false;
+                if (m_elementList[i].second != other.m_elementList[i].second)
+                    return false;
+            }
+
+                return true;
+        }
         size_t memSize() const ;
 
         std::vector<std::pair<Element,size_t> >  get() const;
@@ -45,7 +62,7 @@ namespace  wlo::rendering{
         static DataLayout fromFundamental<size_t>(){
             return DataLayout({{DataType::Long,1}});
         }
-
+        
 
     private:
         size_t m_memSize;
@@ -105,6 +122,72 @@ inline bool operator==(const wlo::rendering::DataLayout & one, const wlo::render
    return true;
 }
 
+namespace std {
+  template <>
+  struct equal_to<wlo::rendering::DataLayout::Element>
+  {
+    bool operator()(const wlo::rendering::DataLayout::Element& lhs,const wlo::rendering::DataLayout::Element& rhs) const
+    {
+        return lhs.count==rhs.count && lhs.type==rhs.type;
+    }
+  };
 
+  template <>
+  struct hash<wlo::rendering::DataLayout::Element>
+  {
+    std::size_t operator()(const wlo::rendering::DataLayout::Element& el) const
+    {
+      using std::size_t;
+      using std::hash;
+      using std::string;
+
+      // Compute individual hash values for first,
+      // second and third and combine them using XOR
+      // and bit shifting:
+      return hash<size_t>()(el.count) ^ ((hash<size_t>()((size_t)el.type)>>1)<<1);
+    }
+  };
+
+
+
+  template <>
+  struct hash<wlo::rendering::DataLayout>
+  {
+    std::size_t operator()(const wlo::rendering::DataLayout& layout) const
+    {
+      using std::size_t;
+      using std::hash;
+      using std::string;
+      using wlo::rendering::DataLayout;
+
+      // Compute individual hash values for first,
+      // second and third and combine them using XOR
+      // and bit shifting:
+      size_t hash_value = hash<DataLayout::Element>()(layout.get()[0].first) ^ ((layout.get()[0].second << 1) >> 1);
+          for (size_t i = 1; i < layout.get().size(); i++)
+              hash_value ^= hash<DataLayout::Element>()(layout.get()[0].first) ^ ((layout.get()[0].second << i+1) >> i+1);
+
+    return hash_value;
+    }
+  };
+
+  template <>
+  struct equal_to<wlo::rendering::DataLayout>
+  {
+    bool operator()(const wlo::rendering::DataLayout& one,const wlo::rendering::DataLayout& two) const
+    {
+      using namespace wlo::rendering;
+     if(one.memSize()!=two.memSize() && one.memSize())
+         return false;
+     if(one.get().size()!=two.get().size())
+         return false;
+    for(size_t i = 0; i< one.get().size(); i++)
+        if(one.get()[i].first!=two.get()[i].first)
+            return false;
+   return true;
+
+    }
+  };
+}
 
 #endif //WILLOW_DATALAYOUT_HPP

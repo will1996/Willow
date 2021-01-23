@@ -13,14 +13,6 @@ namespace wlo{
     };
 
 
-    MacWindow::MacWindow(wlo::Window::Info &info){
-        m_info.m_extraData = info.m_extraData;
-        m_info.m_width = info.m_width;
-        m_info.m_height = info.m_height;
-        m_info.m_title = info.m_title;
-        m_info.API = info.API;
-        initialize();
-    }
 
     MacWindow::~MacWindow() {
 
@@ -128,8 +120,20 @@ namespace wlo{
     void MacWindow::notifyMouseObservers(const wlo::MouseScrolled & msg){
         this->notify<MouseScrolled>(msg);
     }
-    void MacWindow::notifyWindowObservers(const wlo::WindowMessage& msg){
-            this->notify<WindowMessage>(msg);
+    void MacWindow::notifyWindowObservers(const wlo::WindowClosed& msg){
+            this->notify<WindowClosed>(msg);
+    }
+
+    void MacWindow::notifyWindowObservers(const wlo::WindowResized& msg){
+        this->notify<WindowResized>(msg);
+    }
+
+    void MacWindow::notifyWindowObservers(const wlo::WindowLostFocus& msg){
+        this->notify<WindowLostFocus>(msg);
+    }
+
+    void MacWindow::notifyWindowObservers(const wlo::WindowGainedFocus& msg){
+        this->notify<WindowGainedFocus>(msg);
     }
 
     Window::Info MacWindow::getInfo() const{
@@ -142,7 +146,9 @@ namespace wlo{
         glfwTerminate();
     };
 
-    bool MacWindow::shouldClose(){
+    bool MacWindow::shouldClose(bool query){
+        if(query)
+        checkIn();
         return glfwWindowShouldClose(p_impl->getWindow());
     }
 
@@ -151,6 +157,17 @@ namespace wlo{
         std::cout << "getting native Window!" << std::endl;
         return p_impl->getWindow();
     }
+
+    MacWindow::MacWindow(Window::Info info) {
+        m_info.m_extraData = info.m_extraData;
+        m_info.m_width = info.m_width;
+        m_info.m_height = info.m_height;
+        m_info.m_title = info.m_title;
+        m_info.API = info.API;
+        initialize();
+
+    }
+
 
 
 }

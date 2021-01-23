@@ -21,12 +21,15 @@ namespace wlo::rendering{
                DataView vertices;
                DataView indices;
                const glm::mat4x4& ModelMatrix;
+               vector<std::string> texturesPaths;
             };
 
             struct Draw {
                 TransformedGeometry geo;
                 const RenderPath & path;
             };
+
+
     Frame(std::initializer_list<Draw > draws):m_draws(draws){
     }
     inline const std::vector<Draw> & getDraws() const {

@@ -20,7 +20,7 @@ namespace wlo ::rendering{
 
         void PrepareFrameClass(const Frame &);//needed once before submitting any frame of this class. Frames that use the same input types, number of draw calls, renderpaths needn't be set up again. 
         void Submit(const Frame &);//upload data to the GPU, build submit command buffers for associated Draws, present
-
+        void setClearColor(wlo::Color);
 
         auto shareRoots();//give implementation class to another GPU using class in the engine
 

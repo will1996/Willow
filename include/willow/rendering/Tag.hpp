@@ -5,10 +5,11 @@
 #ifndef WILLOW_TAG_HPP
 #define WILLOW_TAG_HPP
 #include "willow/root/wilo_dev_core.hpp"
+#include"willow/root/wilo_object_counter.hpp"
 namespace wlo::rendering{
 struct Tag {
     static size_t counter;
-    size_t id;
+    wlo::ID_type id;
     Tag() : id(counter++) {}
 };
 }

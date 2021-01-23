@@ -38,10 +38,10 @@ class Console : public MessageSystem::Observer {
         ConsoleCore core;
         void recieve(const wlo::KeyboardMessage& msg ) ;
 
-        void notifyWindowObservers  (const wlo::WindowMessage& msg);
+//        void notifyWindowObservers  (const wlo::WindowMessage& msg);
         void notifyMouseObservers   (const wlo::MouseMoved& msg);
         void notifyKeyboardObservers(const wlo::KeyboardMessage& msg);
-        void recieve(const wlo::WindowMessage& msg);
+ //       void recieve(const wlo::WindowMessage& msg);
         void recieve(const wlo::MouseMoved& msg);
         void recieve(const wlo::MouseButtonMessage& msg);
         static std::string readInput();

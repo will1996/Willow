@@ -7,9 +7,8 @@
 #include "willow/root/wilo_dev_core.hpp"
 namespace  wlo::rendering{
     class DataLayout{
-    public:
-        enum class DataType:size_t {
-            Float = 1, Double = 2, Int = 3, Long = 4,  Bool = 5
+    public: enum class DataType:size_t {
+            Byte = 0,Float = 1, Double = 2, Int = 3, Long = 4,  Bool = 5
         };
 
        struct Element{
@@ -20,9 +19,10 @@ namespace  wlo::rendering{
             }
        };
 
-
-        DataLayout(std::initializer_list<Element> elements);
-        DataLayout(std::initializer_list<const DataLayout> layouts);
+        DataLayout();
+        explicit DataLayout(std::initializer_list<Element> elements);
+        explicit DataLayout(std::initializer_list<const DataLayout> layouts);
+        explicit DataLayout(std::vector<Element> elements);
         inline bool operator==(DataLayout other) {
             if (m_memSize != other.m_memSize)
                 return false;

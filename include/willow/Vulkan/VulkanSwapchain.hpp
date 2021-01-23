@@ -19,6 +19,7 @@ class VulkanSwapchain: public wlo::MessageSystem::Observer {
 	public:	
 		VulkanSwapchain( wk::VulkanRoot &,wlo::SharedPointer<Window>);
         ~VulkanSwapchain();
+         void resize() ;
          const std::vector<vk::ImageView>& getSwapSurfaceViews() ;//gets the image view that can be written to
          const vk::ImageView& getDepthImageView();
          vk::Semaphore& getImageAvailableSemaphore();
@@ -41,24 +42,21 @@ private:
 	//all objcets required to access frames
 	std::vector<vk::Image> m_images;
 	std::vector<vk::ImageView> m_imageViews;
-	std::vector<vk::Framebuffer> m_frameBuffers;
 
 	vk::Image m_depthImage;
 	vk::ImageView m_depthView;
     vk::DeviceMemory m_depthBufferMemory;
-
+    SharedPointer<Window> m_window;
+    void initialize();
 	//member functions
 	void createVkSwapchain();
 	void createImageViews();
-	void createFrameBuffers();
 	void createDepthBuffers();
 		//set the member variables for image format, and extent	
 	void chooseSwapSurfaceFormat();
 	void 		   chooseSwapChainExtent();
 	//helper functions
 	vk::PresentModeKHR   choosePresentMode();
-	//message handlers
-    void resize(const wlo::WindowResized &) ;
 
 };
 

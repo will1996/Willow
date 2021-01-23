@@ -14,7 +14,7 @@ class Window: public MessageSystem::Subject{
           virtual ~Window(){};
           virtual Info getInfo() const = 0;
           virtual void checkIn() = 0;
-          virtual bool shouldClose() = 0;
+          virtual bool shouldClose(bool queryMeessagesAutomatically = true) = 0;
           virtual void* getNativeWindow() const = 0;
     };
 

@@ -24,24 +24,26 @@ class Application: public MessageSystem::Observer{
             std::string appName;    
             bool debugging;
             int appVersion;
-            const double engineVersion = WILO_ENGINE_VERSION;
-            const std::string engineName = "";
             Info(std::string name, int version) :appName(name),appVersion(version){}
             };
 
-            Application(std::string argv_0);//Application must recieve argv[0] in its constructor, it uses this path to
+            Application(Info);//Application must recieve argv[0] in its constructor, it uses this path to
             //handle runtime file lookup, without this nothing works.
 
-            virtual bool isInitialized();
             virtual void recieve(const wlo::KeyboardMessage& msg);
-            virtual void recieve(const wlo::WindowMessage& msg);
-            virtual void initialize(bool reinitialize = false);
-            virtual void initialize(Application::Info inf,bool reinitialize = false);
-            virtual void run();
+            void recieve(const wlo::WindowClosed& msg);
+            virtual void setup() = 0;
+            virtual void stepSim(float elapsedTime) = 0;
+            virtual void draw() =0;
+            void shutdown();
+            void run();
             virtual void reclaim();
             virtual ~Application();
 
         protected:
+            decltype(std::chrono::high_resolution_clock::now()) startTime;
+            float timeElapsed();
+            virtual void initialize(Application::Info inf);
             wlo::SharedPointer<Window> m_main_window;
             wlo::SharedPointer<wlo::lua::Environment> m_scriptEnv;
             wlo::UniquePointer<Console> m_console;
@@ -52,7 +54,6 @@ class Application: public MessageSystem::Observer{
             size_t m_id = 0;
             bool m_shutting_down = false;
             bool m_windowResized = false;
-            bool m_initialized;
     };
     
 }

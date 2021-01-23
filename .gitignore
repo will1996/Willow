@@ -1,6 +1,6 @@
 *.o
 ./cmake-build*
 *Makefile
-cmake-build-debug
+cmake-build*
 /.vs
 /out/build/x64-Debug (default)

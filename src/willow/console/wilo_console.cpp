@@ -5,7 +5,7 @@
 #include<future>
 #include<chrono>
 #include"willow/window/window.hpp"
-#include"willow/rendering/OrthographicCamera3D.hpp"
+#include"willow/rendering/PrespectiveCamera3D.hpp"
 namespace wlo{
     Console::Console(wlo::SharedPointer<wlo::lua::Environment> env):scriptable("console",this,env),m_testScriptsPath(WILO_TESTS_SCRIPTS_PATH),m_engineScriptsPath(WILO_ENGINE_SCRIPTS_PATH){
         scriptable.Register<&Console::quit>("quit");
@@ -33,19 +33,14 @@ namespace wlo{
         //rendererInfo.indexBufferStartingSize = 120000;
         //m_console_renderer =  wlo::CreateUniquePointer<Renderer>(window, rendererInfo);
         //m_console_renderer->initialize();
-        OrthographicCamera3D::BoundingBox viewingVolume;
-        viewingVolume.left = 0;
-        viewingVolume.right = windowInfo.m_width;
-        viewingVolume.top = 0;
-        viewingVolume.bottom = windowInfo.m_height;
-        //glm::mat4x4 proj = OrthographicCamera3D(viewingVolume).getProj();
+        //glm::mat4x4 proj = PrespectiveCamera3D(viewingVolume).getProj();
         float scale = 10;
         glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/windowInfo.m_width,2/windowInfo.m_height,1));
         proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(windowInfo.m_width)/2,-float(windowInfo.m_height)/2,0));
         //m_console_renderer->setCamera(glm::mat4x4(1),proj);
         //m_console_renderer->setClearColor({0,0,0,1});
         //window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_console_renderer.get()) ;//register as an observer with the window, so we recieve events;
-        window->permit<WindowMessage,Console, &Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
+//        window->permit<WindowMessage,Console, &Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
         WILO_CORE_INFO("console initialized!")
     }
 
@@ -57,12 +52,12 @@ namespace wlo{
         //m_console_renderer->clearGeometryBuffers();
     }
 
-    void Console::recieve(const wlo::WindowMessage& msg){
-         auto info =  msg.content;
-        glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/info.width,2/info.height,1));
-        proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(info.width)/2,-float(info.height)/2,0));
-        //m_console_renderer->setProjection(proj);
-    }
+    //void Console::recieve(const wlo::WindowMessage& msg){
+    //     auto info =  msg.content;
+    //    glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/info.width,2/info.height,1));
+    //    proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(info.width)/2,-float(info.height)/2,0));
+    //    //m_console_renderer->setProjection(proj);
+    //}
     void Console::evaluate( std::string command ){
         scriptable.getEnv()->runScript(command);
     }
@@ -83,7 +78,7 @@ namespace wlo{
                 evaluate(core.flushInputBuffer());
                 core.nextLine();
             } else if (msg.content.button == Key::Code::ESCAPE) {
-               notifyWindowObservers(wlo::WindowClosed("consoleWindow",0,0)) ;
+//               notifyWindowObservers(wlo::WindowClosed("consoleWindow",0,0)) ;
             } else if (msg.content.button == Key::Code::LEFT_SHIFT || msg.content.button==Key::Code::RIGHT_SHIFT) {
                 //Do nothing, modifier keys shouldn't place letters
             } else
@@ -123,9 +118,9 @@ namespace wlo{
             evaluate(response.get());
     }
 
-    void Console::notifyWindowObservers(const wlo::WindowMessage& msg){
-        subject.notify<WindowMessage>(msg);
-    }
+   // void Console::notifyWindowObservers(const wlo::WindowMessage& msg){
+   //     subject.notify<WindowMessage>(msg);
+   // }
 
     void Console::notifyMouseObservers(const wlo::MouseMoved& msg)
     {
@@ -139,7 +134,7 @@ namespace wlo{
 
     int Console::quit(::lua_State* L ){
         std::string title = "app window";
-        notifyWindowObservers(wlo::WindowClosed(title,0,0));
+     //   notifyWindowObservers(wlo::WindowClosed(title,0,0));
         return 0;
     }
 
@@ -150,7 +145,7 @@ namespace wlo{
 
         std::string title = "app window";
 
-        notifyWindowObservers(wlo::WindowResized(title,width,height));
+      //  notifyWindowObservers(wlo::WindowResized(title,width,height));
         return 0;
     }
 

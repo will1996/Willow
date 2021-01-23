@@ -18,10 +18,10 @@ namespace wlo {
     };
 
     struct Vertex2D{
-        glm::vec3 position;
+        glm::vec2 position;
         static rendering::DataLayout Layout() {
            return rendering::DataLayout({
-               {rendering::DataLayout::DataType::Float,3}
+               {rendering::DataLayout::DataType::Float,2}
            });
         }
     };
@@ -34,25 +34,32 @@ namespace wlo {
     };
 
     struct Vertex3D{
-        glm::vec4 position;
+        glm::vec3 position;
         static rendering::DataLayout Layout() {
             return rendering::DataLayout({
-               {rendering::DataLayout::DataType::Float,4}
+               {rendering::DataLayout::DataType::Float,3}
                                        });
         }
     };
     using fVec3 = Vertex3D;
 
     struct ColorVertex3D{
-        glm::vec4 position;
+        glm::vec3 position;
         glm::vec4 color;
         static rendering::DataLayout Layout() {
             return rendering::DataLayout({Vertex3D::Layout(),Color::Layout()});
         }
     };
 
-    using Index = size_t;
+    using Index = uint32_t;
 
+    struct TexturedVertex3D{
+        glm::vec3 position;
+        glm::vec2 TexCoord;
+        static rendering::DataLayout Layout() {
+            return rendering::DataLayout({Vertex3D::Layout(),Vertex2D::Layout()});
+        }
+    };
    
 
 }
@@ -77,10 +84,20 @@ template<>
 inline const wlo::rendering::DataLayout Layout<wlo::ColorVertex2D>(){return wlo::ColorVertex2D::Layout(); };
 template<>
 inline const wlo::rendering::DataLayout Layout<wlo::ColorVertex3D>(){return wlo::ColorVertex3D::Layout(); };
+template<>
+inline const wlo::rendering::DataLayout Layout<wlo::TexturedVertex3D>(){return wlo::TexturedVertex3D::Layout(); };
 
 template<>
 inline const wlo::rendering::DataLayout Layout<glm::mat4x4>(){return wlo::rendering::DataLayout{
             {wlo::rendering::DataLayout::DataType::Float,16}
                                                                 }; };
+template<>
+inline const wlo::rendering::DataLayout Layout<glm::vec4>(){return wlo::rendering::DataLayout{
+            {wlo::rendering::DataLayout::DataType::Float,4}
+    }; };
 
+template<>
+inline const wlo::rendering::DataLayout Layout<wlo::Index>(){return wlo::rendering::DataLayout{
+            {wlo::rendering::DataLayout::DataType::Int,1}
+    }; };
 #endif //WILLOW_RENDER_DATA_TYPES_HPP

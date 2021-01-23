@@ -3,9 +3,13 @@
 #include "willow/Vulkan/VulkanRoot.hpp"
 #include "willow/Vulkan/VulkanSwapchain.hpp"
 #include"willow/Vulkan/VulkanShaderCompiler.hpp"
+#include "willow/Vulkan/VulkanGraphicsPipelineFactory.hpp"
+#include "willow/Vulkan/VulkanMemoryManager.hpp"
+#include "willow/Vulkan/VulkanCommandInterface.hpp"
+#include"willow/Vulkan/VulkanTextureFactory.hpp"
 #include <glfw/glfw3.h>
 namespace wlo::rendering{
-    class VulkanImplementation {
+    class VulkanImplementation :public wlo::MessageSystem::Observer{
     private:
         struct FrameClass {
             vector<RenderPath> paths;
@@ -13,17 +17,7 @@ namespace wlo::rendering{
             vector<std::pair<DataLayout, size_t> > vertexInputDescriptions;
         };
 
-        struct MappedBuffer {
-            vk::UniqueBuffer buffer;
-            vk::DeviceMemory memory;
-            byte* writePoint;
-        };
-        
-        struct GraphicsPipeline {
-            vk::UniquePipelineLayout layout;
-            vk::UniquePipeline pipeline;
-            vk::UniqueRenderPass renderPass;
-        };
+
 
         const glm::mat4x4 m_clipMatrix = {//vulkan specific clip matrix (used for all camera transforms)
                 1.0f, 0.0f, 0.0f, 0.0f,
@@ -34,60 +28,99 @@ namespace wlo::rendering{
         wk::VulkanRoot m_root;
         wk::VulkanSwapchain m_swapchain;
         wk::VulkanShaderCompiler m_shaderFactory;
-        vk::UniqueCommandPool m_commandPool;
+        wk::VulkanGraphicsPipelineFactory m_pipelineFactory;
+        wk::VulkanCommandInterface m_commandInterface;
+        wk::VulkanMemoryManger m_memoryManager;
+        wk::VulkanTextureFactory m_textureFactory;
         vk::UniqueDescriptorPool  m_descriptorPool;
-        vk::Queue m_graphicsQueue;
+
+
+
         vk::Queue m_presentQueue;
-
-
+        std::map<wlo::ID_type, wk::GraphicsPipeline > m_GraphicsPipelines;
         std::map<wlo::ID_type, std::vector<vk::UniqueFramebuffer>> m_FrameBuffers;
-        std::map<wlo::ID_type, vk::UniquePipeline > m_GraphicsPipelines;
-        std::map<wlo::ID_type, vk::UniqueRenderPass > m_RenderPasses;
         std::map<wlo::ID_type, vk::UniqueDescriptorSet > m_DescriptorSets;
+        std::map<wlo::ID_type, vk::UniqueSampler > m_textureSamplers;
+        std::map<wlo::ID_type, std::string> m_textures;
 
-        std::map<wlo::ID_type, vk::UniquePipelineLayout> m_PipelineLayouts;
-        
-        std::unordered_map<DataLayout, MappedBuffer> m_VertexBuffers;
-        std::unordered_map<wlo::ID_type, MappedBuffer> m_UniformBuffers;
+        std::unordered_map<wlo::ID_type,wk::MappedBuffer> m_UniformBuffers;
+
+        std::unordered_map<DataLayout, wk::MappedBuffer> m_VertexBuffers;
+
+        wk::MappedBuffer m_IndexBuffer;
+        glm::vec4 m_clearColor;
 
 
-        
 
 
-    public: 
+
+    public:
+        glm::vec4 nextClearColor;
         VulkanImplementation(std::initializer_list<Renderer::Features> features, SharedPointer<Window> window, bool enableDebugging = true) :
             m_root(features, window.get(), enableDebugging),
             m_swapchain(m_root, window),
-            m_shaderFactory(m_root)
+            m_shaderFactory(m_root),
+            m_pipelineFactory(m_root,m_shaderFactory,m_swapchain),
+            m_commandInterface(m_root),
+            m_memoryManager(m_root,m_commandInterface),
+            m_textureFactory(m_root,m_memoryManager)
+
             //m_memoryManager(m_vulkanRoot)
             //m_graphicsPipelineFactory(m_vulkanRoot)
         {
-            //create command pool
-            auto [graphicsIndex, presentIndex] = m_root.QueueFamilyIndices();
-            vk::CommandPoolCreateInfo poolCreateInfo(vk::CommandPoolCreateFlags(), graphicsIndex);
-            m_commandPool = m_root.Device().createCommandPoolUnique(poolCreateInfo);
+            window->permit<wlo::WindowResized,VulkanImplementation,&VulkanImplementation::resizeDrawSurface>(this);
             //create descriptor pool
-            vk::DescriptorPoolSize   poolSize(vk::DescriptorType::eUniformBuffer, 10);
+            std::array   poolSizes = {vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1),vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 1)};
             m_descriptorPool = m_root.Device().createDescriptorPoolUnique(
-                vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, 10, poolSize));
-
-            auto [GraphicsQueueIndex, PresentQueueIndex] = m_root.QueueFamilyIndices();
-            m_graphicsQueue = m_root.Device().getQueue(GraphicsQueueIndex, 0);
+                vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, 10, poolSizes));
+            auto [_, PresentQueueIndex] = m_root.QueueFamilyIndices();
             m_presentQueue = m_root.Device().getQueue(PresentQueueIndex, 0);
-            //create memory manager
+
+        }
+
+        void resizeDrawSurface(const wlo::WindowResized &msg){
+            cout<<"RESIZING"<<endl;
+            m_root.Device().waitIdle();
+            m_swapchain.resize();
+            for(auto &[_,pipeline] : m_GraphicsPipelines) {
+                //m_pipelineFactory.rebuildGraphicsPipeline(pipeline);
+                RenderPath & pathref = pipeline.originPath;
+                m_FrameBuffers[pathref.id].clear();
+                buildFrameBuffers(pathref);
+            }
+
         }
         void PrepareFrameClass(const Frame& example) {
             FrameClass frameClass = buildClassFromExample(example);
-            buildVertexBuffers(frameClass);
-            buildAttachments(frameClass);
-            buildUniformBuffers(frameClass);
+            buildTextures(frameClass);
             buildGraphicsPipelines(frameClass);
+            buildVertexBuffers(frameClass);
+            buildIndexBuffers(frameClass);
         }
 
         void buildVertexBuffers( const FrameClass & frameClass) {
             for (auto & [layout, count] : frameClass.vertexInputDescriptions) 
-                m_VertexBuffers[layout] = allocateMappedBuffer(layout, count, vk::BufferUsageFlagBits::eVertexBuffer );
+                m_VertexBuffers[layout] = m_memoryManager.allocateMappedBuffer(layout, count, vk::BufferUsageFlagBits::eVertexBuffer );
         }
+        void buildIndexBuffers(FrameClass & frameClass){
+            size_t indexCount = 0;
+            for(auto & path: frameClass.paths) {
+                for (auto &draw: frameClass.DrawsPerPath[path.id])
+                    indexCount += draw.geo.indices.count;
+            }
+            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(Layout<Index>(), indexCount, vk::BufferUsageFlagBits::eIndexBuffer);
+        }
+
+        void buildTextures(FrameClass & frameClass){
+            for(auto & path :frameClass.paths)
+                for(auto & draw : frameClass.DrawsPerPath[path.id])
+                    for(std::string & texturePath: draw.geo.texturesPaths)
+                        if(!texturePath.empty()&&!m_textureFactory.textureCreated(texturePath)) {
+                            m_textureFactory.createTexture2D(texturePath);
+                            m_textures[path.id] = texturePath;
+                        }
+        }
+
 
         vector<std::pair<DataLayout, size_t>> vertexDescription(const vector<Draw>& draws) {
             std::unordered_map<DataLayout, size_t> layoutCounts;
@@ -117,278 +150,136 @@ namespace wlo::rendering{
         }
 
 
-        MappedBuffer allocateMappedBuffer(const DataLayout& layout ,size_t count , vk::BufferUsageFlagBits usage) {
-            MappedBuffer buff;
-            vk::BufferCreateInfo buffInfo(vk::BufferCreateFlags(), count * layout.memSize(), usage);
-            buff.buffer = m_root.Device().createBufferUnique(buffInfo);
-            vk::MemoryRequirements memoryRequirements = m_root.Device().getBufferMemoryRequirements(buff.buffer.get());
-
-            uint32_t     vertexMemoryTypeIndex = m_root.findMemoryType(memoryRequirements,
-                vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-
-            vk::MemoryAllocateInfo allocInfo(memoryRequirements.size,vertexMemoryTypeIndex);
-            buff.memory = m_root.Device().allocateMemory(allocInfo);
-
-            buff.writePoint = (byte*) m_root.Device().mapMemory(buff.memory,0,memoryRequirements.size);
-
-            memset(buff.writePoint, 0, memoryRequirements.size);
-            
-            m_root.Device().bindBufferMemory(*buff.buffer, buff.memory, 0);
-            return buff;
-        }
-        
-        void buildAttachments(FrameClass frameClass) {
-            for (RenderPath & path : frameClass.paths) {
-                std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
-                //color attachments (i.e the color image that's going to the screen)
-                attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-                    m_swapchain.getSwapSurfaceFormat(),
-                    vk::SampleCountFlagBits::e1,
-                    vk::AttachmentLoadOp::eClear,
-                    vk::AttachmentStoreOp::eStore,
-                    vk::AttachmentLoadOp::eDontCare,
-                    vk::AttachmentStoreOp::eDontCare,
-                    vk::ImageLayout::eUndefined,
-                    vk::ImageLayout::ePresentSrcKHR);
-                //depth attachment (the depth buffer used for coloring)
-                attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-                    vk::Format::eD16Unorm,
-                    vk::SampleCountFlagBits::e1,
-                    vk::AttachmentLoadOp::eClear,
-                    vk::AttachmentStoreOp::eDontCare,
-                    vk::AttachmentLoadOp::eDontCare,
-                    vk::AttachmentStoreOp::eDontCare,
-                    vk::ImageLayout::eUndefined,
-                    vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-                vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
-                vk::AttachmentReference depthReference(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
-                vk::SubpassDescription  subpass(
-                    vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, {}, colorReference, {}, &depthReference);
-
-                m_RenderPasses[path.id] = m_root.Device().createRenderPassUnique(
-                    vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
-
-                std::array<vk::ImageView, 2> attachments;
-                attachments[1] = m_swapchain.getDepthImageView();
-
-                m_FrameBuffers[path.id].reserve(m_swapchain.getSwapSurfaceViews().size());
-                for (auto const& view : m_swapchain.getSwapSurfaceViews())
-                {
-                    attachments[0] = view;
-                    m_FrameBuffers[path.id].push_back(m_root.Device().createFramebufferUnique(vk::FramebufferCreateInfo(vk::FramebufferCreateFlags(),
-                        m_RenderPasses[path.id].get(),
-                        attachments,
-                        m_swapchain.getSwapSurfaceExtent().width,
-                        m_swapchain.getSwapSurfaceExtent().height,
-                        1)));
-                }
-            }
-        }
 
 
 
-        void buildGraphicsPipelines(const FrameClass& fc) {
+        void buildGraphicsPipelines(FrameClass& fc) {
             for (auto path : fc.paths) {
-                auto vertexShaderModule = m_shaderFactory.makeModuleFromBinary(vk::ShaderStageFlagBits::eVertex, path.vertexShaderPath);
-                auto fragmentShaderModule = m_shaderFactory.makeModuleFromBinary(vk::ShaderStageFlagBits::eFragment, path.fragmentShaderPath);
+                    m_GraphicsPipelines[path.id] = m_pipelineFactory.buildGraphicsPipeline(path);
 
-                std::array<vk::PipelineShaderStageCreateInfo, 2> pipelineShaderStageCreateInfos = {
-                        vk::PipelineShaderStageCreateInfo(
-                                vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vertexShaderModule.get(), "main"),
-                        vk::PipelineShaderStageCreateInfo(
-                                vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fragmentShaderModule.get(), "main")
-                };
+                    for(auto draw: fc.DrawsPerPath[path.id])
+                        assert(draw.geo.vertices.layout==m_GraphicsPipelines[path.id].vertexLayout);
 
-                vk::VertexInputBindingDescription                  vertexInputBindingDescription(0, sizeof(glm::vec4)*2);
+                    buildUniformBuffers(m_GraphicsPipelines[path.id]);
+                    buildFrameBuffers(path);
 
-                WILO_CORE_WARNING("VERTEX INPUT CURRENTLY FIXED TO DEFAULT FORMAT, WILL FAIL if vertices are anything other than a pair of glm::vec4");
-                std::array<vk::VertexInputAttributeDescription, 2> vertexInputAttributeDescriptions = {
-                        vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32A32Sfloat, 0),
-                        vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32A32Sfloat, 16)
-                };
-
-
-                          vk::PipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo(
-                              vk::PipelineVertexInputStateCreateFlags(),  // flags
-                              vertexInputBindingDescription,              // vertexBindingDescriptions
-                              vertexInputAttributeDescriptions            // vertexAttributeDescriptions
-                          );
-
-                vk::PipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo(
-                    vk::PipelineInputAssemblyStateCreateFlags(), vk::PrimitiveTopology::eTriangleList);
-
-                vk::PipelineViewportStateCreateInfo pipelineViewportStateCreateInfo(
-                    vk::PipelineViewportStateCreateFlags(), 1, nullptr, 1, nullptr);
-
-                vk::PipelineRasterizationStateCreateInfo pipelineRasterizationStateCreateInfo(
-                    vk::PipelineRasterizationStateCreateFlags(),  // flags
-                    false,                                        // depthClampEnable
-                    false,                                        // rasterizerDiscardEnable
-                    vk::PolygonMode::eFill,                       // polygonMode
-                    vk::CullModeFlagBits::eBack,                  // cullMode
-                    vk::FrontFace::eClockwise,                    // frontFace
-                    false,                                        // depthBiasEnable
-                    0.0f,                                         // depthBiasConstantFactor
-                    0.0f,                                         // depthBiasClamp
-                    0.0f,                                         // depthBiasSlopeFactor
-                    1.0f                                          // lineWidth
-                );
-
-                vk::PipelineMultisampleStateCreateInfo pipelineMultisampleStateCreateInfo(
-                    vk::PipelineMultisampleStateCreateFlags(),  // flags
-                    vk::SampleCountFlagBits::e1                 // rasterizationSamples
-                    // other values can be default
-                );
-
-                vk::StencilOpState stencilOpState(
-                    vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::StencilOp::eKeep, vk::CompareOp::eAlways);
-                vk::PipelineDepthStencilStateCreateInfo pipelineDepthStencilStateCreateInfo(
-                    vk::PipelineDepthStencilStateCreateFlags(),  // flags
-                    true,                                        // depthTestEnable
-                    true,                                        // depthWriteEnable
-                    vk::CompareOp::eLessOrEqual,                 // depthCompareOp
-                    false,                                       // depthBoundTestEnable
-                    false,                                       // stencilTestEnable
-                    stencilOpState,                              // front
-                    stencilOpState                               // back
-                );
-
-                vk::ColorComponentFlags colorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
-                    vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
-                vk::PipelineColorBlendAttachmentState pipelineColorBlendAttachmentState(
-                    false,                   // blendEnable
-                    vk::BlendFactor::eZero,  // srcColorBlendFactor
-                    vk::BlendFactor::eZero,  // dstColorBlendFactor
-                    vk::BlendOp::eAdd,       // colorBlendOp
-                    vk::BlendFactor::eZero,  // srcAlphaBlendFactor
-                    vk::BlendFactor::eZero,  // dstAlphaBlendFactor
-                    vk::BlendOp::eAdd,       // alphaBlendOp
-                    colorComponentFlags      // colorWriteMask
-                );
-                vk::PipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo(
-                    vk::PipelineColorBlendStateCreateFlags(),  // flags
-                    false,                                     // logicOpEnable
-                    vk::LogicOp::eNoOp,                        // logicOp
-                    pipelineColorBlendAttachmentState,         // attachments
-                    { { 1.0f, 1.0f, 1.0f, 1.0f } }             // blendConstants
-                );
-
-                std::array<vk::DynamicState, 2>    dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
-                vk::PipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo(vk::PipelineDynamicStateCreateFlags(),
-                    dynamicStates);
-
-                          vk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo(
-                              vk::PipelineCreateFlags(),              // flags
-                              pipelineShaderStageCreateInfos,         // stages
-                              &pipelineVertexInputStateCreateInfo,    // pVertexInputState
-                              &pipelineInputAssemblyStateCreateInfo,  // pInputAssemblyState
-                              nullptr,                                // pTessellationState
-                              &pipelineViewportStateCreateInfo,       // pViewportState
-                              &pipelineRasterizationStateCreateInfo,  // pRasterizationState
-                              &pipelineMultisampleStateCreateInfo,    // pMultisampleState
-                              &pipelineDepthStencilStateCreateInfo,   // pDepthStencilState
-                              &pipelineColorBlendStateCreateInfo,     // pColorBlendState
-                              &pipelineDynamicStateCreateInfo,        // pDynamicState
-                              m_PipelineLayouts[path.id].get(),                   // layout
-                              m_RenderPasses[path.id].get()                        // renderPass
-                          );
-
-                          vk::Result         result;
-                          vk::UniquePipeline pipeline;
-                          std::tie(result, pipeline) =
-                              m_root.Device().createGraphicsPipelineUnique(nullptr, graphicsPipelineCreateInfo).asTuple();
-                          m_GraphicsPipelines[path.id] = std::move(pipeline);
             }
         }
 
-        void buildUniformBuffers(const FrameClass& fc)
+        void buildFrameBuffers(const wlo::rendering::RenderPath & path){
+            std::array<vk::ImageView, 2> attachments;
+            attachments[1] = m_swapchain.getDepthImageView();
+
+            m_FrameBuffers[path.id].reserve(m_swapchain.getSwapSurfaceViews().size());
+            for (auto const& view : m_swapchain.getSwapSurfaceViews())
+            {
+                attachments[0] = view;
+                m_FrameBuffers[path.id].push_back(m_root.Device().createFramebufferUnique(vk::FramebufferCreateInfo(vk::FramebufferCreateFlags(),
+                                                                                                                    m_GraphicsPipelines[path.id].vkRenderPass.get(),
+                                                                                                                    attachments,
+                                                                                                                    m_swapchain.getSwapSurfaceExtent().width,
+                                                                                                                    m_swapchain.getSwapSurfaceExtent().height,
+                                                                                                                    1)));
+            }
+
+        }
+
+        void buildUniformBuffers(const wk::GraphicsPipeline & pipeline )
         {
-            for (auto path : fc.paths) {
 
-                m_UniformBuffers[path.id].buffer = m_root.Device().createBufferUnique(
+            m_UniformBuffers[pipeline.id].buffer = m_root.Device().createBufferUnique(
                     vk::BufferCreateInfo{ vk::BufferCreateFlags(),sizeof(glm::mat4x4),vk::BufferUsageFlagBits::eUniformBuffer }
                 );
 
-                vk::MemoryRequirements uniformBufferMemRequirements = m_root.Device().getBufferMemoryRequirements(m_UniformBuffers[path.id].buffer.get());
+                vk::MemoryRequirements uniformBufferMemRequirements = m_root.Device().getBufferMemoryRequirements(m_UniformBuffers[pipeline.id].buffer.get());
                 uint32_t memoryTypeIndex = m_root.findMemoryType(uniformBufferMemRequirements, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
-                m_UniformBuffers[path.id].memory = m_root.Device().allocateMemory(vk::MemoryAllocateInfo{ uniformBufferMemRequirements.size, memoryTypeIndex });
-                m_UniformBuffers[path.id].writePoint = (static_cast<byte*>(m_root.Device().mapMemory(m_UniformBuffers[path.id].memory, 0, uniformBufferMemRequirements.size)));
+                m_UniformBuffers[pipeline.id].memory = std::move(m_root.Device().allocateMemoryUnique(vk::MemoryAllocateInfo{ uniformBufferMemRequirements.size, memoryTypeIndex }));
+                m_UniformBuffers[pipeline.id].writePoint = (static_cast<byte*>(m_root.Device().mapMemory(m_UniformBuffers[pipeline.id].memory.get(), 0, uniformBufferMemRequirements.size)));
 
                 glm::mat4x4 view = glm::lookAt(glm::vec3(-5.0f, 3.0f, -10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
                 glm::mat4x4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
                 glm::mat4x4 mvpc = m_clipMatrix * projection * view;
 
-                memcpy(m_UniformBuffers[path.id].writePoint, &mvpc, sizeof(mvpc));
-                m_root.Device().bindBufferMemory(m_UniformBuffers[path.id].buffer.get(), m_UniformBuffers[path.id].memory, 0);
-
-                vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding(
-                    0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-
-                std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = {
-                    m_root.Device().createDescriptorSetLayout(
-                        vk::DescriptorSetLayoutCreateInfo(vk::DescriptorSetLayoutCreateFlags(), descriptorSetLayoutBinding)),
-                };
-
-                std::vector<vk::PushConstantRange> pushConstantRanges = {
-                    vk::PushConstantRange(vk::ShaderStageFlagBits::eVertex,0,sizeof(glm::mat4x4))
-                };
-
-                // create a PipelineLayout using that DescriptorSetLayout
-                m_PipelineLayouts[path.id] = m_root.Device().createPipelineLayoutUnique(
-                    vk::PipelineLayoutCreateInfo(vk::PipelineLayoutCreateFlags(), descriptorSetLayouts, pushConstantRanges));
-
-
+                memcpy(m_UniformBuffers[pipeline.id].writePoint, &mvpc, sizeof(mvpc));
+                m_root.Device().bindBufferMemory(m_UniformBuffers[pipeline.id].buffer.get(), m_UniformBuffers[pipeline.id].memory.get(), 0);
 
                 // allocate a descriptor set
-                m_DescriptorSets[path.id] = std::move(
-                    m_root.Device().allocateDescriptorSetsUnique(vk::DescriptorSetAllocateInfo(*m_descriptorPool, descriptorSetLayouts)).front());
+                std::array<vk::DescriptorSetLayout,1> vkDescriptorSetLayouts{pipeline.vkDescriptorSetLayout.get()};
+                m_DescriptorSets[pipeline.id] = std::move(
+                    m_root.Device().allocateDescriptorSetsUnique(vk::DescriptorSetAllocateInfo(*m_descriptorPool, vkDescriptorSetLayouts)).front());
+
 
                 //copy data from the uniform buffer into the descriptor so that it is accessible by the shaders
-                vk::DescriptorBufferInfo descriptorBufferInfo(m_UniformBuffers[path.id].buffer.get(), 0, sizeof(glm::mat4x4));
+                vk::DescriptorBufferInfo descriptorBufferInfo(m_UniformBuffers[pipeline.id].buffer.get(), 0, sizeof(glm::mat4x4));
                 m_root.Device().updateDescriptorSets(
-                    vk::WriteDescriptorSet(*m_DescriptorSets[path.id], 0, 0, vk::DescriptorType::eUniformBuffer, {}, descriptorBufferInfo),
+                    vk::WriteDescriptorSet(*m_DescriptorSets[pipeline.id], 0, 0, vk::DescriptorType::eUniformBuffer, {}, descriptorBufferInfo),
                     {});
 
-            }
+                m_textureSamplers[pipeline.id] =
+                    m_root.Device().createSamplerUnique( vk::SamplerCreateInfo( vk::SamplerCreateFlags(),
+                                                                        vk::Filter::eNearest,
+                                                                        vk::Filter::eNearest,
+                                                                        vk::SamplerMipmapMode::eNearest,
+                                                                        vk::SamplerAddressMode::eClampToEdge,
+                                                                        vk::SamplerAddressMode::eClampToEdge,
+                                                                        vk::SamplerAddressMode::eClampToEdge,
+                                                                        0.0f,
+                                                                        false,
+                                                                        1.0f,
+                                                                        false,
+                                                                        vk::CompareOp::eNever,
+                                                                        0.0f,
+                                                                        0.0f,
+                                                                        vk::BorderColor::eFloatOpaqueWhite ) );
+           auto & texture =  m_textureFactory.fetchTexture(m_textures[pipeline.id]);
+           vk::DescriptorImageInfo samplerWrite(m_textureSamplers[pipeline.id].get(),texture.view.get());
+           samplerWrite.imageLayout = texture.layout;
+           m_root.Device().updateDescriptorSets(
+                   vk::WriteDescriptorSet(m_DescriptorSets[pipeline.id].get(),1,0,vk::DescriptorType::eCombinedImageSampler,samplerWrite,{}),
+                   {}
+                   );
 
         }
 
-        void updateUnifromBuffer(wlo::ID_type pathID,DataLayout layout, size_t offset, const byte*  data, size_t count) {
-            memcpy(&m_UniformBuffers[pathID].writePoint[offset], data, layout.memSize());
+        void updateUnifromBuffer(wlo::ID_type pathID,const glm::mat4x4 &uniformView) {
+
+            glm::mat4x4 mvpc = m_clipMatrix * uniformView;
+            memcpy(m_UniformBuffers[pathID].writePoint,&mvpc, sizeof(mvpc));
         }
 
-        void updateVertexBuffer(DataLayout layout, size_t offset, const byte * data, size_t count) {
-            memcpy(&m_VertexBuffers[layout].writePoint[offset], data, count*layout.memSize());
+        void updateVertexBuffer(DataView vertView, size_t offset) {
+            memcpy(&m_VertexBuffers[vertView.layout].writePoint[offset], vertView.source, vertView.memSize);
         }
+
+        void updateIndexBuffer(DataView indexView,size_t offset){
+            memcpy(&m_IndexBuffer.writePoint[offset], indexView.source, indexView.memSize);
+        }
+
 
         void submit(const Frame& frame) {
-            const uint64_t FenceTimeout = 100000000;
             // Get the index of the next available swapchain image:
             vk::UniqueSemaphore       imageAcquiredSemaphore = m_root.Device().createSemaphoreUnique(vk::SemaphoreCreateInfo());
             vk::ResultValue<uint32_t> currentBuffer = m_root.Device().acquireNextImageKHR(
-                m_swapchain.get(), FenceTimeout, imageAcquiredSemaphore.get(), nullptr);
+                m_swapchain.get(), m_commandInterface.FenceTimeout, imageAcquiredSemaphore.get(), nullptr);
             assert(currentBuffer.result == vk::Result::eSuccess);
             assert(currentBuffer.value < m_swapchain.getSwapSurfaceViews().size());
-
-            vk::UniqueCommandBuffer commandBuffer = std::move(m_root.Device().allocateCommandBuffersUnique(vk::CommandBufferAllocateInfo(
-                m_commandPool.get(), vk::CommandBufferLevel::ePrimary, 1))
-                .front());
+            vk::UniqueCommandBuffer commandBuffer = m_commandInterface.newCommandBuffer();
             commandBuffer->begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlags()));
 
             std::array<vk::ClearValue, 2> clearValues;
-            clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { 0.7f, 0.1f, 0.2f, 0.2f } }));
+            m_clearColor = nextClearColor;
+            clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w } }));
             clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
             ID_type  pathId = frame.getDraws()[0].path.id;
 
-            vk::RenderPassBeginInfo renderPassBeginInfo(m_RenderPasses[pathId].get(),
+            vk::RenderPassBeginInfo renderPassBeginInfo(m_GraphicsPipelines[pathId].vkRenderPass.get(),
                 m_FrameBuffers[pathId][currentBuffer.value].get(),
                 vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.getSwapSurfaceExtent()),
                 clearValues);
             commandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-            commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[pathId].get());
+            commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[pathId].vkPipeline.get());
             commandBuffer->setViewport(0,
                 vk::Viewport(0.0f,
                     0.0f,
@@ -399,19 +290,24 @@ namespace wlo::rendering{
 
             commandBuffer->setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.getSwapSurfaceExtent()));
 
-            size_t drawOffset = 0;
+            size_t vertexOffset = 0;
+            size_t indexOffset = 0;
             for (const Draw& draw : frame.getDraws()) {
                  
                 commandBuffer->bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics, m_PipelineLayouts[pathId].get(), 0, *m_DescriptorSets[pathId], nullptr);
+                    vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[pathId].vkPipelineLayout.get(), 0, *m_DescriptorSets[pathId], nullptr);
 
-                updateVertexBuffer(draw.geo.vertices.layout, drawOffset, draw.geo.vertices.source, draw.geo.vertices.count);
-                
-                commandBuffer->bindVertexBuffers(0, *m_VertexBuffers[draw.geo.vertices.layout].buffer, { drawOffset });
-                commandBuffer->pushConstants(m_PipelineLayouts[pathId].get(), vk::ShaderStageFlagBits::eVertex, 0,sizeof(glm::mat4x4),&draw.geo.ModelMatrix);
-                commandBuffer->draw(draw.geo.vertices.count, 1, 0, 0);
+                updateVertexBuffer(draw.geo.vertices, vertexOffset);
+                updateIndexBuffer(draw.geo.indices,indexOffset);
+                updateUnifromBuffer(draw.path.id,draw.path.camera->getTransform());
 
-                drawOffset += draw.geo.vertices.memSize;
+                commandBuffer->bindVertexBuffers(0, *m_VertexBuffers[draw.geo.vertices.layout].buffer, { vertexOffset });
+                commandBuffer->bindIndexBuffer(*m_IndexBuffer.buffer,indexOffset,vk::IndexType::eUint32);
+                commandBuffer->pushConstants(m_GraphicsPipelines[pathId].vkPipelineLayout.get(), vk::ShaderStageFlagBits::eVertex, 0,sizeof(glm::mat4x4),&draw.geo.ModelMatrix);
+                commandBuffer->drawIndexed(draw.geo.indices.count,1,0,0,0);
+
+                vertexOffset += draw.geo.vertices.memSize;
+                indexOffset+= draw.geo.indices.memSize;
             }
             commandBuffer->endRenderPass();
             commandBuffer->end();
@@ -420,9 +316,9 @@ namespace wlo::rendering{
 
             vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
             vk::SubmitInfo         submitInfo(*imageAcquiredSemaphore, waitDestinationStageMask, *commandBuffer);
-            m_graphicsQueue.submit(submitInfo, drawFence.get());
+            m_commandInterface.submitGraphicsCommands(submitInfo,drawFence);
 
-            while (vk::Result::eTimeout == m_root.Device().waitForFences(drawFence.get(), VK_TRUE, FenceTimeout))
+            while (vk::Result::eTimeout == m_root.Device().waitForFences(drawFence.get(), VK_TRUE, m_commandInterface.FenceTimeout))
                 ;
             std::array<vk::SwapchainKHR, 1> swapchains = { m_swapchain.get() };
             vk::PresentInfoKHR presentInfo({}, swapchains, currentBuffer.value);
@@ -434,7 +330,7 @@ namespace wlo::rendering{
             case vk::Result::eSuboptimalKHR:
                 std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
                 break;
-            default: assert(false);  // an unexpected result is returned !
+            default: WILO_CORE_ERROR("INVALID RENDER SURFACE");
             }
 
         }
@@ -473,6 +369,10 @@ namespace wlo::rendering{
 
     auto Renderer::shareRoots() {
        return nullptr;
+    }
+
+    void Renderer::setClearColor(wlo::Color color) {
+       pImpl->nextClearColor = color.color;
     }
 
 

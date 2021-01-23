@@ -7,7 +7,7 @@ add_subdirectory(external)
 add_subdirectory(test)
 add_subdirectory(src)
 
-add_executable(CubeExample examples/Cube.cpp src/willow/console/ConsoleCore.cpp include/willow/console/ConsoleCore.hpp src/willow/rendering/OrthographicCamera3D.cpp include/willow/rendering/OrthographicCamera3D.hpp)
+add_executable(CubeExample examples/Cube.cpp )
 target_include_directories(CubeExample PRIVATE include)
 target_link_libraries(CubeExample PRIVATE Willow)
 

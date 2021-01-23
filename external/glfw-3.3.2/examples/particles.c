@@ -394,8 +394,8 @@ static void particle_engine(double t, float dt)
 static void draw_particles(GLFWwindow* window, double t, float dt)
 {
     int i, particle_count;
-    RenderDataTypes vertex_array[BATCH_PARTICLES * PARTICLE_VERTS];
-    RenderDataTypes* vptr;
+    Vertex vertex_array[BATCH_PARTICLES * PARTICLE_VERTS];
+    Vertex* vptr;
     float alpha;
     GLuint rgba;
     Vec3 quad_lower_left, quad_lower_right;

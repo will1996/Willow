@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-
+include_directories(..)
 include_directories(../include)
 include_directories(../include/willow)
 include_directories(../include/willow/dev-utils)
@@ -59,14 +59,16 @@ target_sources(WillowDevUtils
      PUBLIC ../include/willow/root/wilo_dev_core.hpp
         )
 add_library(WillowRendering )
+
+
 target_link_libraries(WillowRendering PUBLIC Vulkan::Vulkan)
+target_link_libraries(WillowRendering PUBLIC spirv-cross-cpp)
 target_link_libraries(WillowRendering PUBLIC glm)
 target_link_libraries(WillowRendering PUBLIC WillowMessaging)
 target_link_libraries(WillowRendering PUBLIC WillowDevUtils)
-target_link_libraries(WillowRendering PUBLIC glslang)
 target_link_libraries(WillowRendering PUBLIC glfw)
-target_link_libraries(WillowRendering PUBLIC vma)
 target_link_libraries(WillowRendering PUBLIC WillowRoot)
+target_include_directories(WillowRendering PUBLIC ..)
 target_sources(WillowRendering
         PUBLIC ../include/willow/rendering/Tag.hpp
         PUBLIC ../include/willow/rendering/Renderer.hpp
@@ -77,6 +79,7 @@ target_sources(WillowRendering
         PUBLIC ../include/willow/rendering/Geometry.hpp
         PUBLIC ../include/willow/rendering/Buffer.hpp
         PUBLIC ../include/willow/rendering/DataView.hpp
+        PUBLIC ../include/willow/rendering/Model.hpp
         PUBLIC ../include/willow/Vulkan/VulkanSetup.hpp
         PUBLIC ../include/willow/Vulkan/VulkanSwapchain.hpp
         PUBLIC ../include/willow/Vulkan/VulkanRoot.hpp
@@ -84,34 +87,26 @@ target_sources(WillowRendering
         PUBLIC ../include/willow/Vulkan/VulkanMemoryManager.hpp
         PUBLIC ../include/willow/Vulkan/VulkanBuffer.hpp
         PUBLIC ../include/willow/Vulkan/VulkanShaderCompiler.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanTextureFactory.hpp
+        PUBLIC ../include/willow/Vulkan/VulkanCommandInterface.hpp
+        PRIVATE ../external/stb_image.h
         PUBLIC willow/rendering/Tag.cpp
+        PUBLIC willow/rendering/Model.cpp
         PUBLIC willow/rendering/Renderer.cpp
         PUBLIC willow/rendering/DataLayout.cpp
         PUBLIC willow/rendering/RenderPath.cpp
         PUBLIC willow/rendering/Shader.cpp
         PUBLIC willow/rendering/DataView.cpp
+        PUBLIC willow/rendering/PrespectiveCamera3D.cpp
         PUBLIC willow/dev-utils/Vulkan/VulkanSetup.cpp
         PUBLIC willow/Vulkan/VulkanSwapchain.cpp
         PUBLIC willow/Vulkan/VulkanRoot.cpp
         PUBLIC willow/Vulkan/VulkanBuffer.cpp
         PUBLIC willow/Vulkan/VulkanShaderCompiler.cpp
         PUBLIC willow/Vulkan/VulkanGraphicsPipelineFactory.cpp
-        PUBLIC willow/rendering/OrthographicCamera3D.cpp
-       #TO DELETE
-        #PUBLIC willow/rendering/Vulkan/vkdevice.cpp
-        #PUBLIC willow/rendering/Vulkan/vkutil.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_context.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_frame_buffer_array.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_graphics_pipeline.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_index_buffer.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_render_core.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_render_pass.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_shader.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_uniform_buffer_array.cpp
-        #PUBLIC willow/rendering/Vulkan/vulkan_vertex_buffer.cpp
-        #PUBLIC willow/rendering/wilo_renderer.cpp
-
-
+        PUBLIC willow/Vulkan/VulkanTextureFactory.cpp
+        PUBLIC willow/Vulkan/VulkanMemoryManager.cpp
+        PUBLIC willow/Vulkan/VulkanCommandInterface.cpp
         )
 
 add_library(WillowWindow )

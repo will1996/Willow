@@ -10,13 +10,15 @@ namespace wlo{
     class MacWindow : public Window{
 
         public:
-            MacWindow(Window::Info &info);
-            ~MacWindow();
+
+        MacWindow(struct Info info);
+
+        ~MacWindow();
             wlo::Window::Info getInfo() const override;
             void initialize()  ;
             void checkIn()     override;
             void reclaim();
-            bool shouldClose() override;
+            bool shouldClose(bool queryAutomatically = true) override;
             void* getNativeWindow() const override;
         
         private:
@@ -25,8 +27,11 @@ namespace wlo{
             void notifyMouseObservers(const wlo::MouseMoved& msg);
             void notifyMouseObservers(const wlo::MouseScrolled& msg);
             void notifyMouseObservers(const wlo::MouseButtonMessage& msg);
-            void notifyWindowObservers(const wlo::WindowMessage& msg);
-            Window::Info m_info;
+            void notifyWindowObservers(const wlo::WindowResized& msg);
+            void notifyWindowObservers(const wlo::WindowClosed& msg);
+            void notifyWindowObservers(const wlo::WindowLostFocus& msg);
+            void notifyWindowObservers(const wlo::WindowGainedFocus& msg);
+        Window::Info m_info;
     };
 
 }

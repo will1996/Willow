@@ -5,8 +5,7 @@
 
 namespace wlo::rendering{
 
-
-    
+    DataLayout::DataLayout():m_memSize(0) {}
 
    DataLayout::DataLayout(std::initializer_list<Element> elements):m_memSize(0) {
        size_t offset =0;
@@ -16,6 +15,14 @@ namespace wlo::rendering{
             offset+=sizeOf(element);
         }
    }
+    DataLayout::DataLayout(vector<Element> elements):m_memSize(0) {
+        size_t offset =0;
+        for(auto element : elements) {
+            m_elementList.push_back({element, offset});
+            m_memSize+=sizeOf(element);
+            offset+=sizeOf(element);
+        }
+    }
    DataLayout::DataLayout(std::initializer_list<const DataLayout> layouts):m_memSize(0){
        size_t offset =0;
         for(auto layout: layouts)
@@ -32,6 +39,8 @@ namespace wlo::rendering{
    }
     size_t  DataLayout::sizeOf(DataType type){
         switch (type) {
+            case wlo::rendering::DataLayout::DataType::Byte:
+                return sizeof(byte);
             case wlo::rendering::DataLayout::DataType::Float:
                 return sizeof(float);
             case wlo::rendering::DataLayout::DataType::Double:
@@ -50,6 +59,7 @@ namespace wlo::rendering{
    std::vector<std::pair<DataLayout::Element, size_t>> DataLayout::get() const {
        return m_elementList;
    }
+
 
 }
 

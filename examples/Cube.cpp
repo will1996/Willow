@@ -6,40 +6,165 @@
 #include "willow.hpp"
 #include<iostream>
 #include"glm/gtc/matrix_transform.hpp"
+#include"willow/rendering/Model.hpp"
 
 class CubeExample : public wlo::Application{
+private:
+    const float cameraSpeed = 50.0f;
+    struct {
+       bool pressedForward;
+        bool pressedBack;
+        bool pressedLeft;
+        bool pressedRight;
+        bool pressedRotateLeft;
+        bool pressedRotateRight;
+    }inputHandler;
+
+    wlo::rendering::Model3D cube{
+
+            .vertices = {
+
+                    { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
+                { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
+                { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
+                    { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
+
+                { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
+                { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
+                { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
+                { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
+
+            },
+
+            .indices = {
+                // front
+                0, 1, 2,
+                2, 3, 0,
+                // right
+                1, 5, 6,
+                6, 2, 1,
+                // back
+                7, 6, 5,
+                5, 4, 7,
+                // left
+                4, 0, 3,
+                3, 7, 4,
+                // bottom
+                4, 5, 1,
+                1, 0, 4,
+                // top
+                3, 2, 6,
+                6, 7, 3
+            },
+            .textureFile = "/Users/w/Projects/Willow/examples/Textures/cow.bmp"
+
+    };
+    std::unordered_map<std::string, wlo::rendering::RenderPath> renderPaths{ };
+    wlo::PrespectiveCamera3D camera;
+
+
 public:
-    CubeExample(std::string entryPoint):Application(entryPoint){
-        Application::Info inf("cubeExample",0);
-        Application::initialize(inf);
+    CubeExample():Application(Application::Info("Cube example",1)),camera(m_main_window){
         m_main_window->permit<wlo::MouseButtonMessage,CubeExample,&CubeExample::handleMouse>(this);
+
+        renderPaths.insert(
+        {"basic", {
+                    .camera = &camera,
+                    .vertexShaderPath = "/Users/w/Projects/Willow/shaders/vert.spv",
+                    .fragmentShaderPath =  "/Users/w/Projects/Willow/shaders/frag.spv",
+            }}
+        );
     }
     void handleMouse(const wlo::MouseButtonMessage& msg){
 
     }
-    void run() override{
-        WILO_INFO("running!")
-        while(!m_shutting_down){
-            m_renderer->setClearColor({0,0,0,1});
-            m_renderer->beginDrawCall();
 
-            std::vector<wlo::Vertex3D> triangle{
-                    {{-0.5f, -0.5f,0.0f},{1.0f, 0.0f, 0.0f}},
-                    {{0.5f, -0.5f,0.0f},{0.0f, 1.0f, 0.0f}},
-                    {{0.5f, 0.5f,0.0f},{0.0f, 0.0f, 1.0f}},
-            };
+    void recieve(const wlo::KeyboardMessage& msg) override{
 
-            std::vector<uint32_t> indices = {0,1,2};
-
-            glm::mat4x4 view = glm::mat4x4(1);
-            glm::mat4x4 proj = glm::mat4x4(1);//glm::ortho(0.0f, 600.0f, 0.0f, 800.0f);
-            glm::mat4x4 model = glm::rotate(glm::mat4x4 (1),glm::radians(90.0f),{0,0,1});
-            m_renderer->setCamera(view, proj);
-            m_renderer->pushGeometry(triangle,indices,model);
-            m_renderer->submitDrawCall();
-            m_main_window->checkIn();
-            m_console->render();
+        if(msg.content.button==wlo::Key::Code::ESCAPE) {
+            WILO_CORE_INFO("Application shutting down");
+            m_shutting_down = true;
         }
+
+        if(msg.content.button==wlo::Key::Code::S) {
+            WILO_INFO("GOT KEY S")
+            if(msg.content.action==wlo::KeyAction::Pressed)
+                inputHandler.pressedBack = true;
+            if(msg.content.action==wlo::KeyAction::Released)
+                inputHandler.pressedBack = false;
+        }
+        if(msg.content.button==wlo::Key::Code::W) {
+            WILO_INFO("GOT KEY W");
+            if(msg.content.action==wlo::KeyAction::Pressed)
+                inputHandler.pressedForward = true;
+            if(msg.content.action==wlo::KeyAction::Released)
+                inputHandler.pressedForward = false;
+        }
+        if(msg.content.button==wlo::Key::Code::A) {
+            WILO_INFO("GOT KEY W");
+            if(msg.content.action==wlo::KeyAction::Pressed)
+                inputHandler.pressedLeft = true;
+            if(msg.content.action==wlo::KeyAction::Released)
+                inputHandler.pressedLeft = false;
+        }
+        if(msg.content.button==wlo::Key::Code::D) {
+            WILO_INFO("GOT KEY W");
+            if(msg.content.action==wlo::KeyAction::Pressed)
+                inputHandler.pressedRight = true;
+            if(msg.content.action==wlo::KeyAction::Released)
+                inputHandler.pressedRight = false;
+        }
+        if(msg.content.button==wlo::Key::Code::E) {
+            WILO_INFO("GOT KEY W");
+            if(msg.content.action==wlo::KeyAction::Pressed)
+                inputHandler.pressedRotateRight = true;
+            if(msg.content.action==wlo::KeyAction::Released)
+                inputHandler.pressedRotateRight = false;
+        }
+        if(msg.content.button==wlo::Key::Code::Q) {
+            WILO_INFO("GOT KEY W");
+            if(msg.content.action==wlo::KeyAction::Pressed)
+                inputHandler.pressedRotateLeft = true;
+            if(msg.content.action==wlo::KeyAction::Released)
+                inputHandler.pressedRotateLeft = false;
+        }
+
+
+
+    }
+
+
+    void setup () override{
+        using namespace wlo::rendering;
+        Frame example = {
+                Frame::Draw{cube.draw(),renderPaths["basic"]},
+        };
+        m_renderer->PrepareFrameClass(example);
+        WILO_CORE_INFO("Rendering prepared");
+    }
+
+    void stepSim (float dt) override{
+        cube.transform = glm::rotate(glm::mat4(1), timeElapsed()*1.0f,{0,1,0});
+        if(inputHandler.pressedForward)
+            camera.moveAlongViewAxis(dt*cameraSpeed);
+        if(inputHandler.pressedBack)
+            camera.moveAlongViewAxis(-dt*cameraSpeed);
+        if(inputHandler.pressedLeft)
+            camera.strafe(dt*cameraSpeed);
+        if(inputHandler.pressedRight)
+            camera.strafe(-dt*cameraSpeed);
+        if(inputHandler.pressedRotateLeft)
+            camera.rotate(-dt*cameraSpeed);
+        if(inputHandler.pressedRotateRight)
+            camera.rotate(dt*cameraSpeed);
+    }
+
+    void draw() override{
+        using namespace wlo::rendering;
+            Frame next = {
+                    Frame::Draw{cube.draw(),renderPaths["basic"]},
+            };
+            m_renderer->Submit(next);
     }
 
 
@@ -49,6 +174,8 @@ public:
 
 };
 
-
-WILLOW_TRUNK(CubeExample);
+int main(){
+    wlo::UniquePointer<wlo::Application> example = wlo::CreateUniquePointer<CubeExample>();
+    example->run();
+}
 

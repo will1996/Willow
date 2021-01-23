@@ -17,42 +17,46 @@ namespace wlo::wk{
 
     VulkanSwapchain::VulkanSwapchain( wk::VulkanRoot& root,wlo::SharedPointer<Window> window):
     m_root(root),
-    m_swapSurfaceExtent{window->getInfo().m_width,window->getInfo().m_height}
+    m_swapSurfaceExtent{window->getInfo().m_width,window->getInfo().m_height},
+    m_window(window)
 
     {
-        WILO_CORE_INFO("Creating swapchain...");
-        window->permit<WindowResized,VulkanSwapchain,&VulkanSwapchain::resize>(this);
 
         //create an oldschool VKSurface because glfw is a hoe
+        initialize();
+        WILO_CORE_INFO("Swapchain created!");
+    }
+
+    void VulkanSwapchain::initialize() {
         VkSurfaceKHR mainWindowSurface;
-        VkResult res = glfwCreateWindowSurface(m_root.Instance(),(GLFWwindow*)window->getNativeWindow(),nullptr,&mainWindowSurface );
+        VkResult res = glfwCreateWindowSurface(m_root.Instance(),(GLFWwindow*)m_window->getNativeWindow(),nullptr,&mainWindowSurface );
         if(res!=VK_SUCCESS)
             throw std::runtime_error("something went wrong with GLFW");
         m_surface = vk::SurfaceKHR(mainWindowSurface);//wrap that in a much better surface object
-        m_swapSurfaceExtent = vk::Extent2D{window->getInfo().m_width,window->getInfo().m_height};
+        m_swapSurfaceExtent = vk::Extent2D{m_window->getInfo().m_width,m_window->getInfo().m_height};
         if(! m_root.supportSurface(m_surface)) throw std::runtime_error("CreatedVulkan root does not support swapchain present surface");
         createVkSwapchain();
         createImageViews();
         createDepthBuffers();
-        createFrameBuffers();
-        WILO_CORE_INFO("Swapchain created!");
     }
 
+    void VulkanSwapchain::reclaim(){
+        m_root.Device().destroy(m_vkSwapchain);
+        m_root.Device().free(m_depthBufferMemory);
+        m_root.Device().destroy(m_depthView);
+        m_root.Device().destroy(m_depthImage);
+        m_root.Instance().destroy(m_surface);
+        for(auto & imageView : m_imageViews)
+            m_root.Device().destroy(imageView);
+    }
 
-	void VulkanSwapchain::resize(const wlo::WindowResized & msg){
-		m_swapSurfaceExtent = vk::Extent2D{static_cast<uint32_t> (msg.content.width),static_cast<uint32_t> (msg.content.height)};
+	void VulkanSwapchain::resize(){
+		m_swapSurfaceExtent = vk::Extent2D{m_window->getInfo().m_width,m_window->getInfo().m_height};
 		reclaim();
-		createVkSwapchain();
-		createImageViews();
+		initialize();
 		WILO_CORE_INFO("Vulkan swapchain reInitialized!")
 	}
 
-	void VulkanSwapchain::reclaim(){
-//		for(auto imageView: m_imageViews){
-//			vkDestroyImageView(p_context->getDevice(),imageView,nullptr);
-//		}
-//		vkDestroySwapchainKHR(p_context->getDevice(),m_swapchain,nullptr);
-	}
 
 	vk::SwapchainKHR VulkanSwapchain::get(){
 		return m_vkSwapchain;
@@ -160,19 +164,9 @@ namespace wlo::wk{
 
 
     VulkanSwapchain::~VulkanSwapchain() {
-	    m_root.Device().destroy(m_vkSwapchain);
-        m_root.Device().free(m_depthBufferMemory);
-	    m_root.Device().destroy(m_depthView);
-        m_root.Device().destroy(m_depthImage);
-        m_root.Instance().destroy(m_surface);
-        for(auto & imageView : m_imageViews)
-            m_root.Device().destroy(imageView);
-
+	    reclaim();
     }
 
-    void VulkanSwapchain::createFrameBuffers() {
-
-    }
 
     void VulkanSwapchain::createDepthBuffers(){
 	    const vk::Format     depthFormat      = vk::Format::eD16Unorm;

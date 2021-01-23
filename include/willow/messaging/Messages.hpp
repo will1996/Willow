@@ -52,26 +52,24 @@ enum class KeyAction{
         std::string title;
         uint32_t width;
         uint32_t height;
-        WindowAction action;
+        const WindowAction action;
     };
 
-struct WindowMessage : public Message<WindowInfo>{};
-struct WindowClosed : public WindowMessage{
+struct WindowClosed : public Message<WindowInfo>{
     WindowClosed(std::string title, uint32_t width, uint32_t height):
-    WindowMessage { title, width, height, WindowAction::Closed }{}
+    Message<WindowInfo>{ title, width, height, WindowAction::Closed }{}
 };
-struct WindowResized : public WindowMessage{
+struct WindowResized : public Message<WindowInfo>{
     WindowResized(std::string title, uint32_t width, uint32_t height):
-    WindowMessage { title, width, height, WindowAction::Resized }{}
-
+   Message<WindowInfo>{ title, width, height, WindowAction::Resized }{}
 };
-struct WindowGainedFocus: public WindowMessage{
+struct WindowGainedFocus: public Message<WindowInfo>{
     WindowGainedFocus(std::string title, uint32_t width, uint32_t height):
-    WindowMessage { title, width, height, WindowAction::GainedFocus}{}
+    Message<WindowInfo> { title, width, height, WindowAction::GainedFocus}{}
 };
-struct WindowLostFocus: public WindowMessage{
+struct WindowLostFocus: public Message<WindowInfo>{
     WindowLostFocus(std::string title, uint32_t width, uint32_t height):
-    WindowMessage { title, width, height, WindowAction::LostFocus}{}
+    Message<WindowInfo> { title, width, height, WindowAction::LostFocus}{}
 };
 
 //MouseMessages
@@ -135,7 +133,7 @@ inline std::ostream & operator<<(std::ostream& os, const wlo::WindowInfo & data 
     return os;
 }
 
-inline std::ostream & operator<<(std::ostream& os, const wlo::WindowMessage & msg ){
+inline std::ostream & operator<<(std::ostream& os, const wlo::Message<wlo::WindowInfo> & msg ){
     os<<msg.content;
     return os;
 }

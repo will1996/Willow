@@ -77,7 +77,6 @@ namespace wlo{
 
            template<typename SUBTYPE>
            static std::map<ID_type, Invocation<SUBTYPE> > m_registry;
-           std::map<std::type_index, std::vector<ID_type> > m_triggerFilter;
        };
    };
 }
@@ -115,10 +114,10 @@ namespace wlo{
         ID_type uniqueID = obs->getID();
         //add the "this" pointer to our observer so it can notify this subject upon its desconstruction
         obs->trackSubject<SUBTYPE>(this);
-        m_triggerFilter[typeid(SUBTYPE)].push_back(uniqueID);//add this observer
+//        m_triggerFilter[typeid(SUBTYPE)].push_back(uniqueID);//add this observer
 
         WILO_CORE_INFO("permitting observer with ID {0} triggering on  {1}'s total registered observers:{2} \n",
-                       uniqueID, typeid(SUBTYPE).name(), m_triggerFilter.size());
+                       uniqueID, typeid(SUBTYPE).name(), m_registry<SUBTYPE>.size()+1);
 
         invoker_t <SUBTYPE> inver = &invoker<SUBTYPE, Obs, Method>;
         Invocation inv(obs, inver);
@@ -128,13 +127,8 @@ namespace wlo{
     template<typename SUBTYPE>
     void MessageSystem::Subject::notify(const SUBTYPE &t) {
         //get the list of uniqueID's for the trigger filter
-        if (!m_triggerFilter.count(typeid(SUBTYPE))) {
-            WILO_CORE_ERROR("ATTEMPT TO NOTIFY ON UNBOUND MESSAGE TYPE");
-            //throw std::runtime_error("attempt to notify an unbound message type, failing");
-        }
-        for (ID_type id : m_triggerFilter[typeid(SUBTYPE)]) {
-            m_registry<SUBTYPE>[id].invoke(t);//call the bound method for each ID
-        };
+        for(auto &[id,invoker]:m_registry<SUBTYPE>)
+            invoker.invoke(t);
     };
 
 

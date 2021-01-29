@@ -67,15 +67,15 @@ namespace wlo::wk {
         auto renderPass = createRenderPass(path);
         auto pipeline = createPipeline(path,renderPass,pipelineLayout);
         return GraphicsPipeline{
+           .id = path.id,
             .originPath = path,
            .vertexLayout = vertexLayout,
            .uniformBufferLayout = uniformLayout,
            .pushConstantLayout = pushLayout,
-           .id = path.id,
-           .vkDescriptorSetLayout = std::move(descriptorSetLayout),
-           .vkPipeline = std::move(pipeline),
            .vkPipelineLayout = std::move(pipelineLayout),
-           .vkRenderPass = std::move(renderPass)
+           .vkPipeline = std::move(pipeline),
+           .vkRenderPass = std::move(renderPass),
+           .vkDescriptorSetLayout = std::move(descriptorSetLayout)
         };
     }
 

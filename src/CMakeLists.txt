@@ -20,6 +20,7 @@ target_link_libraries(WillowRoot PUBLIC spdlog)
 target_include_directories(WillowRoot PUBLIC ../external/spdlog/include)
 target_sources(WillowRoot
         PUBLIC ../include/willow/root/logr.hpp
+        PUBLIC ../include/willow/root/FileSystem.hpp
         PUBLIC ../include/willow/root/wilo_APICodes.hpp
         PUBLIC ../include/willow/root/wilo_engine_element.hpp
         PUBLIC ../include/willow/root/wilo_object_counter.hpp

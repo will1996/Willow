@@ -117,11 +117,14 @@ Frame next({
           }
 );
 
-renderer.PrepareFrameClass(next);//needs to happen once per declared frame class (runtime error if not);
+renderer.PrepareFrameClass(next);//allocates all of the necessary resources for drawing, using this frame as a template. 
+//You need to have specified all of the resources for the frame class ahead of time (similar to a scene)
+//basically, create a frame that represents the worst case scenario, and submit that. If you fail to do that, segfaults are bound to happen. 
 
 // a frame is a sequence of events, all of which culminate in creating a frame on the screen sometime after submission
 auto start = std::chrono::high_resolution_clock::now();
 while(!window->shouldClose()) {
+    //once allocated you can submit any frame with the same render paths, and up to the number of vertices in the example frame. 
 auto delta = std::chrono::high_resolution_clock::now() -start;
     window->checkIn();
     renderer.Submit(next);

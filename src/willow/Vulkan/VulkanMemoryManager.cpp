@@ -16,9 +16,9 @@ namespace wlo::wk {
        {
            wk::MappedBuffer buff{
 
-                   {allocateBuffer(layout, count, usage,
+                  {allocateBuffer(layout, count, usage,
                                   vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent)},
-                                  .writePoint = nullptr
+                                  /*.writePointr =*/ nullptr
            };
 
 

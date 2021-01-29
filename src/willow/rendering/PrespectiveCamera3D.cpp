@@ -14,7 +14,7 @@ namespace wlo{
 
     }
     PrespectiveCamera3D::PrespectiveCamera3D(SharedPointer<Window> wnd, bool resizeWithWindow)
-    :m_position{0,0,0},
+    :m_position{0,0,-1},
      m_upDirection{0,1,0},
      m_focus{0,0,1},
      m_FOV(45)

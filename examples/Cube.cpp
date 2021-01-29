@@ -7,6 +7,7 @@
 #include<iostream>
 #include"glm/gtc/matrix_transform.hpp"
 #include"willow/rendering/Model.hpp"
+#include"willow/root/FileSystem.hpp"
 
 class CubeExample : public wlo::Application{
 private:
@@ -56,7 +57,7 @@ private:
                 3, 2, 6,
                 6, 7, 3
             },
-            .textureFile = "/Users/w/Projects/Willow/examples/Textures/cow.bmp"
+            .textureFile = wlo::FileSystem::Root()+"examples\\Textures\\cow.bmp"
 
     };
     std::unordered_map<std::string, wlo::rendering::RenderPath> renderPaths{ };
@@ -70,8 +71,8 @@ public:
         renderPaths.insert(
         {"basic", {
                     .camera = &camera,
-                    .vertexShaderPath = "/Users/w/Projects/Willow/shaders/vert.spv",
-                    .fragmentShaderPath =  "/Users/w/Projects/Willow/shaders/frag.spv",
+                    .vertexShaderPath = wlo::FileSystem::Root()+"shaders\\vert.spv",
+                    .fragmentShaderPath =  wlo::FileSystem::Root()+"shaders\\frag.spv",
             }}
         );
     }
@@ -140,6 +141,7 @@ public:
                 Frame::Draw{cube.draw(),renderPaths["basic"]},
         };
         m_renderer->PrepareFrameClass(example);
+        m_renderer->setClearColor({ {.9,.9,.9,1} });
         WILO_CORE_INFO("Rendering prepared");
     }
 

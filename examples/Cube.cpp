@@ -1,8 +1,6 @@
 //
 // Created by W on 9/20/20.
 //
-
-
 #include "willow.hpp"
 #include<iostream>
 #include"glm/gtc/matrix_transform.hpp"
@@ -57,7 +55,7 @@ private:
                 3, 2, 6,
                 6, 7, 3
             },
-            .textureFile = wlo::FileSystem::Root()+"examples\\Textures\\cow.bmp"
+            .textureFile = wlo::FileSystem::Root().append("examples").append("Textures").append("kit.jpeg")
 
     };
     std::unordered_map<std::string, wlo::rendering::RenderPath> renderPaths{ };
@@ -71,8 +69,8 @@ public:
         renderPaths.insert(
         {"basic", {
                     .camera = &camera,
-                    .vertexShaderPath = wlo::FileSystem::Root()+"shaders\\vert.spv",
-                    .fragmentShaderPath =  wlo::FileSystem::Root()+"shaders\\frag.spv",
+                    .vertexShaderPath = wlo::FileSystem::Root().append("shaders").append("vert.spv"),
+                    .fragmentShaderPath =  wlo::FileSystem::Root().append("shaders").append("frag.spv"),
             }}
         );
     }

@@ -7,6 +7,10 @@ namespace wlo::lua{
    Environment::Environment():m_L(luaL_newstate()) {
     luaL_openlibs(m_L);
    }
+
+    Environment::Environment(lua_State* L):m_L(L){
+    luaL_openlibs(m_L);
+    }
     lua_State* Environment::getL(){
        return m_L;
    }
@@ -77,8 +81,6 @@ namespace wlo::lua{
         return ss.str();
 
     }
-
-
 
     bool Environment::L_checklua( int res) {
         if (res != LUA_OK) {

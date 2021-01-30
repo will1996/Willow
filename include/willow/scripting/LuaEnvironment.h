@@ -13,6 +13,7 @@ namespace wlo::lua{
    class Environment {
    public:
        Environment();
+       Environment(lua_State* L);
        void setglobal(std::string name, std::string data);
        void setglobal(std::string name, int data);
        void setglobal(std::string name, float data);

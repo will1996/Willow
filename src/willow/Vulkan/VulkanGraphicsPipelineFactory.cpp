@@ -180,14 +180,15 @@ namespace wlo::wk {
         vk::ColorComponentFlags colorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG |
                                                     vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA);
         vk::PipelineColorBlendAttachmentState pipelineColorBlendAttachmentState(
-                false,                   // blendEnable
-                vk::BlendFactor::eZero,  // srcColorBlendFactor
-                vk::BlendFactor::eZero,  // dstColorBlendFactor
+                true,                   // blendEnable
+                vk::BlendFactor::eSrcAlpha,  // srcColorBlendFactor
+                vk::BlendFactor::eOneMinusSrcAlpha,  // dstColorBlendFactor
                 vk::BlendOp::eAdd,       // colorBlendOp
-                vk::BlendFactor::eZero,  // srcAlphaBlendFactor
-                vk::BlendFactor::eZero,  // dstAlphaBlendFactor
+                vk::BlendFactor::eOne,  // srcAlphaBlendFactor
+                vk::BlendFactor::eOne,  // dstAlphaBlendFactor
                 vk::BlendOp::eAdd,       // alphaBlendOp
-                colorComponentFlags      // colorWriteMask
+                vk::ColorComponentFlagBits::eR| vk::ColorComponentFlagBits::eG|
+                vk::ColorComponentFlagBits::eB|vk::ColorComponentFlagBits::eA   // colorWriteMask
         );
         vk::PipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo(
                 vk::PipelineColorBlendStateCreateFlags(),  // flags

@@ -6,7 +6,7 @@
 #define WILLOW_CONSOLECORE_HPP
 #include"willow/root/wilo_dev_core.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
-#include"willow/input/keycodes.hpp"
+#include"willow/input/KeyCodes.hpp"
 #include"FontMap.hpp"
 namespace wlo {
     class ConsoleCore {

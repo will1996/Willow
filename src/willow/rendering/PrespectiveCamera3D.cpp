@@ -59,4 +59,8 @@ namespace wlo{
         m_position+= distance*sideways;
     }
 
+   glm::vec3 PrespectiveCamera3D::getPosition() const{
+        return m_position; 
+   }
+
 }

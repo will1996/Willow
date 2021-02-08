@@ -20,6 +20,7 @@ public:
    void strafe(float distance);
    void setFOV(float fov);
    glm::mat4x4 getTransform() const;
+   glm::vec3 getPosition() const;
 private:
     void snapTo(float width, float height);
     void resizeOn(const wlo::WindowResized &msg);
@@ -28,6 +29,7 @@ private:
     glm::vec3 m_position;
     glm::vec3 m_focus;
     glm::vec3 m_upDirection;
+    friend class CameraController;
 };
 
 }

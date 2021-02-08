@@ -24,8 +24,8 @@ private:
             .vertices = {
 
                     { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
-                { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
-                { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
+                    { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
+                    { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
                     { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
 
                 { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
@@ -55,7 +55,7 @@ private:
                 3, 2, 6,
                 6, 7, 3
             },
-            .textureFile = wlo::FileSystem::Root().append("examples").append("Textures").append("kit.jpeg")
+            .textureFile = wlo::FileSystem::Root().append("examples").append("Textures").append("cow.bmp")
 
     };
     std::unordered_map<std::string, wlo::rendering::RenderPath> renderPaths{ };

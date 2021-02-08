@@ -5,7 +5,9 @@
 #ifndef WILLOW_RENDER_DATA_TYPES_HPP
 #define WILLOW_RENDER_DATA_TYPES_HPP
 #include "willow/rendering/DataLayout.hpp"
+
 #include<glm/glm.hpp>
+
 #include "glm/gtx/string_cast.hpp"
 namespace wlo {
     struct Color{

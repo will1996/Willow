@@ -3,8 +3,7 @@
 #include "willow/Vulkan/VulkanRoot.hpp"
 #include "willow/Vulkan/VulkanSwapchain.hpp"
 #include"willow/Vulkan/VulkanShaderCompiler.hpp"
-#include "willow/Vulkan/VulkanGraphicsPipelineFactory.hpp"
-#include "willow/Vulkan/VulkanMemoryManager.hpp"
+#include "willow/Vulkan/VulkanGraphicsPipelineFactory.hpp" 
 #include "willow/Vulkan/VulkanCommandInterface.hpp"
 #include"willow/Vulkan/VulkanTextureFactory.hpp"
 #include <glfw/glfw3.h>
@@ -49,11 +48,6 @@ namespace wlo::rendering{
 
         wk::MappedBuffer m_IndexBuffer;
         glm::vec4 m_clearColor;
-
-
-
-
-
     public:
         glm::vec4 nextClearColor;
         VulkanImplementation(std::initializer_list<Renderer::Features> features, SharedPointer<Window> window, bool enableDebugging = true) :
@@ -239,6 +233,7 @@ namespace wlo::rendering{
                    vk::WriteDescriptorSet(m_DescriptorSets[pipeline.id].get(),1,0,vk::DescriptorType::eCombinedImageSampler,samplerWrite,{}),
                    {}
                    );
+
 
         }
 

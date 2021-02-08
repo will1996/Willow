@@ -1,4 +1,6 @@
 #pragma once
+#include "willow/root/FileSystem.hpp"
+#include "willow/rendering/RenderPath.hpp"
 #include "willow/root/wilo_dev_core.hpp"
 #include "willow/messaging/MessageSystem.hpp"
 #include "willow/window/wilo_window.hpp"
@@ -11,10 +13,7 @@ namespace wlo{
     Application is the entry-point to the game engine. Anything extending Application has access to
      the full breadth of Willow.
 
-     Application is intended to be created through the WILLOW_TRUNK macro, doing so ensures that the appropriate
-     runtime informatino is passed to it, If however, you have different plans, see willow.hpp to see how WILLOW_TRUNK
-     works. It's quite simple, and if you need to bypass it, you should easily be able to.
-    
+     Application is intended to be created through the WILLOW_TRUNK macro, doing so ensures that the appropriate runtime informatino is passed to it, If however, you have different plans, see willow.hpp to see how WILLOW_TRUNK works. It's quite simple, and if you need to bypass it, you should easily be able to.
     
     */
 class Application: public MessageSystem::Observer{
@@ -48,6 +47,7 @@ class Application: public MessageSystem::Observer{
             wlo::SharedPointer<wlo::lua::Environment> m_scriptEnv;
             wlo::UniquePointer<Console> m_console;
             wlo::UniquePointer<rendering::Renderer> m_renderer;
+            std::map<std::string, wlo::rendering::RenderPath> m_renderPaths;
 
 
         std::string m_runtimeRoot;

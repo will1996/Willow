@@ -18,7 +18,6 @@ namespace wlo{
      reclaim();
  }
  void Application::initialize(Application::Info inf){
-     m_scriptEnv = wlo::CreateSharedPointer<wlo::lua::Environment>();
      m_console = wlo::CreateUniquePointer<wlo::Console>(m_scriptEnv);
 
      wlo::Window::Info window_info;

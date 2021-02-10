@@ -165,7 +165,7 @@ namespace std {
       // and bit shifting:
       size_t hash_value = hash<DataLayout::Element>()(layout.get()[0].first) ^ ((layout.get()[0].second << 1) >> 1);
           for (size_t i = 1; i < layout.get().size(); i++)
-              hash_value ^= hash<DataLayout::Element>()(layout.get()[0].first) ^ ((layout.get()[0].second << i+1) >> i+1);
+              hash_value ^= hash<DataLayout::Element>()(layout.get()[0].first) ^ ((layout.get()[0].second << (i+1)) >> (i+1));
 
     return hash_value;
     }

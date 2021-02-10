@@ -14,7 +14,7 @@ namespace wlo::rendering{
 struct Model3D:Tag{
     vector<TexturedVertex3D> vertices;
     vector<Index> indices;
-    glm::mat4x4 transform;
+    glm::mat4x4 transform = glm::mat4x4{1};
     std::string textureFile = "";
 
     Frame::TransformedGeometry draw();

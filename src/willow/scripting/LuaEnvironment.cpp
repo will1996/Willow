@@ -85,6 +85,7 @@ namespace wlo::lua{
     bool Environment::L_checklua( int res) {
         if (res != LUA_OK) {
             std::string errmsg = lua_tostring(m_L, -1);
+            lua_pop(m_L,-1);
             WILO_CORE_ERROR("[LUA] "+errmsg);
             return false;
         }

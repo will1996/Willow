@@ -16,7 +16,9 @@ public:
    PrespectiveCamera3D();
    explicit PrespectiveCamera3D(SharedPointer<Window> wnd,bool resizeWithWindow = true);
    void moveAlongViewAxis(float distance);
-   void rotate(float distance);
+   void look(float x,float y,float sensativity = .1);
+   void roll(float roll);
+   void zoom(float zoom);
    void strafe(float distance);
    void setFOV(float fov);
    glm::mat4x4 getTransform() const;
@@ -26,9 +28,15 @@ private:
     void resizeOn(const wlo::WindowResized &msg);
     float m_aspectRatio;
     float m_FOV;
+    float m_pitch;
+    float m_yaw;
+    float m_roll;
     glm::vec3 m_position;
-    glm::vec3 m_focus;
     glm::vec3 m_upDirection;
+    glm::vec3 m_front;
+    bool firstLook;
+    float lastLookX;
+    float lastLookY;
     friend class CameraController;
 };
 

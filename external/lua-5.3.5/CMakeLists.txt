@@ -58,7 +58,7 @@ PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/ltablib.c"
 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/ltm.c"
 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/ltm.h"
 #PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/lua.c" all commented out files contain main methods
-PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/lua.h"
+#PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/lua.h"
 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/lua.hpp"
 #PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/luac.c"
 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/luaconf.h"

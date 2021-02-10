@@ -169,5 +169,11 @@ namespace wlo{
     }
 
 
+   void MacWindow::setCursorMode(bool locked) {
+        if(locked)
+        glfwSetInputMode(p_impl->getWindow(),GLFW_CURSOR,GLFW_CURSOR_DISABLED);
+        else
+        glfwSetInputMode(p_impl->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+   }
 
 }

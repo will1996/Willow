@@ -149,8 +149,8 @@ namespace wlo::wk {
                 false,                                        // depthClampEnable
                 false,                                        // rasterizerDiscardEnable
                 vk::PolygonMode::eFill,                       // polygonMode
-                vk::CullModeFlagBits::eFront,                  // cullMode
-                vk::FrontFace::eClockwise,                    // frontFace
+                vk::CullModeFlagBits::eBack,                  // cullMode
+                vk::FrontFace::eCounterClockwise,                    // frontFace
                 false,                                        // depthBiasEnable
                 0.0f,                                         // depthBiasConstantFactor
                 0.0f,                                         // depthBiasClamp

@@ -11,7 +11,7 @@
 namespace wlo{
 class Console : public MessageSystem::Observer {
     public:
-        Console(wlo::SharedPointer<wlo::lua::Environment>);
+        Console(wlo::lua::Environment&);
         void initialize() ;
         void evaluate(std::string command);
         void run();

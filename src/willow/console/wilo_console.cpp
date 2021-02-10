@@ -7,15 +7,14 @@
 #include"willow/window/window.hpp"
 #include"willow/rendering/PrespectiveCamera3D.hpp"
 namespace wlo{
-    Console::Console(wlo::SharedPointer<wlo::lua::Environment> env):scriptable("console",this,env),m_testScriptsPath(WILO_TESTS_SCRIPTS_PATH),m_engineScriptsPath(WILO_ENGINE_SCRIPTS_PATH){
+    Console::Console(wlo::lua::Environment& env):scriptable("console",this,env),m_testScriptsPath(WILO_TESTS_SCRIPTS_PATH),m_engineScriptsPath(WILO_ENGINE_SCRIPTS_PATH){
         scriptable.Register<&Console::quit>("quit");
         scriptable.Register<&Console::resize>("resize");
         scriptable.Register<&Console::setMouse>("setMouse");
         scriptable.Register<&Console::pressKey>("pressKey");
         scriptable.Register<&Console::reinitialize>("reinitialize");
-        env->setglobal("tests_path",m_testScriptsPath);
-        env->runScript(m_testScriptsPath + "testing_base.lua");
-        env->runScript(m_engineScriptsPath + "console_base.lua");
+        env.setglobal("tests_path",m_testScriptsPath);
+        env.runScript(m_engineScriptsPath + "console_base.lua");
     }
     void Console::initialize(){
         wlo::Window::Info windowInfo;
@@ -59,7 +58,7 @@ namespace wlo{
     //    //m_console_renderer->setProjection(proj);
     //}
     void Console::evaluate( std::string command ){
-        scriptable.getEnv()->runScript(command);
+        scriptable.getEnv().runScript(command);
     }
 
     void Console::recieve(const KeyboardMessage &msg) {
@@ -164,8 +163,8 @@ namespace wlo{
         return 0;
     }
     int Console::reinitialize(::lua_State* L){
-        scriptable.getEnv()->runScript(m_engineScriptsPath + "console_base.lua");
-        scriptable.getEnv()->runScript(m_testScriptsPath + "testing_base.lua");
+        scriptable.getEnv().runScript(m_engineScriptsPath + "console_base.lua");
+        scriptable.getEnv().runScript(m_testScriptsPath + "testing_base.lua");
         return 0;
     }
     Console::~Console(){

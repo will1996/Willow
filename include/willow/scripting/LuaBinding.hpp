@@ -1,23 +1,17 @@
-#pragma once
-#ifndef wilo_scriptable_h
-#define wilo_scriptable_h
 #include "lua.hpp"
 #include "willow/root/wilo_dev_core.hpp"
 #include<iostream>
 #include"willow/messaging/MessageSystem.hpp"
 #include "LuaEnvironment.h"
-//TODO add Cmake defined install settings header, which specifies scriptable base script
+#pragma once
 namespace wlo{
-
-
-    //TODO implement tracking of scriptables in the global environment (maybe)
 
         template <class T>
         class LuaBinding {
             //static std::vector<std::pair<std::string,lua_State*>> Instances;
         public:
 
-            LuaBinding(std::string name, T* instance_ptr, wlo::SharedPointer<wlo::lua::Environment> env): m_env(env), m_name(name), m_instancePtr(instance_ptr){
+            LuaBinding(std::string name, T* instance_ptr, wlo::lua::Environment& env): m_env(env), m_name(name), m_instancePtr(instance_ptr){
                 runBaseScript();
                 LT_instantiate();
             }
@@ -25,18 +19,18 @@ namespace wlo{
             template< int(T::* Method)(lua_State*)>
             //add the member function in the template to this Luatable with the name "name"
             void Register(std::string name) {
-                lua_getglobal(m_env->getL(), m_name.c_str());//retrieve the class table from the global namespace
+                lua_getglobal(m_env.getL(), m_name.c_str());//retrieve the class table from the global namespace
 
-                lua_pushstring(m_env->getL(), name.c_str());//push a key value pair of the string name
-                lua_pushcfunction(m_env->getL(), call < Method >);//and the function call<Method>
+                lua_pushstring(m_env.getL(), name.c_str());//push a key value pair of the string name
+                lua_pushcfunction(m_env.getL(), call < Method >);//and the function call<Method>
 
-                lua_settable(m_env->getL(), -3);//push the pair into the table
+                lua_settable(m_env.getL(), -3);//push the pair into the table
 
-                lua_setglobal(m_env->getL(), m_name.c_str());//update the global variable with the new entries
+                lua_setglobal(m_env.getL(), m_name.c_str());//update the global variable with the new entries
             }
 
-            lua::Environment * getEnv() {
-                    return m_env.get();
+            lua::Environment & getEnv() {
+                    return m_env;
             }
 
 
@@ -51,7 +45,7 @@ namespace wlo{
             //almost anything we want here, it is intended to restrict access
             //and built structure into the otherwise almost completely plastic
             //Lua environemtn
-            wlo::SharedPointer<wlo::lua::Environment> m_env;
+            wlo::lua::Environment& m_env;
             const std::string m_name;
 
 
@@ -75,10 +69,10 @@ namespace wlo{
 
         void runBaseScript(){
             const std::string scriptpath(WILO_ENGINE_SCRIPTS_PATH);
-            int res = (luaL_dofile(m_env->getL(), (scriptpath+"scriptable_base.lua").c_str()));
+            int res = (luaL_dofile(m_env.getL(), (scriptpath+"scriptable_base.lua").c_str()));
             if(res != LUA_OK) {
                 #ifndef NDEBUG
-                std::string msg = lua_tostring(m_env->getL(),-1);
+                std::string msg = lua_tostring(m_env.getL(),-1);
                 WILO_CORE_ERROR("invalid Lua_base script, failed with:  "+ msg);
                 #else
 //                raise runtime_error("invalid Lua_base script please validate your install");
@@ -88,9 +82,9 @@ namespace wlo{
         }
 
       void LT_failOnNameConflict(){
-            lua_getglobal(m_env->getL(), m_name.c_str());
+            lua_getglobal(m_env.getL(), m_name.c_str());
 
-            if (! lua_isnil(m_env->getL(), -1) ) {
+            if (! lua_isnil(m_env.getL(), -1) ) {
                 throw std::runtime_error("invalid Lua configuration, name " + m_name + " is already in this lua Namespace");
             }
         }
@@ -98,26 +92,23 @@ namespace wlo{
         //build a global table in Lua with the name m_name, and a reference to this object
         //failing if a global table of the same name already exists
         void LT_instantiate(){
-            std::cout << "instantiating: " << m_name << "in the lua global environment!"<<std::endl;
-            //LT_failOnNameConflict();
-
-           lua_newtable(m_env->getL());//push a fresh table onto the stack
-
-           lua_pushstring(m_env->getL(), "instancePtr");//push a key value pair of the string "this"
-           lua_pushlightuserdata(m_env->getL(), m_instancePtr);// and the value a pointer to 'this'
-
-           lua_settable(m_env->getL(), 1);//add the pair to the table
-           std::cout << std::flush;
-           lua_setglobal(m_env->getL(), m_name.c_str());//name the table, and pop it from the stack
+           //LT_failOnNameConflict();
+           WILO_CORE_INFO("LuaBinding for {0} ...",m_name);
+           lua_newtable(m_env.getL());//push a fresh table onto the stack
+           lua_pushstring(m_env.getL(), "instancePtr");//push a key value pair of the string "this"
+           lua_pushlightuserdata(m_env.getL(), m_instancePtr);// and the value a pointer to 'this'
+           lua_settable(m_env.getL(), 1);//add the pair to the table
+           lua_setglobal(m_env.getL(), m_name.c_str());//name the table, and pop it from the stack
+           WILO_CORE_INFO("LuaBinding established for {0}",m_name);
+           lua_settop(m_env.getL(),0);
         }
 
         void LT_destruct(){
-            lua_pushnil(m_env->getL());
-            lua_setglobal(m_env->getL(), m_name.c_str());
+            lua_pushnil(m_env.getL());
+            lua_setglobal(m_env.getL(), m_name.c_str());
         }
 
     };
 
 
 }
-#endif

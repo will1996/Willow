@@ -20,6 +20,7 @@ namespace wlo{
             void reclaim();
             bool shouldClose(bool queryAutomatically = true) override;
             void* getNativeWindow() const override;
+            void setCursorMode(bool locked) override;
         
         private:
             wlo::UniquePointer<MacWindowImpl> p_impl;

@@ -44,7 +44,7 @@ class Application: public MessageSystem::Observer{
             float timeElapsed();
             virtual void initialize(Application::Info inf);
             wlo::SharedPointer<Window> m_main_window;
-            wlo::SharedPointer<wlo::lua::Environment> m_scriptEnv;
+            wlo::lua::Environment m_scriptEnv;
             wlo::UniquePointer<Console> m_console;
             wlo::UniquePointer<rendering::Renderer> m_renderer;
             std::map<std::string, wlo::rendering::RenderPath> m_renderPaths;

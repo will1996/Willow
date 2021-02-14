@@ -1,7 +1,7 @@
-#include "willow/application.hpp"
+#include "willow/Application.hpp"
 #include<iostream>
-#include "willow/root/wilo_dev_core.hpp"
-#include "willow/window/wilo_window.hpp"
+#include "willow/root/Root.hpp"
+#include "willow/window/Window.hpp"
 #include "willow/scripting/LuaBinding.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -25,10 +25,12 @@ namespace wlo{
      window_info.m_width = 500;
      window_info.m_title = inf.appName;
      window_info.API = wlo::WindowingAPICode::GLFW;
-     m_main_window = wlo::SharedPointer<Window>(wilo_get_window(window_info));
+     m_main_window = wlo::CreateSharedPointer<Window>(window_info);
      m_main_window->permit<KeyboardMessage, Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
 
      m_renderer = wlo::CreateUniquePointer<wlo::rendering::Renderer>(m_main_window);
+     m_renderer->asSubject().permit<rendering::GPUInfo,Application,&Application::recieve>(this);
+
    WILO_CORE_INFO("application initialized!");
  }
     void Application::recieve(const wlo::KeyboardMessage& msg){
@@ -70,11 +72,14 @@ namespace wlo{
                }
     }
 
+    void Application::recieve(const rendering::GPUInfo & msg){
+            cout<<"GPU CURRENTLY USING "<<msg.totalMemoryUsage<<" BYTES OF "<<msg.totalMemoryAvailable<<endl;
+    }
+
     float Application::timeElapsed() {
         auto currentTime = std::chrono::high_resolution_clock::now();
         return std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
     }
-
     void Application::shutdown() {
 
     }

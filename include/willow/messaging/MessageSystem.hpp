@@ -1,7 +1,7 @@
 #ifndef WILLOW_MESSAGE_SYSTEM_H
 #define WILLOW_MESSAGE_SYSTEM_H
 #include"Messages.hpp"
-#include"willow/root/wilo_engine_element.hpp"
+#include"willow/root/Tag.hpp"
 #include<typeindex>
 #include<functional>
 /*
@@ -21,7 +21,7 @@ namespace wlo{
    class MessageSystem {
    public:
        class Subject;
-       class Observer  : public EngineElement{
+       class Observer  : Tag{
        public:
            Observer() = default;
 
@@ -29,7 +29,7 @@ namespace wlo{
            virtual ~Observer(){reclaim();}
 
            ID_type  getID(){
-               return m_ID;
+               return id;
            }
            //we need this list of subjects to notify when this obererver is freed, this is how we populate that list.
            template<typename SUBTYPE>
@@ -39,9 +39,10 @@ namespace wlo{
            std::vector<std::function<void(Subject*)> > m_revokerFunctions;
        };
 
-       class Subject : public EngineElement {
+       class Subject :Tag{
        public :
            Subject() = default;
+           Subject(wlo::ID_type _id):Tag(_id){};
        //register observers on this subject
            template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const SUBTYPE &)>
            void permit(Observer *obs);
@@ -65,7 +66,7 @@ namespace wlo{
                    inv(obs, msg);
                }
 
-               Invocation(Observer *a_obs, invoker_t<SUBTYPE> a_inv) : obs(a_obs), inv(a_inv) {}
+               Invocation(Observer *a_obs, invoker_t<SUBTYPE> a_inv) : inv(a_inv), obs(a_obs) {}
 
                Invocation() = default;
            };
@@ -99,7 +100,7 @@ namespace wlo{
         m_subjects.push_back(sub);
         m_revokerFunctions.push_back(
                 [&](Subject * sub){
-                    sub->revoke<SUBTYPE>(m_ID);
+                    sub->revoke<SUBTYPE>(id);
                 }
         );
     }

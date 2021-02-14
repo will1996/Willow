@@ -1,6 +1,6 @@
 #pragma once
 #include<vulkan/vulkan.hpp>
-#include "willow/window/window.hpp"
+#include "willow/window/Window.hpp"
 #include "willow/Vulkan/VulkanRoot.hpp"
 #include "willow/messaging/MessageSystem.hpp"
 namespace wlo::wk{

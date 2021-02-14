@@ -4,7 +4,7 @@
 
 #ifndef WILLOW_DATALAYOUT_HPP
 #define WILLOW_DATALAYOUT_HPP
-#include "willow/root/wilo_dev_core.hpp"
+#include "willow/root/Root.hpp"
 namespace  wlo::rendering{
     class DataLayout{
     public: enum class DataType:size_t {
@@ -49,17 +49,17 @@ namespace  wlo::rendering{
         static DataLayout fromFundamental();
 
         template<>
-        static  DataLayout fromFundamental<float>(){
+        DataLayout fromFundamental<float>(){
             return DataLayout({{DataType::Float,1}});
         }
 
         template<>
-        static DataLayout fromFundamental<double>(){
+        DataLayout fromFundamental<double>(){
             return DataLayout({{DataType::Double,1}});
         }
 
         template<>
-        static DataLayout fromFundamental<size_t>(){
+        DataLayout fromFundamental<size_t>(){
             return DataLayout({{DataType::Long,1}});
         }
         
@@ -88,6 +88,8 @@ inline std::ostream& operator<<(std::ostream & o,const wlo::rendering::DataLayou
             break;
         case wlo::rendering::DataLayout::DataType::Bool:
             o<<"Bool";
+        case wlo::rendering::DataLayout::DataType::Byte:
+            o<<"Byte";
             break;
     }
     return o;

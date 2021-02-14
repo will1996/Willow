@@ -68,7 +68,7 @@ namespace wlo::wk{
         int acceptable = -1;
       for (size_t i = 0; i < candidates.size(); i++){
           vk::PhysicalDeviceProperties properties = candidates[i].getProperties();
-          vk::PhysicalDeviceFeatures features = candidates[i].getFeatures();
+          //vk::PhysicalDeviceFeatures features = candidates[i].getFeatures();
               if(physicalDeviceSupportsSurface(surface, candidates[i])) {
                   WILO_CORE_INFO("Vulkan implementation found Physical device which supports window surface");
                   if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {

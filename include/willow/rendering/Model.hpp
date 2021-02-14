@@ -4,22 +4,18 @@
 
 #ifndef WILLOW_MODEL_HPP
 #define WILLOW_MODEL_HPP
-#include "willow/rendering/Tag.hpp"
+#include"willow/root/Root.hpp"
+#include "willow/root/Tag.hpp"
 #include"willow/rendering/DataLayout.hpp"
-#include"willow/root/wilo_dev_core.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
-#include"willow/rendering/Frame.hpp"
-#include "willow/rendering/RenderPath.hpp"
+#include "willow/rendering/Material.hpp"
 namespace wlo::rendering{
-struct Model3D:Tag{
-    vector<TexturedVertex3D> vertices;
+
+template<typename T>
+struct Model:Tag{
+    vector<T> vertices;
     vector<Index> indices;
-    glm::mat4x4 transform = glm::mat4x4{1};
-    std::string textureFile = "";
-
-    Frame::TransformedGeometry draw();
-    static Model3D fromFile(std::string file);
-
+    Material material;
 };
 }
 

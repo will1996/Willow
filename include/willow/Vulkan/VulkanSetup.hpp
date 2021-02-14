@@ -5,7 +5,7 @@
 #ifndef WILLOW_VULKANSETUP_HPP
 #define WILLOW_VULKANSETUP_HPP
 #include<vulkan/vulkan.hpp>
-#include"willow/window/window.hpp"
+#include"willow/window/Window.hpp"
 namespace wlo::wk{
    vk::Instance createInstance(std::vector<const char* > layerNames,std::vector<const char* > extensionNames,bool debugging);
    vk::DebugUtilsMessengerEXT createDebugMessenger(const vk::Instance &);

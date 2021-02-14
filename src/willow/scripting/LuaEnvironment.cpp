@@ -2,7 +2,7 @@
 // Created by W on 10/2/20.
 //
 #include "willow/scripting/LuaEnvironment.h"
-#include "willow/root/wilo_dev_core.hpp"
+#include "willow/root/Root.hpp"
 namespace wlo::lua{
    Environment::Environment():m_L(luaL_newstate()) {
     luaL_openlibs(m_L);

@@ -49,10 +49,11 @@ namespace wlo::wk {
                                   );
 
         void copy(DeviceImage& to,DeviceBuffer& from);
+        size_t getTotalAllocationSize();
     private:
-
         VulkanRoot &m_root;
         VulkanCommandInterface & m_commandInterface;
+        size_t m_totalAllocationSize;
     };
 }
 #endif //WILLOW_VULKANMEMORYMANAGER_HPP

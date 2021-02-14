@@ -4,8 +4,9 @@
 
 #ifndef WILLOW_FRAME_HPP
 #define WILLOW_FRAME_HPP
-#include "willow/root/wilo_dev_core.hpp"
-#include "willow/rendering/RenderPath.hpp"
+#include "willow/root/Root.hpp"
+#include "willow/rendering/Model.hpp"
+#include "willow/rendering/DataView.hpp"
 #include<variant>
 namespace wlo::rendering{
 
@@ -14,20 +15,24 @@ namespace wlo::rendering{
         float y;
     };
 
+    struct Draw {
+               const DataView vertices;
+               const DataView indices;
+               const glm::mat4x4 modelMatrix;
+               const Material material;
+
+               template<typename T>
+               Draw(const Model<T> & model,glm::mat4x4 transform):
+                   vertices(model.vertices),
+                   indices(model.indices),
+                   modelMatrix(transform),
+                   material(model.material)
+                { }
+    };
    class Frame{
 
    public:
-            struct TransformedGeometry{
-               DataView vertices;
-               DataView indices;
-               const glm::mat4x4& ModelMatrix;
-               vector<std::string> texturesPaths;
-            };
 
-            struct Draw {
-                TransformedGeometry geo;
-                const RenderPath & path;
-            };
 
 
     Frame(std::initializer_list<Draw > draws):m_draws(draws){
@@ -44,9 +49,6 @@ namespace wlo::rendering{
 
 
    };
-
-
-    using Draw = Frame::Draw;
 
 
 }

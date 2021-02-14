@@ -1,4 +1,5 @@
 //
+
 // Created by W on 12/26/20.
 //
 
@@ -31,13 +32,15 @@ namespace wlo::wk {
                         else
                             throw std::runtime_error("Vertex Input description for Data Layout element type FLOAT with count greater than four unsupported");
                         break;
+                        default:
+                                throw std::runtime_error("Pipelines may only pass float values");
                 }
                 bindingLocationCounter++;
             }
             return desc;
    }
 
-    vk::UniquePipelineLayout VulkanGraphicsPipelineFactory::createPipelineLayout(wlo::rendering::RenderPath,
+    vk::UniquePipelineLayout VulkanGraphicsPipelineFactory::createPipelineLayout(wlo::rendering::Material,
                                                                                  vk::UniqueDescriptorSetLayout &descriptorSetLayout,
                                                                                  wlo::rendering::DataLayout pushLayout) {
 
@@ -53,22 +56,22 @@ namespace wlo::wk {
     }
 
     wlo::wk::GraphicsPipeline
-    wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(wlo::rendering::RenderPath path) {
+    wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(wlo::rendering::Material mat) {
 
-        VulkanShader vertexShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eVertex,path.vertexShaderPath);
-        VulkanShader fragmentShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eFragment,path.fragmentShaderPath);
+        VulkanShader vertexShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eVertex,mat.vertexShader);
+        VulkanShader fragmentShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eFragment,mat.fragmentShader);
 
         DataLayout vertexLayout = vertexShader.vertexInputLayout();
         DataLayout uniformLayout = vertexShader.uniformBufferLayout();
         DataLayout pushLayout = vertexShader.pushConstantLayout();
 
-        auto descriptorSetLayout = createDescriptorSetLayout(path);
-        auto pipelineLayout = createPipelineLayout(path,descriptorSetLayout,pushLayout);
-        auto renderPass = createRenderPass(path);
-        auto pipeline = createPipeline(path,renderPass,pipelineLayout);
+        auto descriptorSetLayout = createDescriptorSetLayout(mat);
+        auto pipelineLayout = createPipelineLayout(mat,descriptorSetLayout,pushLayout);
+        auto renderPass = createRenderPass(mat);
+        auto pipeline = createPipeline(mat,renderPass,pipelineLayout);
         return GraphicsPipeline{
-           .id = path.id,
-            .originPath = path,
+           .id = mat.id,
+           .material = mat,
            .vertexLayout = vertexLayout,
            .uniformBufferLayout = uniformLayout,
            .pushConstantLayout = pushLayout,
@@ -79,7 +82,7 @@ namespace wlo::wk {
         };
     }
 
-    vk::UniqueRenderPass VulkanGraphicsPipelineFactory::createRenderPass(wlo::rendering::RenderPath) {
+    vk::UniqueRenderPass VulkanGraphicsPipelineFactory::createRenderPass(wlo::rendering::Material) {
         std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
         //color attachments (i.e the color image that's going to the screen)
         attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
@@ -112,20 +115,20 @@ namespace wlo::wk {
     }
 
     void VulkanGraphicsPipelineFactory::rebuildGraphicsPipeline(GraphicsPipeline & pipeline) {
-       WILO_CORE_INFO("Rebuilding pipeline with id {0}, to fit the new screen size of x: {1}, y: {2}",pipeline.id,
+       WILO_CORE_INFO("Rebuilding pipeline with id {0}, to fit the new screen size of x: {1}, y: {2}",pipeline.material.id,
                                     m_swapchain.getSwapSurfaceExtent().width,m_swapchain.getSwapSurfaceExtent().height);
-        pipeline.vkRenderPass = std::move(createRenderPass(pipeline.originPath));
-        pipeline.vkPipeline = std::move(createPipeline(pipeline.originPath,pipeline.vkRenderPass,pipeline.vkPipelineLayout));
+        pipeline.vkRenderPass = createRenderPass(pipeline.material);
+        pipeline.vkPipeline = createPipeline(pipeline.material,pipeline.vkRenderPass,pipeline.vkPipelineLayout);
     }
 
 
 
     vk::UniquePipeline
-    VulkanGraphicsPipelineFactory::createPipeline(wlo::rendering::RenderPath path,
+    VulkanGraphicsPipelineFactory::createPipeline(wlo::rendering::Material mat,
                                                   vk::UniqueRenderPass & renderPass,
                                                   vk::UniquePipelineLayout & pipelineLayout) {
-        VulkanShader & vertexShader = m_shaderCompiler.fetchShader(path.vertexShaderPath);
-        VulkanShader & fragmentShader = m_shaderCompiler.fetchShader(path.fragmentShaderPath);
+        VulkanShader & vertexShader = m_shaderCompiler.fetchShader(mat.vertexShader);
+        VulkanShader & fragmentShader = m_shaderCompiler.fetchShader(mat.fragmentShader);
 
 
         DataLayout vertexLayout = vertexShader.vertexInputLayout();
@@ -187,8 +190,7 @@ namespace wlo::wk {
                 vk::BlendFactor::eOne,  // srcAlphaBlendFactor
                 vk::BlendFactor::eOne,  // dstAlphaBlendFactor
                 vk::BlendOp::eAdd,       // alphaBlendOp
-                vk::ColorComponentFlagBits::eR| vk::ColorComponentFlagBits::eG|
-                vk::ColorComponentFlagBits::eB|vk::ColorComponentFlagBits::eA   // colorWriteMask
+                colorComponentFlags
         );
         vk::PipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo(
                 vk::PipelineColorBlendStateCreateFlags(),  // flags
@@ -227,10 +229,10 @@ namespace wlo::wk {
                 m_root.Device().createGraphicsPipelineUnique(nullptr, graphicsPipelineCreateInfo).asTuple();
 
         WILO_CORE_INFO("CREATED GRAPHICS PIPLINE");
-        return std::move(pipeline);
+        return pipeline;
     }
 
-    vk::UniqueDescriptorSetLayout VulkanGraphicsPipelineFactory::createDescriptorSetLayout(wlo::rendering::RenderPath) {
+    vk::UniqueDescriptorSetLayout VulkanGraphicsPipelineFactory::createDescriptorSetLayout(wlo::rendering::Material) {
         vk::DescriptorSetLayoutBinding uniformBufferBinding(
                 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 

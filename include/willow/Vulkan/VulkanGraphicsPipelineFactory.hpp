@@ -6,13 +6,14 @@
 #define WILLOW_VULKANGRAPHICSPIPELINEFACTORY_HPP
 
 #include"VulkanRoot.hpp"
-#include "willow/rendering/RenderPath.hpp"
 #include "willow/Vulkan/VulkanShaderCompiler.hpp"
 #include "willow/Vulkan/VulkanSwapchain.hpp"
+#include "willow/rendering/Material.hpp"
+#include "willow/root/Tag.hpp"
 namespace wlo::wk {
     struct GraphicsPipeline {
         wlo::ID_type id;
-        wlo::rendering::RenderPath originPath;
+        wlo::rendering::Material material;
         wlo::rendering::DataLayout vertexLayout;
         wlo::rendering::DataLayout uniformBufferLayout;
         wlo::rendering::DataLayout pushConstantLayout;
@@ -24,15 +25,15 @@ namespace wlo::wk {
     class VulkanGraphicsPipelineFactory {
     public:
         VulkanGraphicsPipelineFactory(VulkanRoot & root,VulkanShaderCompiler & compiler,VulkanSwapchain &);
-        GraphicsPipeline buildGraphicsPipeline( wlo::rendering::RenderPath);
+        GraphicsPipeline buildGraphicsPipeline( wlo::rendering::Material);
         void rebuildGraphicsPipeline(GraphicsPipeline &);
     private:
-        vk::UniqueDescriptorSetLayout createDescriptorSetLayout(wlo::rendering::RenderPath);
-        vk::UniquePipelineLayout createPipelineLayout(wlo::rendering::RenderPath,
+        vk::UniqueDescriptorSetLayout createDescriptorSetLayout(wlo::rendering::Material);
+        vk::UniquePipelineLayout createPipelineLayout(wlo::rendering::Material,
                                                       vk::UniqueDescriptorSetLayout &descriptorSetLayout,
                                                       wlo::rendering::DataLayout pushLayout);
-        vk::UniqueRenderPass createRenderPass(wlo::rendering::RenderPath);
-        vk::UniquePipeline  createPipeline(wlo::rendering::RenderPath,
+        vk::UniqueRenderPass createRenderPass(wlo::rendering::Material);
+        vk::UniquePipeline  createPipeline(wlo::rendering::Material,
                                                    vk::UniqueRenderPass &,
                                                    vk::UniquePipelineLayout & );
         VulkanRoot & m_root;

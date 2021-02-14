@@ -3,8 +3,8 @@
 //
 
 #include "willow/Vulkan/VulkanSetup.hpp"
-#include "willow/root/wilo_dev_core.hpp"
-#include "willow/window/mac_window.hpp"
+#include "willow/root/Root.hpp"
+#include "willow/window/Window.hpp"
 #include  "GLFW/glfw3.h"
 
 PFN_vkCreateDebugUtilsMessengerEXT  pfnVkCreateDebugUtilsMessengerEXT;
@@ -143,8 +143,7 @@ namespace wlo::wk{
     }
 
     vk::SurfaceKHR createSurface(const vk::Instance& instance, SharedPointer<Window> wind) {
-        MacWindow*  macWind = dynamic_cast<MacWindow*>(wind.get());
-        GLFWwindow* glfwWindow = (GLFWwindow*)(macWind->getNativeWindow());
+        GLFWwindow* glfwWindow = (GLFWwindow*)(wind->getNativeWindow());
         VkSurfaceKHR surface;
         glfwCreateWindowSurface(instance,glfwWindow,nullptr, &surface);
         return surface;

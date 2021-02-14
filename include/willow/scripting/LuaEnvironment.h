@@ -5,8 +5,8 @@
 #ifndef GROVE_LUAENVIRONMENT_H
 #define GROVE_LUAENVIRONMENT_H
 #include "lua.hpp"
-#include "willow/dev-utils/Helpers.h"
-#include "willow/root/logr.hpp"
+#include "willow/utils/Helpers.hpp"
+#include "willow/root/Logger.hpp"
 
 #include <string>
 namespace wlo::lua{

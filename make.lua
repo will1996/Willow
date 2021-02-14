@@ -16,7 +16,7 @@ end
 
 
 lfs.chdir("./build")
-if os.execute("cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=1") then 
+if os.execute("cmake ..  -DCMAKE_EXPORT_COMPILE_COMMANDS=1") then 
         print("Project generated")
         end
 

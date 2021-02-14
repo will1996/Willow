@@ -6,7 +6,8 @@
 namespace wlo::wk {
     VulkanMemoryManger::VulkanMemoryManger(VulkanRoot &root,VulkanCommandInterface & commandInterface):
     m_root(root),
-    m_commandInterface(commandInterface)
+    m_commandInterface(commandInterface),
+    m_totalAllocationSize(0)
     {
 
     }
@@ -42,7 +43,8 @@ namespace wlo::wk {
         uint32_t vertexMemoryTypeIndex = m_root.findMemoryType(memoryRequirements, memproperties);
 
         vk::MemoryAllocateInfo allocInfo(memoryRequirements.size, vertexMemoryTypeIndex);
-        buff.memory = std::move(m_root.Device().allocateMemoryUnique(allocInfo));
+        buff.memory = m_root.Device().allocateMemoryUnique(allocInfo);
+        m_totalAllocationSize+=memoryRequirements.size;
         return buff;
     }
     void setImageLayout( vk::UniqueCommandBuffer const & commandBuffer,
@@ -201,9 +203,12 @@ namespace wlo::wk {
 
         m_root.Device().bindImageMemory(image.image.get(),image.memory.get(),0);
 
-
+        m_totalAllocationSize+=memoryRequirements.size;
         return image;
     }
 
 
+        size_t VulkanMemoryManger::getTotalAllocationSize(){
+            return m_totalAllocationSize;
+        }
 }

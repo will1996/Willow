@@ -2,7 +2,7 @@
 #define WILLOW_MESSAGES_H
 #include<stdint.h>
 
-#include "willow/root/wilo_dev_core.hpp"
+#include "willow/root/Root.hpp"
 #include "willow/input/KeyCodes.hpp"
 #include "willow/input/MouseCodes.hpp"
 namespace wlo{
@@ -33,15 +33,15 @@ enum class KeyAction{
  };
  struct KeyPressed : KeyboardMessage{
      KeyPressed(Key::Code button, Key::Modifier mod):
-     KeyboardMessage{button, mod, 0, KeyAction::Pressed}{}
+     KeyboardMessage{{button, mod, 0, KeyAction::Pressed}}{}
  };
  struct KeyReleased : KeyboardMessage{
      KeyReleased(Key::Code button, Key::Modifier mod):
-     KeyboardMessage{button, mod, 0, KeyAction::Released}{}
+     KeyboardMessage{{button, mod, 0, KeyAction::Released}}{}
  };
  struct KeyHeld : KeyboardMessage{
      KeyHeld(Key::Code button, Key::Modifier mod):
-     KeyboardMessage{button, mod, 1, KeyAction::Held} { }
+     KeyboardMessage{{button, mod, 1, KeyAction::Held}} { }
  };
 
  enum class WindowAction{
@@ -57,19 +57,19 @@ enum class KeyAction{
 
 struct WindowClosed : public Message<WindowInfo>{
     WindowClosed(std::string title, uint32_t width, uint32_t height):
-    Message<WindowInfo>{ title, width, height, WindowAction::Closed }{}
+    Message<WindowInfo>{{ title, width, height, WindowAction::Closed }}{}
 };
 struct WindowResized : public Message<WindowInfo>{
     WindowResized(std::string title, uint32_t width, uint32_t height):
-   Message<WindowInfo>{ title, width, height, WindowAction::Resized }{}
+   Message<WindowInfo>{ {title, width, height, WindowAction::Resized }}{}
 };
 struct WindowGainedFocus: public Message<WindowInfo>{
     WindowGainedFocus(std::string title, uint32_t width, uint32_t height):
-    Message<WindowInfo> { title, width, height, WindowAction::GainedFocus}{}
+    Message<WindowInfo> { {title, width, height, WindowAction::GainedFocus}}{}
 };
 struct WindowLostFocus: public Message<WindowInfo>{
     WindowLostFocus(std::string title, uint32_t width, uint32_t height):
-    Message<WindowInfo> { title, width, height, WindowAction::LostFocus}{}
+    Message<WindowInfo> { {title, width, height, WindowAction::LostFocus}}{}
 };
 
 //MouseMessages
@@ -98,15 +98,15 @@ struct MouseScrollInfo {
 struct MouseButtonMessage : Message<MouseClickInfo>{};
 struct MouseButtonPressed   : MouseButtonMessage{
     MouseButtonPressed(MousePositionInfo pos,Mouse::Code button,Key::Modifier mod ) :
-    MouseButtonMessage{pos,button,mod,MouseClickAction::Pressed}{}
+    MouseButtonMessage{{pos,button,mod,MouseClickAction::Pressed}}{}
 };
 struct MouseButtonReleased  : MouseButtonMessage{
     MouseButtonReleased(MousePositionInfo pos,Mouse::Code button,Key::Modifier mod) :
-    MouseButtonMessage{pos,button,mod,MouseClickAction::Released}{}
+    MouseButtonMessage{{pos,button,mod,MouseClickAction::Released}}{}
     };
 struct MouseButtonHeld      : MouseButtonMessage{
     MouseButtonHeld(MousePositionInfo pos,Mouse::Code button,Key::Modifier mod ) :
-    MouseButtonMessage{pos,button,mod,MouseClickAction::Held}{}
+    MouseButtonMessage{{pos,button,mod,MouseClickAction::Held}}{}
 };
 
 struct MouseScrolled :Message<MouseScrollInfo>{};

@@ -5,7 +5,7 @@
 #include "willow/Vulkan/VulkanShaderCompiler.hpp"
 #include"glslang/Include/ResourceLimits.h"
 #include "spirv_cross/spirv_cross.hpp"
-#include "willow/root/wilo_dev_core.hpp"
+#include "willow/root/Root.hpp"
 
 #include<fstream>
 
@@ -98,6 +98,8 @@ namespace wlo::wk {
                 case SPIRType::BaseType::Boolean:
                     vertexInputElements[attachmentIndex] = {DataLayout::DataType::Bool, type.vecsize};
                     break;
+                default:
+                    throw std::runtime_error("Unmappable shader type in VertexLayout [Shader compiler]");
             }
 
         }
@@ -110,8 +112,8 @@ namespace wlo::wk {
 
         std::vector<DataLayout::Element> uniformInputElements;
         for (auto &uniform : shaderResources.uniform_buffers) {
-            uint32_t set = comp.get_decoration(uniform.id, spv::DecorationDescriptorSet);
-            uint32_t binding = comp.get_decoration(uniform.id, spv::DecorationBinding);
+  //          uint32_t set = comp.get_decoration(uniform.id, spv::DecorationDescriptorSet);
+   //         uint32_t binding = comp.get_decoration(uniform.id, spv::DecorationBinding);
             const SPIRType type = comp.get_type(uniform.base_type_id);
             for(auto memberTypeID : type.member_types) {
                 auto memberType = comp.get_type(memberTypeID);
@@ -119,6 +121,8 @@ namespace wlo::wk {
                     case SPIRType::BaseType::Float:
                         uniformInputElements.push_back({DataLayout::DataType::Float, memberType.vecsize*memberType.columns});
                         break;
+                    default:
+                        throw std::runtime_error("only floats supported for uniform data");
                 }
             }
         }
@@ -131,8 +135,8 @@ namespace wlo::wk {
 
         std::vector<DataLayout::Element> pushConstantElements;
         for (auto &pushBuffer : shaderResources.push_constant_buffers) {
-            uint32_t set = comp.get_decoration(pushBuffer.id, spv::DecorationDescriptorSet);
-            uint32_t binding = comp.get_decoration(pushBuffer.id, spv::DecorationBinding);
+//            uint32_t set = comp.get_decoration(pushBuffer.id, spv::DecorationDescriptorSet);
+ //           uint32_t binding = comp.get_decoration(pushBuffer.id, spv::DecorationBinding);
             const SPIRType type = comp.get_type(pushBuffer.base_type_id);
             for(auto memberTypeID : type.member_types) {
                 auto memberType = comp.get_type(memberTypeID);
@@ -140,6 +144,9 @@ namespace wlo::wk {
                     case SPIRType::BaseType::Float:
                         pushConstantElements.push_back({DataLayout::DataType::Float, memberType.vecsize*memberType.columns});
                         break;
+                     default:
+                        throw std::runtime_error("only floats supported for pushConstant data");
+                        
                 }
             }
 

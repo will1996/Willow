@@ -2,7 +2,7 @@
 ./cmake-build*
 *Makefile
 cmake-build*
-/.vs
+.vs
 /out/build/x64-Debug (default)
 compile_commands.json
 .DS_Store

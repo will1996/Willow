@@ -1,12 +1,11 @@
 #pragma once
 #include "willow/root/FileSystem.hpp"
-#include "willow/rendering/RenderPath.hpp"
-#include "willow/root/wilo_dev_core.hpp"
+#include "willow/root/Root.hpp"
 #include "willow/messaging/MessageSystem.hpp"
-#include "willow/window/wilo_window.hpp"
+#include "willow/window/Window.hpp"
 #include "willow/scripting/LuaBinding.hpp"
 #include "willow/console/wilo_console.hpp"
-#include "willow/rendering/wilo_renderer.hpp"
+#include "willow/rendering/Renderer.hpp"
 #include "willow/scripting/LuaEnvironment.h"
 namespace wlo{
     /*
@@ -31,6 +30,7 @@ class Application: public MessageSystem::Observer{
 
             virtual void recieve(const wlo::KeyboardMessage& msg);
             void recieve(const wlo::WindowClosed& msg);
+            virtual void recieve(const rendering::GPUInfo & msg);
             virtual void setup() = 0;
             virtual void stepSim(float elapsedTime) = 0;
             virtual void draw() =0;
@@ -47,7 +47,6 @@ class Application: public MessageSystem::Observer{
             wlo::lua::Environment m_scriptEnv;
             wlo::UniquePointer<Console> m_console;
             wlo::UniquePointer<rendering::Renderer> m_renderer;
-            std::map<std::string, wlo::rendering::RenderPath> m_renderPaths;
 
 
         std::string m_runtimeRoot;

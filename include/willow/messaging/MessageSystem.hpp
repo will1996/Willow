@@ -1,6 +1,6 @@
 #ifndef WILLOW_MESSAGE_SYSTEM_H
 #define WILLOW_MESSAGE_SYSTEM_H
-#include"Messages.hpp"
+#include"willow/messaging/Messages.hpp"
 #include"willow/root/Tag.hpp"
 #include<typeindex>
 #include<functional>

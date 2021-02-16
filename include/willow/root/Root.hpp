@@ -12,8 +12,8 @@
 #include<memory>
 #include<atomic>
 #include<set>
-#include "Logger.hpp"
-#include "WiloConfig.h"
+#include "willow/root/Logger.hpp"
+#include "willow/root/WiloConfig.h"
 #include "PlatformCodes.hpp"
 
 #define WILO_ASSERT(result) assert(result==true)

@@ -32,3 +32,11 @@
 
  add_executable(FileSystemTest FileSystemTest.cpp)
  target_link_libraries(FileSystemTest PRIVATE Willow)
+
+ add_executable(Tag TagTest.cpp)
+ target_link_libraries(Tag PRIVATE WillowRoot)
+ add_test(TestTag ${CMAKE_BINARY_DIR}/Tag )
+
+ add_executable(Scene TagTest.cpp)
+ target_link_libraries(Scene PRIVATE WillowRoot)
+ add_test(TestScene ${CMAKE_BINARY_DIR}/Scene )

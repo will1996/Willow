@@ -19,6 +19,11 @@ private:
         bool pressedRotateLeft;
         bool pressedRotateRight;
     }inputHandler;
+    wlo::rendering::Material cowTexture{
+            .vertexShader= wlo::FileSystem::Root().append("shaders").append("vert.spv"),
+            .fragmentShader=  wlo::FileSystem::Root().append("shaders").append("frag.spv"),
+            .texture = wlo::FileSystem::Root().append("examples").append("Textures").append("cow.bmp")
+    };
     wlo::rendering::Model<wlo::TexturedVertex3D> cube{
 
             .vertices = {
@@ -55,30 +60,25 @@ private:
                 3, 2, 6,
                 6, 7, 3
             },
-            .material{ 
-            .vertexShader= wlo::FileSystem::Root().append("shaders").append("vert.spv"),
-            .fragmentShader=  wlo::FileSystem::Root().append("shaders").append("frag.spv"),
-            .texture = wlo::FileSystem::Root().append("examples").append("Textures").append("cow.bmp")
-            },
+            .material = cowTexture
     };
 
     wlo::rendering::Model<wlo::TexturedVertex3D> kitCube{
         .vertices = cube.vertices,
         .indices = cube.indices,
-        .material = {
-            .vertexShader = cube.material.vertexShader,
-            .fragmentShader = cube.material.fragmentShader,
-            .texture = wlo::FileSystem::Root().append("examples").append("Textures").append("kit.jpeg")
-        }
+        .material = cowTexture
+
     };
 
-    glm::mat4x4 cubeTransform = glm::mat4x4{1};
-    glm::mat4x4 kitCubeTransform = glm::mat4x4{1};
     wlo::PrespectiveCamera3D camera;
+    wlo::rendering::Scene mainScene;
+   std::map<std::string, wlo::rendering::RenderObject *> SceneObjects;
 
 
 public:
-    CubeExample():Application(Application::Info("Cube example",1)),camera(m_main_window){
+    CubeExample():Application(Application::Info("Cube example",1)),camera(m_main_window)
+
+    {
         m_main_window->permit<wlo::MouseMoved,CubeExample,&CubeExample::handleMouse>(this);
         m_main_window->permit<wlo::MouseScrolled,CubeExample,&CubeExample::handleMouse>(this);
     }
@@ -158,21 +158,30 @@ public:
 
     void setup () override{
         using namespace wlo::rendering;
-        Frame example = {
-                Draw{cube,glm::mat4x4{1}},
-                Draw{kitCube,glm::mat4x4{1}}
-        };
+        m_renderer->preAllocateScene({
+           .vertexCounts = {{Layout<wlo::TexturedVertex3D>(),3000}} ,
+           .materials = {cube.material,kitCube.material},
+          .totalIndexCount = 300
+        });
+        SceneObjects["cube0"] = mainScene.add(cube);
+        SceneObjects["cube1"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,2,0}));
+        SceneObjects["cube2"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,-2,0}));
+        SceneObjects["cube3"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,2}));
+        SceneObjects["cube4"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,-2}));
+        SceneObjects["cube5"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,0,0}));
+        SceneObjects["cube6"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{-2,0,0}));
+        SceneObjects["cube7"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,2,0}));
+
         m_main_window->setCursorMode(true);
         m_renderer->setMainCamera(camera);
-        m_renderer->PrepareFrameClass(example);
         m_renderer->setClearColor({ {.9,.9,.9,1} });
         WILO_CORE_INFO("Rendering prepared");
     }
 
     void stepSim (float dt) override{
+        for(auto [name,pObject]:SceneObjects)
+            pObject->transform = glm::rotate(glm::mat4(1), timeElapsed()*1.0f,{0,1,0});
 
-        cubeTransform = glm::rotate(glm::mat4(1), timeElapsed()*1.0f,{0,1,0});
-        kitCubeTransform = glm::translate(glm::mat4{1},glm::vec3{-5,0,0})*cubeTransform;
         if(inputHandler.pressedForward)
             camera.moveAlongViewAxis(dt*cameraSpeed);
         if(inputHandler.pressedBack)
@@ -186,14 +195,9 @@ public:
         if(inputHandler.pressedRotateRight)
             camera.roll(dt*cameraSpeed);
     }
-
     void draw() override{
         using namespace wlo::rendering;
-            Frame next = {
-                    Draw{cube,cubeTransform},
-                    Draw{kitCube,kitCubeTransform},
-            };
-            m_renderer->Submit(next);
+        m_renderer->render(mainScene);
     }
 
 
@@ -205,7 +209,6 @@ public:
 
 int main(){
     wlo::logr::initalize();
-    std::cout<<"TEST"<<std::endl;
     wlo::UniquePointer<wlo::Application> example = wlo::CreateUniquePointer<CubeExample>();
     example->run();
 }

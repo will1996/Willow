@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.19)
-project(Willow LANGUAGES CXX) 
+cmake_minimum_required(VERSION 3.16)
+project(Willow LANGUAGES CXX)
+enable_testing()
+
+
 set(CMAKE_CXX_STANDARD 20)
 
 if(MSVC)
@@ -44,7 +47,7 @@ target_sources(WillowRoot
 )
 
 
-add_library(WillowRendering EXCLUDE_FROM_ALL)
+add_library(WillowRendering EXCLUDE_FROM_ALL include/willow/rendering/Scene.hpp src/willow/rendering/Scene.cpp)
 target_link_libraries(WillowRendering PUBLIC WillowRoot)
 target_link_libraries(WillowRendering PUBLIC glfw)
 target_link_libraries(WillowRendering PUBLIC Vulkan::Vulkan)
@@ -125,3 +128,5 @@ set(WILO_ENGINE_VERSION "0")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/willow/root/WiloConfig.h.in "${CMAKE_CURRENT_SOURCE_DIR}/include/willow/root/WiloConfig.h")
 
 file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR}/Willow)
+
+add_subdirectory(test)

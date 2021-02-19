@@ -7,6 +7,7 @@
 #include "willow/Vulkan/VulkanGraphicsPipelineFactory.hpp" 
 #include "willow/Vulkan/VulkanCommandInterface.hpp"
 #include"willow/Vulkan/VulkanTextureFactory.hpp"
+#include "willow/Vulkan/VulkanSetup.hpp"
 #include <GLFW/glfw3.h>
 namespace wlo::rendering{
     class VulkanImplementation :public wlo::MessageSystem::Observer{
@@ -14,18 +15,13 @@ namespace wlo::rendering{
         Renderer::Statistics statistics;
         const PrespectiveCamera3D * camera;
     private:
-        struct FrameClass {
-            vector<Material> materials;
-            map<wlo::ID_type, vector<Draw>> drawsPerMaterial;
-            vector<std::pair<DataLayout, size_t> > vertexInputDescriptions;
-        };
-
         const glm::mat4x4 m_clipMatrix = {//vulkan specific clip matrix (used for all camera transforms)
                 1.0f, 0.0f, 0.0f, 0.0f,
                 0.0f, -1.0f, 0.0f, 0.0f,
                 0.0f, 0.0f, 0.5f, 0.0f,
                 0.0f, 0.0f, 0.5f, 1.0f
         };
+
         wk::VulkanRoot m_root;
         wk::VulkanSwapchain m_swapchain;
         wk::VulkanShaderCompiler m_shaderFactory;
@@ -35,13 +31,14 @@ namespace wlo::rendering{
         wk::VulkanTextureFactory m_textureFactory;
         vk::UniqueDescriptorPool  m_descriptorPool;
 
-
         vk::Queue m_presentQueue;
         std::map<wlo::ID_type, wk::GraphicsPipeline > m_GraphicsPipelines;
-        std::map<wlo::ID_type, std::vector<vk::UniqueFramebuffer>> m_FrameBuffers;
         std::map<wlo::ID_type, vk::UniqueDescriptorSet > m_DescriptorSets;
         std::map<wlo::ID_type, vk::UniqueSampler > m_textureSamplers;
         std::map<wlo::ID_type, std::string> m_textures;
+
+        vk::UniqueRenderPass m_defaultRenderPass;
+        std::vector<vk::UniqueFramebuffer > m_frameBuffers;
 
         std::unordered_map<wlo::ID_type,wk::MappedBuffer> m_UniformBuffers;
 
@@ -50,6 +47,40 @@ namespace wlo::rendering{
         wk::MappedBuffer m_IndexBuffer;
         glm::vec4 m_clearColor;
         size_t m_frameCount;
+
+        void createDefaultRenderPass() {
+            std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
+            //color attachments (i.e the color image that's going to the screen)
+            attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+                                                                  m_swapchain.getSwapSurfaceFormat(),
+                                                                  vk::SampleCountFlagBits::e1,
+                                                                  vk::AttachmentLoadOp::eClear,
+                                                                  vk::AttachmentStoreOp::eStore,
+                                                                  vk::AttachmentLoadOp::eDontCare,
+                                                                  vk::AttachmentStoreOp::eDontCare,
+                                                                  vk::ImageLayout::eUndefined,
+                                                                  vk::ImageLayout::ePresentSrcKHR);
+            //depth attachment (the depth buffer used for coloring)
+            attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+                                                                  vk::Format::eD16Unorm,
+                                                                  vk::SampleCountFlagBits::e1,
+                                                                  vk::AttachmentLoadOp::eClear,
+                                                                  vk::AttachmentStoreOp::eDontCare,
+                                                                  vk::AttachmentLoadOp::eDontCare,
+                                                                  vk::AttachmentStoreOp::eDontCare,
+                                                                  vk::ImageLayout::eUndefined,
+                                                                  vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+            vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
+            vk::AttachmentReference depthReference(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+            vk::SubpassDescription  subpass(
+                    vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, {}, colorReference, {}, &depthReference);
+
+            m_defaultRenderPass = m_root.Device().createRenderPassUnique(
+                    vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(),attachmentDescriptions,subpass)
+                    );
+        }
+
     public:
         GPUInfo getGPUInfo(){
             auto deviceProperties = m_root.PhysicalDevice().getMemoryProperties();
@@ -77,53 +108,54 @@ namespace wlo::rendering{
         {
             window->permit<wlo::WindowResized,VulkanImplementation,&VulkanImplementation::resizeDrawSurface>(this);
             //create descriptor pool
-            std::array   poolSizes = {vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 10),vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 10)};
+            std::array   poolSizes = {
+                    vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 10),
+                    vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 10)};
             m_descriptorPool = m_root.Device().createDescriptorPoolUnique(
                 vk::DescriptorPoolCreateInfo(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, 10, poolSizes));
             auto [_, PresentQueueIndex] = m_root.QueueFamilyIndices();
             m_presentQueue = m_root.Device().getQueue(PresentQueueIndex, 0);
-
-        }
+            createDefaultRenderPass();
+            buildFrameBuffers();
+            }
 
         void resizeDrawSurface(const wlo::WindowResized &msg){
-            cout<<"RESIZING"<<endl;
             m_root.Device().waitIdle();
             m_swapchain.resize();
-            for(auto &[_,pipeline] : m_GraphicsPipelines) {
-                //m_pipelineFactory.rebuildGraphicsPipeline(pipeline);
-                m_FrameBuffers[pipeline.material.id].clear();
-                buildFrameBuffers(pipeline);
-            }
-
-        }
-        void PrepareFrameClass(const Frame& example) {
-            FrameClass frameClass = buildClassFromExample(example);
-            buildTextures(frameClass);
-            buildGraphicsPipelines(frameClass);
-            buildVertexBuffers(frameClass);
-            buildIndexBuffers(frameClass);
+            m_frameBuffers.clear();
+            buildFrameBuffers();
         }
 
-        void buildVertexBuffers( const FrameClass & frameClass) {
-            for (auto & [layout, count] : frameClass.vertexInputDescriptions) 
+        void prepare(const SceneDescription & description)  {
+                buildTextures(description);
+                buildGraphicsPipelines(description);
+                buildVertexBuffers(description);
+                buildIndexBuffers(description);
+        }
+
+        void prepareMaterials(std::vector<Material> mats){
+
+        }
+        void allocateVertexBuffers(std::vector<std::pair<DataLayout,size_t>> vertexCounts ){
+
+        }
+
+
+        void buildVertexBuffers( const SceneDescription & description) {
+            for (auto & [layout, count] : description.vertexCounts)
                 m_VertexBuffers[layout] = m_memoryManager.allocateMappedBuffer(layout, count, vk::BufferUsageFlagBits::eVertexBuffer );
         }
-        void buildIndexBuffers(FrameClass & frameClass){
-            size_t indexCount = 0;
-            for(auto & mat: frameClass.materials) {
-                for (auto &draw: frameClass.drawsPerMaterial[mat.id])
-                    indexCount += draw.indices.count;
-            }
-            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(Layout<Index>(), indexCount, vk::BufferUsageFlagBits::eIndexBuffer);
+
+        void buildIndexBuffers(const SceneDescription& description){
+            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(Layout<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
         }
 
-        void buildTextures(FrameClass & frameClass){
-            for(auto & path :frameClass.materials)
-                for(auto & draw : frameClass.drawsPerMaterial[path.id]){
-                        std::string texturePath = draw.material.texture;
+        void buildTextures(const SceneDescription & desc){
+                for(auto & material : desc.materials){
+                        std::string texturePath = material.texture;
                         if(!texturePath.empty()&&!m_textureFactory.textureCreated(texturePath)) {
                             m_textureFactory.createTexture2D(texturePath);
-                            m_textures[path.id] = texturePath;
+                            m_textures[material.id] = texturePath;
                         }
                 }
         }
@@ -142,48 +174,23 @@ namespace wlo::rendering{
             return vertexdesc;
         }
 
-        FrameClass buildClassFromExample(const Frame& example) {
-            FrameClass frameClass;
-            set<ID_type> pathIds;
-            for (const auto& draw : example.getDraws()) {
-                if (!pathIds.contains(draw.material.id)) {
-                    pathIds.insert(draw.material.id);
-                    frameClass.materials.emplace_back(draw.material);
-                }
-                frameClass.drawsPerMaterial[draw.material.id].emplace_back(draw);
-            }
-            frameClass.vertexInputDescriptions = vertexDescription(example.getDraws());
-            return frameClass;
-        }
 
-
-
-
-
-        void buildGraphicsPipelines(FrameClass& fc) {
-            for (auto mat : fc.materials) {
-                    m_GraphicsPipelines[mat.id] = m_pipelineFactory.buildGraphicsPipeline(mat);
-
-                    for(auto draw: fc.drawsPerMaterial[mat.id])
-                        assert(draw.geo.vertices.layout==m_GraphicsPipelines[mat.id].vertexLayout);
-
+        void buildGraphicsPipelines(const SceneDescription& desc) {
+            for (auto mat : desc.materials) {
+                    m_GraphicsPipelines[mat.id] = m_pipelineFactory.buildGraphicsPipeline(mat,m_defaultRenderPass);
                     buildUniformBuffers(m_GraphicsPipelines[mat.id]);
-                    buildFrameBuffers(m_GraphicsPipelines[mat.id]);
-
             }
         }
 
-        void buildFrameBuffers(const wk::GraphicsPipeline & pipeline){
+        void buildFrameBuffers(){
             std::array<vk::ImageView, 2> attachments;
             attachments[1] = m_swapchain.getDepthImageView();
-
-            m_FrameBuffers[pipeline.material.id].reserve(m_swapchain.getSwapSurfaceViews().size());
             for (auto const& view : m_swapchain.getSwapSurfaceViews())
             {
                 attachments[0] = view;
-                m_FrameBuffers[pipeline.material.id].push_back(
+                m_frameBuffers.push_back(
                 m_root.Device().createFramebufferUnique(vk::FramebufferCreateInfo(vk::FramebufferCreateFlags(),
-                                                                                  m_GraphicsPipelines[pipeline.material.id].vkRenderPass.get(),
+                                                                                  m_defaultRenderPass.get(),
                                                                                   attachments,
                                                                                   m_swapchain.getSwapSurfaceExtent().width,
                                                                                   m_swapchain.getSwapSurfaceExtent().height,
@@ -199,11 +206,20 @@ namespace wlo::rendering{
                     vk::BufferCreateInfo{ vk::BufferCreateFlags(),sizeof(glm::mat4x4),vk::BufferUsageFlagBits::eUniformBuffer }
                 );
 
-                vk::MemoryRequirements uniformBufferMemRequirements = m_root.Device().getBufferMemoryRequirements(m_UniformBuffers[pipeline.material.id].buffer.get());
-                uint32_t memoryTypeIndex = m_root.findMemoryType(uniformBufferMemRequirements, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+                vk::MemoryRequirements uniformBufferMemRequirements = m_root.Device().getBufferMemoryRequirements(
+                                            m_UniformBuffers[pipeline.material.id].buffer.get()
+                                            );
+                uint32_t memoryTypeIndex = m_root.findMemoryType(uniformBufferMemRequirements,
+                                                                 vk::MemoryPropertyFlagBits::eHostVisible |
+                                                                 vk::MemoryPropertyFlagBits::eHostCoherent);
 
-                m_UniformBuffers[pipeline.material.id].memory = m_root.Device().allocateMemoryUnique(vk::MemoryAllocateInfo{ uniformBufferMemRequirements.size, memoryTypeIndex });
-                m_UniformBuffers[pipeline.material.id].writePoint = (static_cast<byte*>(m_root.Device().mapMemory(m_UniformBuffers[pipeline.material.id].memory.get(), 0, uniformBufferMemRequirements.size)));
+                m_UniformBuffers[pipeline.material.id].memory = m_root.Device().allocateMemoryUnique(
+                                vk::MemoryAllocateInfo{ uniformBufferMemRequirements.size, memoryTypeIndex });
+                m_UniformBuffers[pipeline.material.id].writePoint = (
+                        static_cast<byte*>(m_root.Device().mapMemory(
+                                    m_UniformBuffers[pipeline.material.id].memory.get(),
+                                    0,
+                                    uniformBufferMemRequirements.size)));
 
                 glm::mat4x4 view = glm::lookAt(glm::vec3(-5.0f, 3.0f, -10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
                 glm::mat4x4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
@@ -252,7 +268,6 @@ namespace wlo::rendering{
         }
 
         void updateUnifromBuffer(wlo::ID_type pathID,const glm::mat4x4 &uniformView) {
-
             glm::mat4x4 mvpc = m_clipMatrix * uniformView;
             memcpy(m_UniformBuffers[pathID].writePoint,&mvpc, sizeof(mvpc));
         }
@@ -283,12 +298,12 @@ namespace wlo::rendering{
             clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
             ID_type  pathId = frame.getDraws()[0].material.id;
 
-            vk::RenderPassBeginInfo renderPassBeginInfo(m_GraphicsPipelines[pathId].vkRenderPass.get(),
-                m_FrameBuffers[pathId][currentBuffer.value].get(),
+            vk::RenderPassBeginInfo renderPassBeginInfo(m_defaultRenderPass.get(),
+                m_frameBuffers[currentBuffer.value].get(),
                 vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.getSwapSurfaceExtent()),
                 clearValues);
             commandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-
+            WILO_CORE_INFO("BINDING PIPELINE FOR MATERIAL ID {0}",pathId);
             commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[pathId].vkPipeline.get());
             commandBuffer->setViewport(0,
                 vk::Viewport(0.0f,
@@ -370,15 +385,14 @@ namespace wlo::rendering{
         WILO_CORE_INFO("Renderer deconstructed");
     }
 
-    void Renderer::PrepareFrameClass(const Frame & example) {
-        pImpl->PrepareFrameClass(example);
+    void Renderer::prepare(const Frame &) {
     }
 
     void Renderer::setMainCamera(const PrespectiveCamera3D & camera){
         pImpl->camera = &camera;                    
     }
 
-    void Renderer::Submit(const Frame & frame) {
+    void Renderer::submit(const Frame & frame) {
         if(pImpl->camera==nullptr)
             throw std::runtime_error("main camera not set! call setMainCamera");
         pImpl->submit(frame);
@@ -400,6 +414,21 @@ namespace wlo::rendering{
         GPUInfo  info = pImpl->getGPUInfo();
         m_subject.notify(info);
 
+    }
+
+    void Renderer::preAllocateScene(SceneDescription description) {
+       pImpl->prepare(description);
+    }
+
+    void Renderer::render(const Scene & scene) {
+       drawScene(scene);
+    }
+
+    void Renderer::drawScene(const Scene & scene) {
+       Frame nextFrame({});
+       for(const auto & object : scene.m_objects)
+            nextFrame.m_draws.emplace_back(Draw(object.model,object.transform));
+       submit(nextFrame);
     }
 }
 

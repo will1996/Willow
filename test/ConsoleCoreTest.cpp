@@ -3,6 +3,7 @@
 //
 #include "catch.hpp"
 #include "willow/console/ConsoleCore.hpp"
+using namespace wlo;
 int main(){
     ConsoleCore core;
     core.moveCursor(ConsoleCore::CursorMovement::RIGHT);
@@ -14,13 +15,10 @@ int main(){
     core.moveCursor(ConsoleCore::CursorMovement::DOWN);
     assert(core.getCursorPos().first==0 && core.getCursorPos().second==0);
 
-    core.placeChar(wlo::KeyCode::I);
     assert(core.getVertexBuffer().size()==8);
     assert(core.getIndexBuffer().size()==12);
     core.deleteChar();
     assert(core.getVertexBuffer().size()==4);
-    for(auto & vert : core.getVertexBuffer())
-        assert(vert.color[0]==0);
 
     assert(core.getIndexBuffer().size()==6);
     assert(core.flushInputBuffer()=="");

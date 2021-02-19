@@ -45,9 +45,9 @@ cout<<"description"<<ss.str()<<endl;
 
 
 std::vector<wlo::ColorVertex3D> VertexData = {
-        {.position = {-.5,.5,0,1},.color = {0,1,0,1}},
-        {.position = {0,.5,0,1},.color = {0,1,0,1}},
-        {.position = {.5,-.5,0,1},.color = {0,1,0,1}}
+        {.position = {-.5,.5,0},.color = {0,1,0,1}},
+        {.position = {0,.5,0},.color = {0,1,0,1}},
+        {.position = {.5,-.5,0},.color = {0,1,0,1}}
 };
 
 byte* typelessData = reinterpret_cast< byte*> (VertexData.data());

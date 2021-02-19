@@ -182,7 +182,36 @@ namespace wlo::wk{
         return vk::Device();
     }
 
+    vk::RenderPassCreateInfo createDefaultRenderPassInfo(vk::Format imageFormat) {
+        std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
+        //color attachments (i.e the color image that's going to the screen)
+        attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+                                                              imageFormat,
+                                                              vk::SampleCountFlagBits::e1,
+                                                              vk::AttachmentLoadOp::eClear,
+                                                              vk::AttachmentStoreOp::eStore,
+                                                              vk::AttachmentLoadOp::eDontCare,
+                                                              vk::AttachmentStoreOp::eDontCare,
+                                                              vk::ImageLayout::eUndefined,
+                                                              vk::ImageLayout::ePresentSrcKHR);
+        //depth attachment (the depth buffer used for coloring)
+        attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
+                                                              vk::Format::eD16Unorm,
+                                                              vk::SampleCountFlagBits::e1,
+                                                              vk::AttachmentLoadOp::eClear,
+                                                              vk::AttachmentStoreOp::eDontCare,
+                                                              vk::AttachmentLoadOp::eDontCare,
+                                                              vk::AttachmentStoreOp::eDontCare,
+                                                              vk::ImageLayout::eUndefined,
+                                                              vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
+        vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
+        vk::AttachmentReference depthReference(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+        vk::SubpassDescription  subpass(
+                vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, {}, colorReference, {}, &depthReference);
+
+        return vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass);
+    }
 
 
 }

@@ -12,6 +12,8 @@ namespace wlo::wk{
    vk::SurfaceKHR createSurface(const vk::Instance  &, SharedPointer<wlo::Window>  wind);
    vk::PhysicalDevice selectGPU(vk::Instance,VkSurfaceKHR);
    vk::Device createDevice(vk::Instance);
+
+   vk::RenderPassCreateInfo createDefaultRenderPassInfo(vk::Format imageFormat);
 }
 
 

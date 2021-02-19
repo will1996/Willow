@@ -19,20 +19,17 @@ namespace wlo::wk {
         wlo::rendering::DataLayout pushConstantLayout;
         vk::UniquePipelineLayout vkPipelineLayout;
         vk::UniquePipeline vkPipeline;
-        vk::UniqueRenderPass vkRenderPass;
         vk::UniqueDescriptorSetLayout  vkDescriptorSetLayout;
     };
     class VulkanGraphicsPipelineFactory {
     public:
         VulkanGraphicsPipelineFactory(VulkanRoot & root,VulkanShaderCompiler & compiler,VulkanSwapchain &);
-        GraphicsPipeline buildGraphicsPipeline( wlo::rendering::Material);
-        void rebuildGraphicsPipeline(GraphicsPipeline &);
+        GraphicsPipeline buildGraphicsPipeline( wlo::rendering::Material,vk::UniqueRenderPass& renderPass);
     private:
         vk::UniqueDescriptorSetLayout createDescriptorSetLayout(wlo::rendering::Material);
         vk::UniquePipelineLayout createPipelineLayout(wlo::rendering::Material,
                                                       vk::UniqueDescriptorSetLayout &descriptorSetLayout,
                                                       wlo::rendering::DataLayout pushLayout);
-        vk::UniqueRenderPass createRenderPass(wlo::rendering::Material);
         vk::UniquePipeline  createPipeline(wlo::rendering::Material,
                                                    vk::UniqueRenderPass &,
                                                    vk::UniquePipelineLayout & );

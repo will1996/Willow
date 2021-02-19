@@ -28,6 +28,16 @@ namespace wlo::rendering{
                    modelMatrix(transform),
                    material(model.material)
                 { }
+
+               Draw(const ModelView & model, const glm::mat4x4  & transform):
+               vertices(model.vertices),
+               indices(model.indices),
+               modelMatrix(transform),
+               material(model.material)
+               {
+
+               }
+
     };
    class Frame{
 
@@ -40,14 +50,7 @@ namespace wlo::rendering{
     inline const std::vector<Draw> & getDraws() const {
        return  m_draws;
     }
-
-   private:
-       std::vector< Draw > m_draws;
-
-
-
-
-
+  std::vector< Draw > m_draws;
    };
 
 

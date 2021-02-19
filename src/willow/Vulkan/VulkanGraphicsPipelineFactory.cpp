@@ -56,7 +56,7 @@ namespace wlo::wk {
     }
 
     wlo::wk::GraphicsPipeline
-    wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(wlo::rendering::Material mat) {
+    wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(wlo::rendering::Material mat,vk::UniqueRenderPass & renderPass) {
 
         VulkanShader vertexShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eVertex,mat.vertexShader);
         VulkanShader fragmentShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eFragment,mat.fragmentShader);
@@ -67,7 +67,6 @@ namespace wlo::wk {
 
         auto descriptorSetLayout = createDescriptorSetLayout(mat);
         auto pipelineLayout = createPipelineLayout(mat,descriptorSetLayout,pushLayout);
-        auto renderPass = createRenderPass(mat);
         auto pipeline = createPipeline(mat,renderPass,pipelineLayout);
         return GraphicsPipeline{
            .id = mat.id,
@@ -77,55 +76,17 @@ namespace wlo::wk {
            .pushConstantLayout = pushLayout,
            .vkPipelineLayout = std::move(pipelineLayout),
            .vkPipeline = std::move(pipeline),
-           .vkRenderPass = std::move(renderPass),
            .vkDescriptorSetLayout = std::move(descriptorSetLayout)
         };
     }
 
-    vk::UniqueRenderPass VulkanGraphicsPipelineFactory::createRenderPass(wlo::rendering::Material) {
-        std::array<vk::AttachmentDescription, 2> attachmentDescriptions;
-        //color attachments (i.e the color image that's going to the screen)
-        attachmentDescriptions[0] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-                                                              m_swapchain.getSwapSurfaceFormat(),
-                                                              vk::SampleCountFlagBits::e1,
-                                                              vk::AttachmentLoadOp::eClear,
-                                                              vk::AttachmentStoreOp::eStore,
-                                                              vk::AttachmentLoadOp::eDontCare,
-                                                              vk::AttachmentStoreOp::eDontCare,
-                                                              vk::ImageLayout::eUndefined,
-                                                              vk::ImageLayout::ePresentSrcKHR);
-        //depth attachment (the depth buffer used for coloring)
-        attachmentDescriptions[1] = vk::AttachmentDescription(vk::AttachmentDescriptionFlags(),
-                                                              vk::Format::eD16Unorm,
-                                                              vk::SampleCountFlagBits::e1,
-                                                              vk::AttachmentLoadOp::eClear,
-                                                              vk::AttachmentStoreOp::eDontCare,
-                                                              vk::AttachmentLoadOp::eDontCare,
-                                                              vk::AttachmentStoreOp::eDontCare,
-                                                              vk::ImageLayout::eUndefined,
-                                                              vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-        vk::AttachmentReference colorReference(0, vk::ImageLayout::eColorAttachmentOptimal);
-        vk::AttachmentReference depthReference(1, vk::ImageLayout::eDepthStencilAttachmentOptimal);
-        vk::SubpassDescription  subpass(
-                vk::SubpassDescriptionFlags(), vk::PipelineBindPoint::eGraphics, {}, colorReference, {}, &depthReference);
-
-        return  m_root.Device().createRenderPassUnique(
-                vk::RenderPassCreateInfo(vk::RenderPassCreateFlags(), attachmentDescriptions, subpass));
-    }
-
-    void VulkanGraphicsPipelineFactory::rebuildGraphicsPipeline(GraphicsPipeline & pipeline) {
-       WILO_CORE_INFO("Rebuilding pipeline with id {0}, to fit the new screen size of x: {1}, y: {2}",pipeline.material.id,
-                                    m_swapchain.getSwapSurfaceExtent().width,m_swapchain.getSwapSurfaceExtent().height);
-        pipeline.vkRenderPass = createRenderPass(pipeline.material);
-        pipeline.vkPipeline = createPipeline(pipeline.material,pipeline.vkRenderPass,pipeline.vkPipelineLayout);
-    }
 
 
 
     vk::UniquePipeline
     VulkanGraphicsPipelineFactory::createPipeline(wlo::rendering::Material mat,
-                                                  vk::UniqueRenderPass & renderPass,
+                                                  vk::UniqueRenderPass &  renderPass,
                                                   vk::UniquePipelineLayout & pipelineLayout) {
         VulkanShader & vertexShader = m_shaderCompiler.fetchShader(mat.vertexShader);
         VulkanShader & fragmentShader = m_shaderCompiler.fetchShader(mat.fragmentShader);
@@ -228,7 +189,7 @@ namespace wlo::wk {
         std::tie(result, pipeline) =
                 m_root.Device().createGraphicsPipelineUnique(nullptr, graphicsPipelineCreateInfo).asTuple();
 
-        WILO_CORE_INFO("CREATED GRAPHICS PIPLINE");
+        WILO_CORE_INFO("CREATED GRAPHICS PIPLINE FOR MATERIAL ID {0} ",mat.id);
         return pipeline;
     }
 

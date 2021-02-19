@@ -2,20 +2,20 @@
 // Created by W on 11/3/20.
 //
 #include "willow/rendering/Renderer.hpp"
-#include "willow/window/mac_window.hpp"
+#include "willow/window/Window.hpp"
 #include "willow/rendering/Buffer.hpp"
 #include <filesystem>
 using namespace  wlo::rendering;
 using namespace wlo;
 int main(){
     //first, let's make something to render to:
-    MacWindow::Info windowInfo{
+    Window::Info windowInfo{
             .m_height = 500,
             .m_width = 500,
             .m_title = "rendering setup test",
             .API = WindowingAPICode::GLFW        ,
     };
-auto window = CreateSharedPointer<MacWindow> (windowInfo);//the window is going to be partially owned by the renderer, so make a shared pointer
+auto window = CreateSharedPointer<Window> (windowInfo);//the window is going to be partially owned by the renderer, so make a shared pointer
 
 //now, lets create the most basic renderer, it requires a window
 //you can specify optional features here, things like triangle fans, poly lines, ray tracing, ect.  (currently there are none supported
@@ -23,65 +23,53 @@ wlo::rendering::Renderer renderer(window);
  std::vector<wlo::ColorVertex3D> VertexBuffer(
             {
                     // red face
-                    {.position = {-1.0f, -1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, 1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, 1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, 1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
                     // green face
-                    {.position = {-1.0f, -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  -1.0f, 1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  -1.0f, 1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  1.0f,  -1.0f, 1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, -1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, -1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  -1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  -1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, -1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  -1.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
                     //{ blue face
-                    {.position = {-1.0f, 1.0f,  1.0f,  1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, -1.0f, 1.0f,  1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  -1.0f, 1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  -1.0f, 1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, -1.0f, 1.0f,  1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, -1.0f, -1.0f, 1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, 1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  -1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  -1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, 1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, -1.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}},
                     // yellow face
-                    {.position = {1.0f,  1.0f,  1.0f,  1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  1.0f,  -1.0f, 1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, 1.0f,  1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, 1.0f,  1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  1.0f,  -1.0f, 1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, -1.0f, 1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  -1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, 1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, 1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  -1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, -1.0f}, .color = {1.0f, 1.0f, 0.0f, 1.0f}},
                     //{ magenta face
-                    {.position = {1.0f,  1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {1.0f,  1.0f,  -1.0f, 1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {1.0f,  1.0f,  -1.0f, 1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, 1.0f,  -1.0f, 1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  -1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {1.0f,  1.0f,  -1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, 1.0f,  -1.0f}, .color = {1.0f, 0.0f, 1.0f, 1.0f}},
                     //{ cyan face
-                    {.position = {1.0f,  -1.0f, 1.0f,  1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, -1.0f, 1.0f,  1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, -1.0f, 1.0f,  1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
-                    {.position = {1.0f,  -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
-                    {.position = {-1.0f, -1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, -1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, 1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
+                    {.position = {1.0f,  -1.0f, -1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
+                    {.position = {-1.0f, -1.0f, -1.0f}, .color = {0.0f, 1.0f, 1.0f, 1.0f}},
             });
 
 //The special sauce with this renderer is render paths. Render Paths are roughly analagous to the graphics pipeline under the hood
 //they also describe where the data ends up, let's make one now
 
 //wlo::filesystem is in the works, but for now let's just use: 
-
-//std::filesystem::path vertexShaderRoot = std::filesystem::current_path().parent_path().append("Willow").append("shaders");
-//std::filesystem::path fragmentShaderRoot = std::filesystem::current_path().parent_path().append("Willow").append("shaders");
-//std::string vertShaderPath = vertexShaderRoot.append("vert.spv").string();
-//std::string fragShaderPath = fragmentShaderRoot.append("frag.spv").string();
-
-
-RenderPath basic{
-    .camera = OrthographicCamera3D(window),//we need a camera, the simplest one just takes in the whole window
-    .vertexShaderPath = "C:\\Users\\sacer\\Source\\Repos\\will1996\\Willow\\shaders\\vert.spv",//"/Users/w/Projects/Willow/shaders/vert.spv",// just give the render path file paths to the shader text files
-    .fragmentShaderPath =  "C:\\Users\\sacer\\Source\\Repos\\will1996\\Willow\\shaders\\frag.spv",//"/Users/w/Projects/Willow/shaders/frag.spv",
-};
 
 
 //this contains all of the information necessary to build a graphics pipeline.
@@ -109,15 +97,7 @@ glm::mat4x4 modelMatrx1{1};
 glm::mat4x4 modelMatrx2{1};
 glm::mat4x4 modelMatrx3{1};
 glm::mat4x4 modelMatrx4{1};
-Frame next({
-                    Draw{{DataView(VertexBuffer),DataView(VertexBuffer),modelMatrx1}, basic},
-                    Draw{{DataView(VertexBuffer),DataView(VertexBuffer),modelMatrx2}, basic},
-                    Draw{{DataView(VertexBuffer),DataView(VertexBuffer),modelMatrx3}, basic},
-                    Draw{{DataView(VertexBuffer),DataView(VertexBuffer),modelMatrx4}, basic},
-          }
-);
 
-renderer.PrepareFrameClass(next);//allocates all of the necessary resources for drawing, using this frame as a template. 
 //You need to have specified all of the resources for the frame class ahead of time (similar to a scene)
 //basically, create a frame that represents the worst case scenario, and submit that. If you fail to do that, segfaults are bound to happen. 
 
@@ -127,7 +107,6 @@ while(!window->shouldClose()) {
     //once allocated you can submit any frame with the same render paths, and up to the number of vertices in the example frame. 
 auto delta = std::chrono::high_resolution_clock::now() -start;
     window->checkIn();
-    renderer.Submit(next);
     modelMatrx1 = glm::rotate(glm::mat4(1.0f),  delta.count()*glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f)));
     modelMatrx2 = glm::translate(glm::mat4x4(1), sinf(delta.count())*glm::vec3(0, 3, 0));//*glm::rotate(glm::mat4(1.0f),  0.01f*delta.count()*glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f)));
     modelMatrx3 = glm::translate(glm::mat4x4(1), sinf(delta.count())*glm::vec3(3, 0, 0));//*glm::rotate(glm::mat4(1.0f),  0.01f*delta.count()*glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f)));

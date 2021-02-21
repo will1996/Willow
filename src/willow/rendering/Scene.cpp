@@ -6,10 +6,16 @@
 namespace wlo::rendering{
 
     std::vector<glm::mat4> & Scene::getTransforms(){
-        return m_transforms;
+        m_packedTransformsBuffer.reserve(m_objects.size());
+        for(auto & object : m_objects)
+            m_packedTransformsBuffer.push_back(object.transform);
+        return m_packedTransformsBuffer;
     }
     const std::vector<RenderObject> & Scene::getObjects(){
-        return m_objects;
+        m_packedObjectBuffer.reserve(m_objects.size());
+        for(auto & object : m_objects)
+            m_packedObjectBuffer.push_back(object);
+        return m_packedObjectBuffer;
     }
 
     SceneDescription Scene::getDescription() {
@@ -19,9 +25,6 @@ namespace wlo::rendering{
         };
     }
 
-    Scene::Scene(size_t ObjectCapacity):objectCount(0),objectCapacity(ObjectCapacity) {
-
-    }
 
 
 }

@@ -28,15 +28,15 @@ private:
 
             .vertices = {
 
-                    { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
-                    { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
-                    { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
-                    { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
+              { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
+              { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
+              { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
+              { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
 
-                { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
-                { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
-                { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
-                { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
+              { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
+              { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
+              { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
+              { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
 
             },
 
@@ -159,18 +159,18 @@ public:
     void setup () override{
         using namespace wlo::rendering;
         m_renderer->preAllocateScene({
-           .vertexCounts = {{Layout<wlo::TexturedVertex3D>(),3000}} ,
-           .materials = {cube.material,kitCube.material},
-          .totalIndexCount = 300
+           .vertexCounts = {{Layout<wlo::TexturedVertex3D>(),8}} ,
+           .materials = {cube.material},
+          .totalIndexCount = 36
         });
         SceneObjects["cube0"] = mainScene.add(cube);
-        SceneObjects["cube1"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,2,0}));
-        SceneObjects["cube2"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,-2,0}));
-        SceneObjects["cube3"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,2}));
-        SceneObjects["cube4"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,-2}));
-        SceneObjects["cube5"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,0,0}));
-        SceneObjects["cube6"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{-2,0,0}));
-        SceneObjects["cube7"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,2,0}));
+      //  SceneObjects["cube1"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,2,0}));
+      //  SceneObjects["cube2"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,-2,0}));
+      //  SceneObjects["cube3"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,2}));
+      //  SceneObjects["cube4"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,-2}));
+      //  SceneObjects["cube5"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,0,0}));
+      //  SceneObjects["cube6"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{-2,0,0}));
+      //  SceneObjects["cube7"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,2,0}));
 
         m_main_window->setCursorMode(true);
         m_renderer->setMainCamera(camera);
@@ -179,8 +179,8 @@ public:
     }
 
     void stepSim (float dt) override{
-        for(auto [name,pObject]:SceneObjects)
-            pObject->transform = glm::rotate(glm::mat4(1), timeElapsed()*1.0f,{0,1,0});
+        //for(auto [name,pObject]:SceneObjects)
+            //pObject->transform = glm::rotate(glm::mat4(1), timeElapsed()*1.0f,{0,1,0});
 
         if(inputHandler.pressedForward)
             camera.moveAlongViewAxis(dt*cameraSpeed);
@@ -201,7 +201,7 @@ public:
     }
 
 
-   ~ CubeExample(){
+   ~ CubeExample() override{
         Application::reclaim();
     }
 

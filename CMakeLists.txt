@@ -80,7 +80,7 @@ target_sources(WillowRendering
         PUBLIC include/willow/Vulkan/VulkanCommandInterface.hpp
         PUBLIC include/willow/rendering/PerspectiveCamera3D.hpp
         PRIVATE external/stb_image.h
-#        PUBLIC willow/rendering/Model.cpp
+        PUBLIC  src/willow/rendering/Model.cpp
         PRIVATE src/willow/rendering/Renderer.cpp
         PRIVATE src/willow/rendering/DataLayout.cpp
 #        PUBLIC willow/rendering/Shader.cpp

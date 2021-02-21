@@ -426,8 +426,9 @@ namespace wlo::rendering{
 
     void Renderer::drawScene(const Scene & scene) {
        Frame nextFrame({});
-       for(const auto & object : scene.m_objects)
-            nextFrame.m_draws.emplace_back(Draw(object.model,object.transform));
+       for(const auto & object : scene.m_objects) {
+           nextFrame.m_draws.emplace_back(Draw(object.model, object.transform));
+       }
        submit(nextFrame);
     }
 }

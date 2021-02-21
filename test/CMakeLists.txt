@@ -37,6 +37,6 @@
  target_link_libraries(Tag PRIVATE WillowRoot)
  add_test(TestTag ${CMAKE_BINARY_DIR}/Tag )
 
- add_executable(Scene TagTest.cpp)
- target_link_libraries(Scene PRIVATE WillowRoot)
+ add_executable(Scene SceneTest.cpp)
+ target_link_libraries(Scene PRIVATE WillowRendering)
  add_test(TestScene ${CMAKE_BINARY_DIR}/Scene )

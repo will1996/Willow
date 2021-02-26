@@ -7,7 +7,7 @@
 #include"willow/window/Window.hpp"
 #include"willow/rendering/PerspectiveCamera3D.hpp"
 namespace wlo{
-    Console::Console(wlo::lua::Environment& env):scriptable("console",this,env),m_testScriptsPath(WILO_TESTS_SCRIPTS_PATH),m_engineScriptsPath(WILO_ENGINE_SCRIPTS_PATH){
+    Console::Console(wlo::lua::Environment& env):scriptable("console",this,env),m_testScriptsPath(),m_engineScriptsPath(){
         scriptable.Register<&Console::quit>("quit");
         scriptable.Register<&Console::resize>("resize");
         scriptable.Register<&Console::setMouse>("setMouse");

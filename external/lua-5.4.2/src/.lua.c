@@ -39,7 +39,6 @@ static const char *progname = LUA_PROGNAME;
 
 /*
 ** Hook set by signal function to stop the interpreter.
-*/
 static void lstop (lua_State *L, lua_Debug *ar) {
   (void)ar;  /* unused arg. */
   lua_sethook(L, NULL, 0, 0);  /* reset hook */

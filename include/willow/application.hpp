@@ -25,7 +25,7 @@ class Application: public MessageSystem::Observer{
             Info(std::string name, int version) :appName(name),appVersion(version){}
             };
 
-            Application(Info);//Application must recieve argv[0] in its constructor, it uses this path to
+            Application(Info,std::string argv_0);//Application must recieve argv[0] in its constructor, it uses this path to
             //handle runtime file lookup, without this nothing works.
 
             virtual void recieve(const wlo::KeyboardMessage& msg);

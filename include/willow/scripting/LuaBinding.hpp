@@ -68,8 +68,7 @@ namespace wlo{
         }
 
         void runBaseScript(){
-            const std::string scriptpath(WILO_ENGINE_SCRIPTS_PATH);
-            int res = (luaL_dofile(m_env.getL(), (scriptpath+"scriptable_base.lua").c_str()));
+            int res = luaL_dofile(m_env.getL(), (wlo::FileSystem::Willow().append("scripts").append("scriptable_base.lua").string().c_str()));
             if(res != LUA_OK) {
                 #ifndef NDEBUG
                 std::string msg = lua_tostring(m_env.getL(),-1);

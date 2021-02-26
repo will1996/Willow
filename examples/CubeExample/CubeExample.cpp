@@ -20,9 +20,9 @@ private:
         bool pressedRotateRight;
     }inputHandler;
     wlo::rendering::Material cowTexture{
-            .vertexShader= wlo::FileSystem::Root().append("shaders").append("vert.spv"),
-            .fragmentShader=  wlo::FileSystem::Root().append("shaders").append("frag.spv"),
-            .texture = wlo::FileSystem::Root().append("examples").append("Textures").append("cow.bmp")
+            .vertexShader= wlo::FileSystem::Assets().append("Shaders").append("vert.spv").string(),
+            .fragmentShader=  wlo::FileSystem::Assets().append("Shaders").append("frag.spv").string(),
+            .texture = wlo::FileSystem::Assets().append("Textures").append("cow.bmp").string()
     };
     wlo::rendering::Model<wlo::TexturedVertex3D> cube{
 
@@ -76,7 +76,7 @@ private:
 
 
 public:
-    CubeExample():Application(Application::Info("Cube example",1)),camera(m_main_window)
+    CubeExample(std::string argv_0):Application(Application::Info("Cube example",1),argv_0),camera(m_main_window)
 
     {
         m_main_window->permit<wlo::MouseMoved,CubeExample,&CubeExample::handleMouse>(this);
@@ -163,7 +163,7 @@ public:
            .materials = {cube.material},
           .totalIndexCount = 36
         });
-        SceneObjects["cube0"] = mainScene.add(cube);
+        //SceneObjects["cube0"] = mainScene.add(cube);
       //  SceneObjects["cube1"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,2,0}));
       //  SceneObjects["cube2"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,-2,0}));
       //  SceneObjects["cube3"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,2}));
@@ -197,7 +197,10 @@ public:
     }
     void draw() override{
         using namespace wlo::rendering;
-        m_renderer->render(mainScene);
+        Frame next{
+            Draw{cube,glm::mat4x4{1}}
+        };
+        m_renderer->submit(next);
     }
 
 
@@ -207,9 +210,9 @@ public:
 
 };
 
-int main(){
+int main(int argc, char ** argv){
     wlo::logr::initalize();
-    wlo::UniquePointer<wlo::Application> example = wlo::CreateUniquePointer<CubeExample>();
+    wlo::UniquePointer<wlo::Application> example = wlo::CreateUniquePointer<CubeExample>(argv[0]);
     example->run();
 }
 

@@ -6,20 +6,29 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace wlo{
- Application::Application(Application::Info info)
+    fs::path FileSystem::m_root;
+    
+    
+
+ Application::Application(Application::Info info,std::string argv_0)
  :
  startTime(std::chrono::high_resolution_clock::now())
  {
+     fs::path argv0 = fs::path(argv_0);
+     //build the logger internals
      wlo::logr::initalize();
+     //set the root of the filesystem to 
+     FileSystem::initialize(argv0.parent_path());
      initialize(info);
+
 //     m_scriptEnv = wlo::CreateSharedPointer<wlo::lua::Environment>();
  }
  Application::~Application(){
      reclaim();
  }
  void Application::initialize(Application::Info inf){
+     wlo::FileSystem::initialize();
      m_console = wlo::CreateUniquePointer<wlo::Console>(m_scriptEnv);
-
      wlo::Window::Info window_info;
      window_info.m_height = 500;
      window_info.m_width = 500;

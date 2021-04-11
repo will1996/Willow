@@ -6,7 +6,7 @@
 #define WILLOW_FRAME_HPP
 #include "willow/root/Root.hpp"
 #include "willow/rendering/Model.hpp"
-#include "include/willow/data/View.hpp"
+#include "willow/data/View.hpp"
 #include<variant>
 namespace wlo::rendering{
 

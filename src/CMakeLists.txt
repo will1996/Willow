@@ -136,7 +136,6 @@ target_link_libraries(WillowRoot PUBLIC glm::glm)
 target_include_directories(WillowRoot PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-        
         )
 
 

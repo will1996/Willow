@@ -4,7 +4,7 @@
 
 #ifndef WILLOW_RENDER_DATA_TYPES_HPP
 #define WILLOW_RENDER_DATA_TYPES_HPP
-#include "include/willow/data/Type.hpp"
+#include "willow/data/Type.hpp"
 
 
 namespace wlo {

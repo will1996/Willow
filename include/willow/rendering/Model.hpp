@@ -6,11 +6,11 @@
 #define WILLOW_MODEL_HPP
 #include"willow/root/Root.hpp"
 #include "willow/root/Tag.hpp"
-#include"include/willow/data/Type.hpp"
+#include"willow/data/Type.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
 #include"willow/rendering/Mesh.hpp"
 #include "willow/rendering/Material.hpp"
-#include "include/willow/data/View.hpp"
+#include "willow/data/View.hpp"
 namespace wlo::rendering{
 
 template<typename T>

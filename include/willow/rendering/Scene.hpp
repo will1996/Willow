@@ -4,7 +4,7 @@
 
 #ifndef WILLOW_SCENE_HPP
 #define WILLOW_SCENE_HPP
-#include"include/willow/data/Type.hpp"
+#include"willow/data/Type.hpp"
 #include "willow/root/Root.hpp"
 #include "willow/rendering/Model.hpp"
 #include<list>

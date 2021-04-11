@@ -15,7 +15,7 @@ int main(){
             .m_title = "rendering setup test",
             .API = WindowingAPICode::GLFW        ,
     };
-auto window = CreateSharedPointer<Window> (windowInfo);//the window is going to be partially owned by the renderer, so make a shared pointer
+Window window(windowInfo);//the window is going to be partially owned by the renderer, so make a shared pointer
 
 //now, lets create the most basic renderer, it requires a window
 //you can specify optional features here, things like triangle fans, poly lines, ray tracing, ect.  (currently there are none supported
@@ -103,10 +103,10 @@ glm::mat4x4 modelMatrx4{1};
 
 // a frame is a sequence of events, all of which culminate in creating a frame on the screen sometime after submission
 auto start = std::chrono::high_resolution_clock::now();
-while(!window->shouldClose()) {
+while(!window.shouldClose()) {
     //once allocated you can submit any frame with the same render paths, and up to the number of vertices in the example frame. 
 auto delta = std::chrono::high_resolution_clock::now() -start;
-    window->checkIn();
+    window.checkIn();
     modelMatrx1 = glm::rotate(glm::mat4(1.0f),  delta.count()*glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f)));
     modelMatrx2 = glm::translate(glm::mat4x4(1), sinf(delta.count())*glm::vec3(0, 3, 0));//*glm::rotate(glm::mat4(1.0f),  0.01f*delta.count()*glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f)));
     modelMatrx3 = glm::translate(glm::mat4x4(1), sinf(delta.count())*glm::vec3(3, 0, 0));//*glm::rotate(glm::mat4(1.0f),  0.01f*delta.count()*glm::radians(90.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 1.0f)));

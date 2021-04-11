@@ -11,7 +11,7 @@
 namespace wlo{
 class Console : public MessageSystem::Observer {
     public:
-        Console(wlo::lua::Environment&);
+        Console(wlo::ScriptEnvironment&);
         void initialize() ;
         void evaluate(std::string command);
         void run();

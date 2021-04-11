@@ -6,7 +6,7 @@
 #define WILLOW_FRAME_HPP
 #include "willow/root/Root.hpp"
 #include "willow/rendering/Model.hpp"
-#include "willow/rendering/DataView.hpp"
+#include "include/willow/data/View.hpp"
 #include<variant>
 namespace wlo::rendering{
 
@@ -16,15 +16,15 @@ namespace wlo::rendering{
     };
 
     struct Draw {
-               const DataView vertices;
-               const DataView indices;
+               const View vertices;
+               const View indices;
                const glm::mat4x4 modelMatrix;
                const Material material;
 
                template<typename T>
                Draw(const Model<T> & model,glm::mat4x4 transform):
-                   vertices(model.vertices),
-                   indices(model.indices),
+                   vertices(model.mesh.vertices),
+                   indices(model.mesh.indices),
                    modelMatrix(transform),
                    material(model.material)
                 { }

@@ -7,13 +7,13 @@
 #include"willow/window/Window.hpp"
 #include"willow/rendering/PerspectiveCamera3D.hpp"
 namespace wlo{
-    Console::Console(wlo::lua::Environment& env):scriptable("console",this,env),m_testScriptsPath(),m_engineScriptsPath(){
-        scriptable.Register<&Console::quit>("quit");
-        scriptable.Register<&Console::resize>("resize");
-        scriptable.Register<&Console::setMouse>("setMouse");
-        scriptable.Register<&Console::pressKey>("pressKey");
-        scriptable.Register<&Console::reinitialize>("reinitialize");
-        env.setglobal("tests_path",m_testScriptsPath);
+    Console::Console(ScriptEnvironment& env): scriptable("console", this, env), m_testScriptsPath(), m_engineScriptsPath(){
+//        scriptable.Register<&Console::quit>("quit");
+//        scriptable.Register<&Console::resize>("resize");
+//        scriptable.Register<&Console::setMouse>("setMouse");
+//        scriptable.Register<&Console::pressKey>("pressKey");
+//        scriptable.Register<&Console::reinitialize>("reinitialize");
+//        env.setglobal("tests_path",m_testScriptsPath);
         env.runScript(m_engineScriptsPath + "console_base.lua");
     }
     void Console::initialize(){
@@ -32,7 +32,7 @@ namespace wlo{
         //rendererInfo.indexBufferStartingSize = 120000;
         //m_console_renderer =  wlo::CreateUniquePointer<Renderer>(window, rendererInfo);
         //m_console_renderer->initialize();
-        //glm::mat4x4 proj = PrespectiveCamera3D(viewingVolume).getProj();
+        //glm::mat4x4 proj = PerspectiveCamera3D(viewingVolume).getProj();
         float scale = 10;
         glm::mat4x4 proj =glm::scale(glm::mat4x4(1),glm::vec3(2/windowInfo.m_width,2/windowInfo.m_height,1));
         proj *= glm::translate(glm::mat4x4(1),glm::vec3(-float(windowInfo.m_width)/2,-float(windowInfo.m_height)/2,0));

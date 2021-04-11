@@ -1,79 +1,52 @@
 //
 // Created by W on 12/5/20.
 //
-#include"willow/rendering/DataLayout.hpp"
+#include"include/willow/data/Type.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
-#include"willow/rendering/DataView.hpp"
-#include"willow/rendering/Buffer.hpp"
 #include<iostream>
-using namespace wlo::rendering;
+using namespace wlo;
+using namespace wlo::data;
 using namespace std;
-int main(){
-DataLayout layout({{DataLayout::DataType::Float,4} });
-cout<<layout<<endl;
-
-cout<<DataLayout::fromFundamental<float>()<<endl;
-cout<<DataLayout::fromFundamental<size_t>()<<endl;
-cout<<DataLayout::fromFundamental<double>()<<endl;
-
-cout<<wlo::Vertex3D::Layout()<<endl;
-
-
-cout<<"size of size_t: "<<sizeof(size_t)<<endl;
-cout<<"size of int: "<<sizeof(int)<<endl;
-cout<<"size of long: "<<sizeof(long)<<endl;
-
-cout<<"using the short hand Layout functino"<<endl;
-cout<<Layout<float>()<<endl;
-cout<<Layout<size_t>()<<endl;
-cout<<Layout<wlo::Vertex3D>()<<endl;
-
-std::stringstream ss;
-ss<<Layout<float>()<<endl;
-
-if(Layout<wlo::Vertex2D>() != Layout<wlo::Vertex3D>())
-    cout<<"LAYOUT COMPARISON Vert2D to Vert3D CORRECTLY FAILS"<<endl;
-if(Layout<wlo::Vertex3D>() == Layout<wlo::Vertex3D>())
-    cout<<"LAYOUT COMPARISON Vert3D to Vert3D CORRECTLY PASSES"<<endl;
-
-
-
-
-
-
-cout<<"description"<<ss.str()<<endl;
-
-
-std::vector<wlo::ColorVertex3D> VertexData = {
-        {.position = {-.5,.5,0},.color = {0,1,0,1}},
-        {.position = {0,.5,0},.color = {0,1,0,1}},
-        {.position = {.5,-.5,0},.color = {0,1,0,1}}
+#include"TestingTools.hpp"
+struct ShaderData{
+    Vec3 position;
+    Vec2 lightDirection;
 };
+template<>
+wlo::data::Type wlo::data::Type::of<ShaderData>(){
+    return wlo::data::Type(
+            "ShaderData",
+            {
+                    {"",Type::of<Vec3>()},
+                    {"",Type::of<Vec2>()}
+            }
+            );
+}
 
-byte* typelessData = reinterpret_cast< byte*> (VertexData.data());
+int main(){
+    {
+        require(wlo::data::Type::of<Vertex3D>().footprint() == sizeof(Vertex3D));
+        auto members = wlo::data::Type::of<Vertex3D>().getMembers();
+        require(members[0].offset == offsetof(Vertex3D, position));
+    }
 
-glm::vec4 pos0 = *((glm::vec4*)typelessData);
+    {
+        require(wlo::data::Type::of<TexturedVertex3D>().footprint() == sizeof(TexturedVertex3D));
+        auto members = wlo::data::Type::of<TexturedVertex3D>().getMembers();
+        require(members[0].offset == offsetof(TexturedVertex3D, position));
+        require(members[1].offset == offsetof(TexturedVertex3D, TexCoord));
+    }
+   require(Type::of<TexturedVertex3D>().compatibleWith( Type::of<TexturedVertex3D>()));
+   require(Type::of<float>().compatibleWith( Type::of<float>()));
+   require(Type::of<int>().compatibleWith( Type::of<int>()));
+   require(Type::of<unsigned int>().compatibleWith( Type::of<unsigned int>()));
 
-cout<<"This should be: -.5,.5,0,1"<<endl;
-cout<<glm::to_string(pos0)<<endl;
+   require(Type::of<TexturedVertex3D>().compatibleWith(Type::of<ShaderData>()))
+   require(Type::of<TexturedVertex3D>()!=Type::of<ShaderData>())
+
+   require(not Type::of<TexturedVertex3D>().compatibleWith(Type::of<Vertex3D>()))
+    require(Type::of<TexturedVertex3D>()!=(Type::of<Vertex3D>()))
 
 
-
-std::unordered_map<DataLayout, size_t> layoutMap;
-
-vector<DataLayout> layouts = { Layout<wlo::ColorVertex2D>(),Layout<wlo::ColorVertex2D>(),Layout<wlo::ColorVertex2D>(),Layout<wlo::Vertex2D>() };
-
-for (auto& layout : layouts)
-layoutMap[layout]++;
-
-if (layoutMap[Layout<wlo::ColorVertex2D>()] == 3)
-cout << "LAYOUT MAPPING FOR ColorVertex2D works great! ";
-else
-cout << "LAYOUT MAPPING FAILED ";
-
-if (layoutMap[Layout<wlo::Vertex2D>()] == 1)
-cout << "LAYOUT MAPPING FOR Vertex2D works great! ";
-else
-cout << "LAYOUT MAPPING FAILED ";
 
 }

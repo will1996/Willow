@@ -3,7 +3,7 @@
 #include <array>
 #include"RenderDataTypes.hpp"
 #include"Frame.hpp"
-#include"DataLayout.hpp"
+#include"include/willow/data/Type.hpp"
 #include "willow/rendering/PerspectiveCamera3D.hpp"
 #include <glm/glm.hpp>
 #include"willow/rendering/Scene.hpp"
@@ -27,11 +27,11 @@ namespace wlo ::rendering{
             DebuggingTools,
         };
 
-        Renderer(SharedPointer<Window>,
+        Renderer(Window&,
                 std::initializer_list<Features> features = {});
         ~Renderer();
         void checkIn();
-        void setMainCamera(const PrespectiveCamera3D & );
+        void setMainCamera(const PerspectiveCamera3D & );
 
         void preAllocateScene(SceneDescription description);
         void render(const Scene &);

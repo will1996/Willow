@@ -6,14 +6,14 @@
 #include <GLFW/glfw3.h>
 
 namespace wlo::wk{
-    VulkanRoot::VulkanRoot(std::initializer_list<wlo::rendering::Renderer::Features> features,Window * window, bool debugUtils) {
+    VulkanRoot::VulkanRoot(std::initializer_list<wlo::rendering::Renderer::Features> features,Window & window, bool debugUtils) {
         m_instance = wk::createInstance(getInstanceLayers(features),getInstanceExtensions(features),debugUtils);
         WILO_CORE_INFO("VulkanRoot created Instance");
         if(debugUtils)
             m_debugMessenger = wk::createDebugMessenger(m_instance);
         //create a temporary surface such that the physical and logical devices can be set up with knowledge of the window format
         VkSurfaceKHR mainWindowSurface;
-        VkResult res = glfwCreateWindowSurface(m_instance,(GLFWwindow*)window->getNativeWindow(),nullptr,&mainWindowSurface );
+        VkResult res = glfwCreateWindowSurface(m_instance,(GLFWwindow*)window.getNativeWindow(),nullptr,&mainWindowSurface );
         if(res!=VK_SUCCESS)
             throw std::runtime_error("something went wrong with GLFW");
 

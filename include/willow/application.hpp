@@ -6,7 +6,9 @@
 #include "willow/scripting/LuaBinding.hpp"
 #include "willow/console/wilo_console.hpp"
 #include "willow/rendering/Renderer.hpp"
-#include "willow/scripting/LuaEnvironment.h"
+#include "willow/scripting/LuaEnvironment.hpp"
+#include"willow/input/InputManager.hpp"
+#include"willow/rendering/PerspectiveCamera3D.hpp"
 namespace wlo{
     /*
     Application is the entry-point to the game engine. Anything extending Application has access to
@@ -42,11 +44,13 @@ class Application: public MessageSystem::Observer{
         protected:
             decltype(std::chrono::high_resolution_clock::now()) startTime;
             float timeElapsed();
-            virtual void initialize(Application::Info inf);
-            wlo::SharedPointer<Window> m_main_window;
-            wlo::lua::Environment m_scriptEnv;
-            wlo::UniquePointer<Console> m_console;
-            wlo::UniquePointer<rendering::Renderer> m_renderer;
+            Window m_mainWindow;
+
+            ScriptEnvironment m_scriptEnv;
+            InputManager m_input;
+            rendering::Renderer m_renderer;
+            PerspectiveCamera3D m_mainCamera;
+//            wlo::UniquePointer<Console> m_console;
 
 
         std::string m_runtimeRoot;

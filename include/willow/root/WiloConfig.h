@@ -1,4 +1,4 @@
-#define WLO_ROOT C:/Users/sacer/source/repos/will1996/Willow
+#define WLO_ROOT /Users/w/Projects/Willow/cmake-build-release
 namespace wlo{
-const static std::string rootPath("C:/Users/sacer/source/repos/will1996/Willow");
+const static std::string rootPath("/Users/w/Projects/Willow/cmake-build-release");
 }

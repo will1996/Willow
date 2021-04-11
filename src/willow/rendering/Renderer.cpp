@@ -13,7 +13,7 @@ namespace wlo::rendering{
     class VulkanImplementation :public wlo::MessageSystem::Observer{
     public:
         Renderer::Statistics statistics;
-        const PrespectiveCamera3D * camera;
+        const PerspectiveCamera3D * camera;
     private:
         const glm::mat4x4 m_clipMatrix = {//vulkan specific clip matrix (used for all camera transforms)
                 1.0f, 0.0f, 0.0f, 0.0f,
@@ -32,17 +32,16 @@ namespace wlo::rendering{
         vk::UniqueDescriptorPool  m_descriptorPool;
 
         vk::Queue m_presentQueue;
-        std::map<wlo::ID_type, wk::GraphicsPipeline > m_GraphicsPipelines;
+        std::unordered_map<Material, wk::GraphicsPipeline > m_GraphicsPipelines;
         std::map<wlo::ID_type, vk::UniqueDescriptorSet > m_DescriptorSets;
         std::map<wlo::ID_type, vk::UniqueSampler > m_textureSamplers;
-        std::map<wlo::ID_type, std::string> m_textures;
 
         vk::UniqueRenderPass m_defaultRenderPass;
         std::vector<vk::UniqueFramebuffer > m_frameBuffers;
 
         std::unordered_map<wlo::ID_type,wk::MappedBuffer> m_UniformBuffers;
 
-        std::unordered_map<DataLayout, wk::MappedBuffer> m_VertexBuffers;
+        std::unordered_map<wlo::data::Type, wk::MappedBuffer> m_VertexBuffers;
 
         wk::MappedBuffer m_IndexBuffer;
         glm::vec4 m_clearColor;
@@ -96,8 +95,8 @@ namespace wlo::rendering{
             };
         }
         glm::vec4 nextClearColor;
-        VulkanImplementation(std::initializer_list<Renderer::Features> features, SharedPointer<Window> window, bool enableDebugging = true) :
-            m_root(features, window.get(), enableDebugging),
+        VulkanImplementation(std::initializer_list<Renderer::Features> features, Window& window, bool enableDebugging = true) :
+            m_root(features, window, enableDebugging),
             m_swapchain(m_root, window),
             m_shaderFactory(m_root),
             m_pipelineFactory(m_root,m_shaderFactory,m_swapchain),
@@ -106,7 +105,7 @@ namespace wlo::rendering{
             m_textureFactory(m_root,m_memoryManager),
             m_frameCount(0)
         {
-            window->permit<wlo::WindowResized,VulkanImplementation,&VulkanImplementation::resizeDrawSurface>(this);
+            window.permit<wlo::WindowResized,VulkanImplementation,&VulkanImplementation::resizeDrawSurface>(this);
             //create descriptor pool
             std::array   poolSizes = {
                     vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 10),
@@ -136,7 +135,7 @@ namespace wlo::rendering{
         void prepareMaterials(std::vector<Material> mats){
 
         }
-        void allocateVertexBuffers(std::vector<std::pair<DataLayout,size_t>> vertexCounts ){
+        void allocateVertexBuffers(std::vector<std::pair<wlo::data::Type,size_t>> vertexCounts ){
 
         }
 
@@ -147,7 +146,7 @@ namespace wlo::rendering{
         }
 
         void buildIndexBuffers(const SceneDescription& description){
-            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(Layout<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
+            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(wlo::data::Type::of<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
         }
 
         void buildTextures(const SceneDescription & desc){
@@ -155,19 +154,18 @@ namespace wlo::rendering{
                         std::string texturePath = material.texture;
                         if(!texturePath.empty()&&!m_textureFactory.textureCreated(texturePath)) {
                             m_textureFactory.createTexture2D(texturePath);
-                            m_textures[material.id] = texturePath;
                         }
                 }
         }
 
 
-        vector<std::pair<DataLayout, size_t>> vertexDescription(const vector<Draw>& draws) {
-            std::unordered_map<DataLayout, size_t> layoutCounts;
+        vector<std::pair<wlo::data::Type, size_t>> vertexDescription(const vector<Draw>& draws) {
+            std::unordered_map<wlo::data::Type, size_t> layoutCounts;
             for (auto& draw : draws) {
-                DataView vertexView = draw.vertices;
+                View vertexView = draw.vertices;
                 layoutCounts[vertexView.layout] += vertexView.count;
             }
-            vector<std::pair<DataLayout, size_t>> vertexdesc;
+            vector<std::pair<wlo::data::Type, size_t>> vertexdesc;
             for (auto& [layout, count] : layoutCounts)
                 vertexdesc.push_back(std::make_pair(layout, count));
             
@@ -177,8 +175,8 @@ namespace wlo::rendering{
 
         void buildGraphicsPipelines(const SceneDescription& desc) {
             for (auto mat : desc.materials) {
-                    m_GraphicsPipelines[mat.id] = m_pipelineFactory.buildGraphicsPipeline(mat,m_defaultRenderPass);
-                    buildUniformBuffers(m_GraphicsPipelines[mat.id]);
+                    m_GraphicsPipelines[mat] = m_pipelineFactory.buildGraphicsPipeline(mat,m_defaultRenderPass);
+                    buildUniformBuffers(m_GraphicsPipelines[mat]);
             }
         }
 
@@ -207,7 +205,7 @@ namespace wlo::rendering{
                 );
 
                 vk::MemoryRequirements uniformBufferMemRequirements = m_root.Device().getBufferMemoryRequirements(
-                                            m_UniformBuffers[pipeline.material.id].buffer.get()
+                        m_UniformBuffers[pipeline.material.id].buffer.get()
                                             );
                 uint32_t memoryTypeIndex = m_root.findMemoryType(uniformBufferMemRequirements,
                                                                  vk::MemoryPropertyFlagBits::eHostVisible |
@@ -217,7 +215,7 @@ namespace wlo::rendering{
                                 vk::MemoryAllocateInfo{ uniformBufferMemRequirements.size, memoryTypeIndex });
                 m_UniformBuffers[pipeline.material.id].writePoint = (
                         static_cast<byte*>(m_root.Device().mapMemory(
-                                    m_UniformBuffers[pipeline.material.id].memory.get(),
+                                m_UniformBuffers[pipeline.material.id].memory.get(),
                                     0,
                                     uniformBufferMemRequirements.size)));
 
@@ -226,7 +224,8 @@ namespace wlo::rendering{
                 glm::mat4x4 mvpc = m_clipMatrix * projection * view;
 
                 memcpy(m_UniformBuffers[pipeline.material.id].writePoint, &mvpc, sizeof(mvpc));
-                m_root.Device().bindBufferMemory(m_UniformBuffers[pipeline.material.id].buffer.get(), m_UniformBuffers[pipeline.id].memory.get(), 0);
+                m_root.Device().bindBufferMemory(m_UniformBuffers[pipeline.material.id].buffer.get(),
+                                                 m_UniformBuffers[pipeline.id].memory.get(), 0);
 
                 // allocate a descriptor set
                 std::array<vk::DescriptorSetLayout,1> vkDescriptorSetLayouts{pipeline.vkDescriptorSetLayout.get()};
@@ -256,11 +255,11 @@ namespace wlo::rendering{
                                                                         0.0f,
                                                                         0.0f,
                                                                         vk::BorderColor::eFloatOpaqueWhite ) );
-           auto & texture =  m_textureFactory.fetchTexture(m_textures[pipeline.material.id]);
-           vk::DescriptorImageInfo samplerWrite(m_textureSamplers[pipeline.id].get(),texture.view.get());
+           auto & texture =  m_textureFactory.fetchTexture(pipeline.material.texture);
+           vk::DescriptorImageInfo samplerWrite(m_textureSamplers[pipeline.id].get(), texture.view.get());
            samplerWrite.imageLayout = texture.layout;
            m_root.Device().updateDescriptorSets(
-                   vk::WriteDescriptorSet(m_DescriptorSets[pipeline.id].get(),1,0,vk::DescriptorType::eCombinedImageSampler,samplerWrite,{}),
+                   vk::WriteDescriptorSet(m_DescriptorSets[pipeline.id].get(), 1, 0, vk::DescriptorType::eCombinedImageSampler, samplerWrite, {}),
                    {}
                    );
 
@@ -272,11 +271,11 @@ namespace wlo::rendering{
             memcpy(m_UniformBuffers[pathID].writePoint,&mvpc, sizeof(mvpc));
         }
 
-        void updateVertexBuffer(DataView vertView, size_t offset) {
+        void updateVertexBuffer(View vertView, size_t offset) {
             memcpy(&m_VertexBuffers[vertView.layout].writePoint[offset], vertView.source, vertView.memSize);
         }
 
-        void updateIndexBuffer(DataView indexView,size_t offset){
+        void updateIndexBuffer(View indexView, size_t offset){
             memcpy(&m_IndexBuffer.writePoint[offset], indexView.source, indexView.memSize);
         }
 
@@ -296,15 +295,17 @@ namespace wlo::rendering{
             m_clearColor = nextClearColor;
             clearValues[0].color = vk::ClearColorValue(std::array<float, 4>({ { m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w } }));
             clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
-            ID_type  pathId = frame.getDraws()[0].material.id;
 
             vk::RenderPassBeginInfo renderPassBeginInfo(m_defaultRenderPass.get(),
                 m_frameBuffers[currentBuffer.value].get(),
                 vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.getSwapSurfaceExtent()),
                 clearValues);
             commandBuffer->beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-            WILO_CORE_INFO("BINDING PIPELINE FOR MATERIAL ID {0}",pathId);
-            commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[pathId].vkPipeline.get());
+
+            size_t vertexOffset = 0;
+            size_t indexOffset = 0;
+            for (const Draw& draw : frame.getDraws()) {
+            commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material].vkPipeline.get());
             commandBuffer->setViewport(0,
                 vk::Viewport(0.0f,
                     0.0f,
@@ -315,11 +316,8 @@ namespace wlo::rendering{
 
             commandBuffer->setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.getSwapSurfaceExtent()));
 
-            size_t vertexOffset = 0;
-            size_t indexOffset = 0;
-            for (const Draw& draw : frame.getDraws()) {
                 commandBuffer->bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material.id].vkPipelineLayout.get(), 0, *m_DescriptorSets[draw.material.id], nullptr);
+                    vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material].vkPipelineLayout.get(), 0, *m_DescriptorSets[draw.material.id], nullptr);
 
                 updateVertexBuffer(draw.vertices, vertexOffset);
                 updateIndexBuffer(draw.indices,indexOffset);
@@ -327,7 +325,7 @@ namespace wlo::rendering{
 
                 commandBuffer->bindVertexBuffers(0, *m_VertexBuffers[draw.vertices.layout].buffer, { vertexOffset });
                 commandBuffer->bindIndexBuffer(*m_IndexBuffer.buffer,indexOffset,vk::IndexType::eUint32);
-                commandBuffer->pushConstants(m_GraphicsPipelines[pathId].vkPipelineLayout.get(), vk::ShaderStageFlagBits::eVertex, 0,sizeof(glm::mat4x4),&draw.modelMatrix);
+                commandBuffer->pushConstants(m_GraphicsPipelines[draw.material].vkPipelineLayout.get(), vk::ShaderStageFlagBits::eVertex, 0,sizeof(glm::mat4x4),&draw.modelMatrix);
                 commandBuffer->drawIndexed(draw.indices.count,1,0,0,0);
 
                 vertexOffset += draw.vertices.memSize;
@@ -375,7 +373,7 @@ namespace wlo::rendering{
 //RENDERER
 
 
-   Renderer::Renderer(SharedPointer<Window> window,std::initializer_list<Features> Features){
+   Renderer::Renderer(Window& window,std::initializer_list<Features> Features){
        wlo::logr::initalize();
        pImpl=wlo::CreateUniquePointer<VulkanImplementation>(Features,window);
    }
@@ -388,7 +386,7 @@ namespace wlo::rendering{
     void Renderer::prepare(const Frame &) {
     }
 
-    void Renderer::setMainCamera(const PrespectiveCamera3D & camera){
+    void Renderer::setMainCamera(const PerspectiveCamera3D & camera){
         pImpl->camera = &camera;                    
     }
 

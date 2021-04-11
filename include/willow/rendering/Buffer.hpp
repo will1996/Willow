@@ -6,7 +6,7 @@
 #define WILLOW_BUFFER_HPP
 #include<vector>
 #include "willow/messaging/MessageSystem.hpp"
-#include "DataView.hpp"
+#include "include/willow/data/View.hpp"
 using std::vector;
 namespace wlo::rendering{
 }

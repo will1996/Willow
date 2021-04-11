@@ -4,7 +4,8 @@
 
 #include "willow/Vulkan/VulkanTextureFactory.hpp"
 #define  STB_IMAGE_IMPLEMENTATION
-#include"external/stb_image.h"
+#include"willow/external/stb_image.h"
+
 namespace wlo::wk {
     wlo::wk::VulkanTextureFactory::VulkanTextureFactory(wlo::wk::VulkanRoot &root,
                                                         wlo::wk::VulkanMemoryManger &memoryManger)
@@ -22,15 +23,20 @@ namespace wlo::wk {
             throw std::runtime_error("Failed to load image from file: "+imageFile);
         }
 
-        wlo::rendering::DataLayout pixelLayout{
-                {wlo::rendering::DataLayout::DataType::Byte,4}
+        wlo::data::Type pixelLayout{
+            "BitColor",{
+                        {"r",wlo::data::Type::of<byte>()},
+                        {"g",wlo::data::Type::of<byte>()},
+                        {"b",wlo::data::Type::of<byte>()},
+                        {"a",wlo::data::Type::of<byte>()},
+            }
         };
         //allocate mapped memory for the memory transfer
        MappedBuffer stagingBuffer = m_memoryManager.allocateMappedBuffer(pixelLayout,
                                                                           texWidth*texHeight,
                                                                          vk::BufferUsageFlagBits::eTransferSrc);
         //move image memory to GPU
-       memcpy(stagingBuffer.writePoint, pixels, pixelLayout.memSize() * texWidth * texHeight);
+       memcpy(stagingBuffer.writePoint, pixels, pixelLayout.footprint() * texWidth * texHeight);
         //free the host copy of the image data
        stbi_image_free(pixels);
 

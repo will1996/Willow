@@ -4,13 +4,13 @@
 
 #ifndef WILLOW_SCENE_HPP
 #define WILLOW_SCENE_HPP
-#include"willow/rendering/DataLayout.hpp"
+#include"include/willow/data/Type.hpp"
 #include "willow/root/Root.hpp"
 #include "willow/rendering/Model.hpp"
 #include<list>
 namespace wlo::rendering {
     struct SceneDescription {
-        std::vector<std::pair<DataLayout,size_t > >vertexCounts;
+        std::vector<std::pair<wlo::data::Type,size_t > >vertexCounts;
         std::vector<Material> materials;
         size_t totalIndexCount;
     };
@@ -26,7 +26,7 @@ class Scene{
       SceneDescription getDescription();
 
       template<typename T>
-      RenderObject* add(Model<T> & model,glm::mat4x4 transform = glm::mat4x4{1}){
+      RenderObject* add(const Model<T> & model,glm::mat4x4 transform = glm::mat4x4{1}){
           m_objects.emplace_back(RenderObject{.model = ModelView(model),.transform = transform});
         return &m_objects.back();
       }

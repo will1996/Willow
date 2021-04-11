@@ -12,14 +12,16 @@ class Window: public MessageSystem::Subject{
             wlo::WindowingAPICode API;
             void * m_extraData = nullptr;//here for platform specific info that may need to be added
         };
-          Window(Info info);
+          explicit Window(Info info);
           ~Window();
           Info getInfo()const;
           void checkIn();
           bool shouldClose(bool queryMeessagesAutomatically = true);
           void* getNativeWindow() const;
           void setCursorMode(bool locked);
-          private:
+          protected:
+          Window();
+private:
           void initialize();
           wlo::UniquePointer<WindowImpl> p_impl;
           void notifyKeyObservers(const wlo::KeyboardMessage& msg);

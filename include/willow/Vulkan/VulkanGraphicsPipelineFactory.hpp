@@ -10,13 +10,14 @@
 #include "willow/Vulkan/VulkanSwapchain.hpp"
 #include "willow/rendering/Material.hpp"
 #include "willow/root/Tag.hpp"
+
 namespace wlo::wk {
     struct GraphicsPipeline {
         wlo::ID_type id;
         wlo::rendering::Material material;
-        wlo::rendering::DataLayout vertexLayout;
-        wlo::rendering::DataLayout uniformBufferLayout;
-        wlo::rendering::DataLayout pushConstantLayout;
+        wlo::data::Type vertexLayout;
+        wlo::data::Type uniformBufferLayout;
+        wlo::data::Type pushConstantLayout;
         vk::UniquePipelineLayout vkPipelineLayout;
         vk::UniquePipeline vkPipeline;
         vk::UniqueDescriptorSetLayout  vkDescriptorSetLayout;
@@ -29,7 +30,7 @@ namespace wlo::wk {
         vk::UniqueDescriptorSetLayout createDescriptorSetLayout(wlo::rendering::Material);
         vk::UniquePipelineLayout createPipelineLayout(wlo::rendering::Material,
                                                       vk::UniqueDescriptorSetLayout &descriptorSetLayout,
-                                                      wlo::rendering::DataLayout pushLayout);
+                                                      wlo::data::Type pushLayout);
         vk::UniquePipeline  createPipeline(wlo::rendering::Material,
                                                    vk::UniqueRenderPass &,
                                                    vk::UniquePipelineLayout & );

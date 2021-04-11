@@ -12,6 +12,9 @@
 #include<memory>
 #include<atomic>
 #include<set>
+#include<glm/glm.hpp>
+#include<glm/gtx/string_cast.hpp>
+
 #include "willow/root/Logger.hpp"
 #include "willow/root/WiloConfig.h"
 #include "PlatformCodes.hpp"
@@ -58,4 +61,10 @@ namespace wlo {
 
 	using ID_type = size_t;
 
+    using Vec2 = glm::vec2;
+    using Vec3 = glm::vec3;
+    using Vec4 = glm::vec4;
+
+    using Mat3 = glm::mat3;
+    using Mat4 = glm::mat4;
 }

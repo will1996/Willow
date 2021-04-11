@@ -12,7 +12,7 @@ namespace wlo::wk {
 
     class VulkanRoot {
     public:
-        VulkanRoot(std::initializer_list<wlo::rendering::Renderer::Features> features,Window*,bool debugUtils );
+        VulkanRoot(std::initializer_list<wlo::rendering::Renderer::Features> features,Window&,bool debugUtils );
         bool supportSurface(vk::SurfaceKHR &surface);
         vk::Instance& Instance();
         vk::PhysicalDevice & PhysicalDevice();

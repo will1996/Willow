@@ -1,56 +1,41 @@
 //
 // Created by W on 10/2/20.
 //
-#include "willow/scripting/LuaEnvironment.h"
+#include "willow/scripting/LuaEnvironment.hpp"
 #include "willow/root/Root.hpp"
-namespace wlo::lua{
-   Environment::Environment():m_L(luaL_newstate()) {
+namespace wlo{
+   ScriptEnvironment::ScriptEnvironment(): m_L(luaL_newstate()),m_stack(m_L) {
     luaL_openlibs(m_L);
    }
 
-    Environment::Environment(lua_State* L):m_L(L){
+    ScriptEnvironment::ScriptEnvironment(lua_State* L): m_L(L),m_stack(m_L){
     luaL_openlibs(m_L);
     }
-    lua_State* Environment::getL(){
+    lua_State* ScriptEnvironment::getL(){
        return m_L;
    }
 
-    void Environment::LT_failOnNameConflict(std::string name){
+    void ScriptEnvironment::LT_failOnNameConflict(std::string name){
         lua_getglobal(m_L, name.c_str());
-
         if (! lua_isnil(m_L, -1) ) {
             throw std::runtime_error("invalid Lua configuration, name " + name + " is already in this lua Namespace");
         }
     }
 
-    void Environment::setglobal(std::string name, std::string data) {
-        lua_pushstring(m_L, data.c_str());
-        lua_setglobal(m_L, name.c_str());
-    }
-    void Environment::setglobal(std::string name, int data) {
-        lua_pushnumber(m_L, data);
-        lua_setglobal(m_L, name.c_str());
-    }
-    void Environment::setglobal(std::string name, float data) {
-        lua_pushnumber(m_L, data);
-        lua_setglobal(m_L, name.c_str());
-    }
-    void Environment::setglobal(std::string name, double data) {
-        lua_pushnumber(m_L, data);
-        lua_setglobal(m_L, name.c_str());
-    }
-    void Environment::runScript(std::string pathOrCode) {
+    void ScriptEnvironment::runScript(std::string pathOrCode) {
         if (isValidLuaFile(pathOrCode)){
             L_checklua(luaL_dofile(m_L, pathOrCode.c_str()));
         }
-        else
-            L_checklua(luaL_dostring(m_L, pathOrCode.c_str()));
+        else {
+            int res = luaL_dostring(m_L, pathOrCode.c_str());
+            L_checklua(res);
+        }
     }
-    bool Environment::isValidLuaFile(std::string path){
+    bool ScriptEnvironment::isValidLuaFile(std::string path){
         return wlo::helpers::endswith(path, ".lua") && wlo::helpers::fexists(path);
     }
 
-    std::string Environment::dumpstack(){
+    std::string ScriptEnvironment::dumpstack(){
         std::stringstream ss;
         int i;
         int top = lua_gettop(m_L);
@@ -82,8 +67,9 @@ namespace wlo::lua{
 
     }
 
-    bool Environment::L_checklua( int res) {
+    bool ScriptEnvironment::L_checklua(int res) {
         if (res != LUA_OK) {
+            dumpstack();
             std::string errmsg = lua_tostring(m_L, -1);
             lua_pop(m_L,-1);
             WILO_CORE_ERROR("[LUA] "+errmsg);
@@ -91,6 +77,7 @@ namespace wlo::lua{
         }
         return true;
     }
+
 }
 
 

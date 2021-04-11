@@ -3,6 +3,7 @@
 //
 
 #include <willow/Vulkan/VulkanMemoryManager.hpp>
+
 namespace wlo::wk {
     VulkanMemoryManger::VulkanMemoryManger(VulkanRoot &root,VulkanCommandInterface & commandInterface):
     m_root(root),
@@ -11,7 +12,7 @@ namespace wlo::wk {
     {
 
     }
-    MappedBuffer wlo::wk::VulkanMemoryManger::allocateMappedBuffer(const rendering::DataLayout &layout,
+    MappedBuffer wlo::wk::VulkanMemoryManger::allocateMappedBuffer(const wlo::data::Type &layout,
                                                                    size_t count,
                                                                    vk::BufferUsageFlagBits usage)
        {
@@ -23,20 +24,20 @@ namespace wlo::wk {
            };
 
 
-        buff.writePoint = (byte *) m_root.Device().mapMemory(buff.memory.get(), 0, layout.memSize()*count);
+        buff.writePoint = (byte *) m_root.Device().mapMemory(buff.memory.get(), 0, layout.footprint() * count);
 
-        memset(buff.writePoint, 0, count*layout.memSize());
+        memset(buff.writePoint, 0, count*layout.footprint());
 
         m_root.Device().bindBufferMemory(*buff.buffer, *buff.memory, 0);
         return buff;
     }
 
-    DeviceBuffer VulkanMemoryManger::allocateBuffer(const rendering::DataLayout &layout, size_t count,
+    DeviceBuffer VulkanMemoryManger::allocateBuffer(const wlo::data::Type &layout, size_t count,
                                                     vk::BufferUsageFlagBits usage,
                                                     vk::MemoryPropertyFlags memproperties
                                                     ) {
         DeviceBuffer buff;
-        vk::BufferCreateInfo buffInfo(vk::BufferCreateFlags(), count * layout.memSize(), usage);
+        vk::BufferCreateInfo buffInfo(vk::BufferCreateFlags(), count * layout.footprint(), usage);
         buff.buffer = m_root.Device().createBufferUnique(buffInfo);
         vk::MemoryRequirements memoryRequirements = m_root.Device().getBufferMemoryRequirements(buff.buffer.get());
 
@@ -169,7 +170,7 @@ namespace wlo::wk {
 
     }
 
-    DeviceImage VulkanMemoryManger::allocateImage(const rendering::DataLayout &pixelLayout,
+    DeviceImage VulkanMemoryManger::allocateImage(const wlo::data::Type &pixelLayout,
                                                   uint32_t width ,
                                                   uint32_t height,
                                                   vk::ImageLayout imageLayout,
@@ -180,7 +181,12 @@ namespace wlo::wk {
         imageExtent.width = width;
         imageExtent.depth = 1;
 
-        wlo::rendering::DataLayout defaultLayout{{wlo::rendering::DataLayout::DataType::Byte,4}};
+        wlo::data::Type defaultLayout{"BitColor",{
+                {"r",wlo::data::Type::of<byte>()},
+                {"g",wlo::data::Type::of<byte>()},
+                {"b",wlo::data::Type::of<byte>()},
+                {"a",wlo::data::Type::of<byte>()}
+        }};
         if(pixelLayout!=defaultLayout)
             throw std::runtime_error("image format unsupported, currently only supporting rbga");
         vk::Format image_format = vk::Format::eR8G8B8A8Srgb;

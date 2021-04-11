@@ -17,7 +17,7 @@ class VulkanSwapchain: public wlo::MessageSystem::Observer {
 
 
 	public:	
-		VulkanSwapchain( wk::VulkanRoot &,wlo::SharedPointer<Window>);
+		VulkanSwapchain( wk::VulkanRoot &,wlo::Window&);
         ~VulkanSwapchain();
          void resize() ;
          const std::vector<vk::ImageView>& getSwapSurfaceViews() ;//gets the image view that can be written to
@@ -46,7 +46,7 @@ private:
 	vk::Image m_depthImage;
 	vk::ImageView m_depthView;
     vk::DeviceMemory m_depthBufferMemory;
-    SharedPointer<Window> m_window;
+    Window& m_window;
     void initialize();
 	//member functions
 	void createVkSwapchain();

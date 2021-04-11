@@ -2,34 +2,36 @@
 #include "willow/root/Root.hpp"
 #include<iostream>
 #include"willow/messaging/MessageSystem.hpp"
-#include "LuaEnvironment.h"
+#include "LuaEnvironment.hpp"
+#include"willow/root/FileSystem.hpp"
+#include"willow/data/Type.hpp"
+#include"willow/data/Value.hpp"
+#include"LuaCommunication.hpp"
 #pragma once
 namespace wlo{
-
         template <class T>
         class LuaBinding {
             //static std::vector<std::pair<std::string,lua_State*>> Instances;
         public:
 
-            LuaBinding(std::string name, T* instance_ptr, wlo::lua::Environment& env): m_env(env), m_name(name), m_instancePtr(instance_ptr){
-                runBaseScript();
+            LuaBinding(std::string name, T* instance_ptr, wlo::ScriptEnvironment& env): m_env(env), m_name(name), m_instancePtr(instance_ptr){
                 LT_instantiate();
             }
 
-            template< int(T::* Method)(lua_State*)>
+            template< typename A,void(T::* Method)(A)>
             //add the member function in the template to this Luatable with the name "name"
             void Register(std::string name) {
                 lua_getglobal(m_env.getL(), m_name.c_str());//retrieve the class table from the global namespace
 
                 lua_pushstring(m_env.getL(), name.c_str());//push a key value pair of the string name
-                lua_pushcfunction(m_env.getL(), call < Method >);//and the function call<Method>
+                lua_pushcclosure(m_env.getL(), call <A,Method>,0);//and the function call<Method>
 
                 lua_settable(m_env.getL(), -3);//push the pair into the table
 
                 lua_setglobal(m_env.getL(), m_name.c_str());//update the global variable with the new entries
             }
 
-            lua::Environment & getEnv() {
+            ScriptEnvironment & getEnv() {
                     return m_env;
             }
 
@@ -45,30 +47,31 @@ namespace wlo{
             //almost anything we want here, it is intended to restrict access
             //and built structure into the otherwise almost completely plastic
             //Lua environemtn
-            wlo::lua::Environment& m_env;
+            wlo::ScriptEnvironment& m_env;
             const std::string m_name;
 
 
 #ifndef ndebug
             void L_reinitialize(){
-                runBaseScript();
             }
 #endif
         private:
             T* m_instancePtr;
         //invoke the template method on the 'this' pointer, calling a non-static member function
-            template<int(T::*Method)(lua_State* L) >
+            template<typename A,void(T::*Method)(A) >
         static int call(lua_State* L){
             lua_pushstring(L,"instancePtr");
             lua_gettable(L,1);
             T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
             lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
             lua_remove(L, 1);//get rid of the call table, while preserving arguments
-            return (this_ptr->*Method)(L);
+            auto arg = lua::Stack::pop(L,data::Type::of<A>()).template get<A>();
+            (this_ptr->*Method)(arg);
+            return 0;
         }
 
         void runBaseScript(){
-            int res = luaL_dofile(m_env.getL(), (wlo::FileSystem::Willow().append("scripts").append("scriptable_base.lua").string().c_str()));
+            int res = luaL_dofile(m_env.getL(), (wlo::FileSystem::Script("scriptable_base.lua").string().c_str()));
             if(res != LUA_OK) {
                 #ifndef NDEBUG
                 std::string msg = lua_tostring(m_env.getL(),-1);
@@ -106,7 +109,6 @@ namespace wlo{
             lua_pushnil(m_env.getL());
             lua_setglobal(m_env.getL(), m_name.c_str());
         }
-
     };
 
 

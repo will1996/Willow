@@ -15,9 +15,9 @@ namespace wlo::wk{
 
 
 
-    VulkanSwapchain::VulkanSwapchain( wk::VulkanRoot& root,wlo::SharedPointer<Window> window):
+    VulkanSwapchain::VulkanSwapchain( wk::VulkanRoot& root,wlo::Window& window):
     m_root(root),
-    m_swapSurfaceExtent{window->getInfo().m_width,window->getInfo().m_height},
+    m_swapSurfaceExtent{window.getInfo().m_width,window.getInfo().m_height},
     m_window(window)
 
     {
@@ -29,11 +29,11 @@ namespace wlo::wk{
 
     void VulkanSwapchain::initialize() {
         VkSurfaceKHR mainWindowSurface;
-        VkResult res = glfwCreateWindowSurface(m_root.Instance(),(GLFWwindow*)m_window->getNativeWindow(),nullptr,&mainWindowSurface );
+        VkResult res = glfwCreateWindowSurface(m_root.Instance(),(GLFWwindow*)m_window.getNativeWindow(),nullptr,&mainWindowSurface );
         if(res!=VK_SUCCESS)
             throw std::runtime_error("something went wrong with GLFW");
         m_surface = vk::SurfaceKHR(mainWindowSurface);//wrap that in a much better surface object
-        m_swapSurfaceExtent = vk::Extent2D{m_window->getInfo().m_width,m_window->getInfo().m_height};
+        m_swapSurfaceExtent = vk::Extent2D{m_window.getInfo().m_width,m_window.getInfo().m_height};
         if(! m_root.supportSurface(m_surface)) throw std::runtime_error("CreatedVulkan root does not support swapchain present surface");
         createVkSwapchain();
         createImageViews();
@@ -51,7 +51,7 @@ namespace wlo::wk{
     }
 
 	void VulkanSwapchain::resize(){
-		m_swapSurfaceExtent = vk::Extent2D{m_window->getInfo().m_width,m_window->getInfo().m_height};
+		m_swapSurfaceExtent = vk::Extent2D{m_window.getInfo().m_width,m_window.getInfo().m_height};
 		reclaim();
 		initialize();
 		WILO_CORE_INFO("Vulkan swapchain reInitialized!")

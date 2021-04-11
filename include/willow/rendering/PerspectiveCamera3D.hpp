@@ -8,18 +8,21 @@
 #include"willow/window/Window.hpp"
 #include "RenderDataTypes.hpp"
 #include"willow/messaging/MessageSystem.hpp"
+
 #undef near
 #undef far
 namespace wlo{
-class PrespectiveCamera3D: public MessageSystem::Observer {
+class PerspectiveCamera3D: public MessageSystem::Observer {
 public:
-   PrespectiveCamera3D();
-   explicit PrespectiveCamera3D(SharedPointer<Window> wnd,bool resizeWithWindow = true);
+   PerspectiveCamera3D();
+   explicit PerspectiveCamera3D(Window& wnd, bool resizeWithWindow = true);
    void moveAlongViewAxis(float distance);
    void look(float x,float y,float sensativity = .1);
    void roll(float roll);
    void zoom(float zoom);
    void strafe(float distance);
+   void setPosition(glm::vec3 position);
+   void moveFrameVertical(float distance);
    void setFOV(float fov);
    glm::mat4x4 getTransform() const;
    glm::vec3 getPosition() const;
@@ -41,8 +44,4 @@ private:
 };
 
 }
-template<>
-inline const wlo::rendering::DataLayout Layout<wlo::PrespectiveCamera3D>(){
-        return wlo::rendering::DataLayout({Layout<glm::mat4x4>(),Layout<glm::mat4x4>()});
-};
 #endif //WILLOW_PRESPECTIVECAMERA3D_HPP

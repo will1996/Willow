@@ -48,7 +48,7 @@ namespace wlo{
            void permit(Observer *obs);
 
            template<typename SUBTYPE>
-           void notify(const SUBTYPE &t);
+           void notify(const SUBTYPE &t)const ;
 
            template<typename SUBTYPE>
            void revoke(ID_type id);
@@ -126,9 +126,10 @@ namespace wlo{
     };
 
     template<typename SUBTYPE>
-    void MessageSystem::Subject::notify(const SUBTYPE &t) {
+    void MessageSystem::Subject::notify(const SUBTYPE &t) const {
         //get the list of uniqueID's for the trigger filter
-        for(auto &[id,invoker]:m_registry<SUBTYPE>)
+        for(auto &[_id,invoker]:m_registry<SUBTYPE>)
+            if(_id!=id)
             invoker.invoke(t);
     };
 
@@ -144,7 +145,25 @@ namespace wlo{
 }
 
 
+namespace wlo{
+class Messenger : public MessageSystem::Observer{
+public:
+      explicit Messenger(){
+         wlo::logr::initalize();
+      }
+      wlo::MessageSystem::Subject & asSubject(){
+            return m_subject;
+      }
 
+    template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const SUBTYPE &)>
+    void permit(Observer *obs){
+          m_subject.permit<SUBTYPE,Obs,Method>(obs);
+      }
+private:
+    MessageSystem::Subject m_subject;
+   };
+
+}
 
 
 #endif

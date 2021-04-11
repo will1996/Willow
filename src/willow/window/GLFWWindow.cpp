@@ -169,4 +169,9 @@ namespace wlo{
         glfwSetInputMode(p_impl->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
    }
 
+    Window::Window() {
+        wlo::logr::initalize();
+    }
+
+
 }

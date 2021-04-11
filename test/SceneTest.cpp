@@ -3,7 +3,7 @@
 //
 
 #include"willow/rendering/Scene.hpp"
-
+#include"willow/DefaultAssets.hpp"
 int main(){
     wlo::rendering::Material cowTexture{
             .vertexShader= wlo::FileSystem::Root().append("shaders").append("vert.spv"),
@@ -12,41 +12,7 @@ int main(){
     };
 
     wlo::rendering::Model<wlo::TexturedVertex3D> cube{
-
-            .vertices = {
-
-                    { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
-                    { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
-                    { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
-                    { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
-
-                    { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
-                    { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
-                    { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
-                    { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
-
-            },
-
-            .indices = {
-                    // front
-                    0, 1, 2,
-                    2, 3, 0,
-                    // right
-                    1, 5, 6,
-                    6, 2, 1,
-                    // back
-                    7, 6, 5,
-                    5, 4, 7,
-                    // left
-                    4, 0, 3,
-                    3, 7, 4,
-                    // bottom
-                    4, 5, 1,
-                    1, 0, 4,
-                    // top
-                    3, 2, 6,
-                    6, 7, 3
-            },
+            .mesh = wlo::assets::DefaultCube(),
             .material = cowTexture
     };
 
@@ -76,4 +42,25 @@ int main(){
         return -1;
     }
 
+    auto sceneDescription = scene.getDescription();
+    if(sceneDescription.totalIndexCount!=72){
+        std::cout<<"Index Counts are wrong, should have been 72, was: "<<sceneDescription.totalIndexCount<<std::endl;
+        return -1;
+    }
+    if(sceneDescription.materials.size()!=1){
+        std::cout<<"Material Counts are wrong, should have been 1, was: "<<sceneDescription.materials.size()<<std::endl;
+        return -1;
+    }
+    if(sceneDescription.materials[0]!=cowTexture){
+        std::cout<<"Material is wrong, should have been CowTexture, was: "<<sceneDescription.materials[0]<<std::endl;
+        return -1;
+    }
+    if(sceneDescription.vertexCounts.size()!=1){
+        std::cout<<"vertex type count is wrong, should have been 1, was: "<<sceneDescription.vertexCounts.size()<<std::endl;
+        return -1;
+    }
+    if(sceneDescription.vertexCounts[0].second!=16){
+        std::cout<<"vertex count is wrong, should have been 16, was: "<<sceneDescription.vertexCounts[0].second<<std::endl;
+        return -1;
+    }
 }

@@ -6,26 +6,26 @@
 #define WILLOW_MODEL_HPP
 #include"willow/root/Root.hpp"
 #include "willow/root/Tag.hpp"
-#include"willow/rendering/DataLayout.hpp"
+#include"include/willow/data/Type.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
+#include"willow/rendering/Mesh.hpp"
 #include "willow/rendering/Material.hpp"
-#include "willow/rendering/DataView.hpp"
+#include "include/willow/data/View.hpp"
 namespace wlo::rendering{
 
 template<typename T>
 struct Model:Tag{
-    vector<T> vertices;
-    vector<Index> indices;
+    Mesh<T> mesh;
     Material material;
 };
 
 struct ModelView:Tag{
-    DataView vertices;
-    DataView indices;
+    View vertices;
+    View indices;
     Material  material;
 
     template<typename T>
-    explicit ModelView(Model<T> model):vertices(model.vertices),indices(model.indices),material(model.material){}
+    explicit ModelView(Model<T> model):vertices(model.mesh.vertices),indices(model.mesh.indices),material(model.material){}
 
 };
 

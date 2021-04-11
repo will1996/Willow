@@ -6,12 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace wlo{
-    fs::path FileSystem::m_root;
-    
-    
-
  Application::Application(Application::Info info,std::string argv_0)
  :
+ m_mainWindow({.API = wlo::WindowingAPICode::GLFW,.m_height = 500,.m_width = 500, .m_title = info.appName}),
+ m_mainCamera(m_mainWindow),
+ m_renderer(m_mainWindow,{}),
+ m_input(m_mainWindow),
  startTime(std::chrono::high_resolution_clock::now())
  {
      fs::path argv0 = fs::path(argv_0);
@@ -19,29 +19,20 @@ namespace wlo{
      wlo::logr::initalize();
      //set the root of the filesystem to 
      FileSystem::initialize(argv0.parent_path());
-     initialize(info);
+//     m_console = wlo::CreateUniquePointer<wlo::Console>(m_scriptEnv);
+     m_mainWindow.permit<KeyboardMessage, Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
+
+     m_renderer.asSubject().permit<rendering::GPUInfo,Application,&Application::recieve>(this);
+     m_renderer.setMainCamera(m_mainCamera);
+
+     WILO_CORE_INFO("application initialized!");
 
 //     m_scriptEnv = wlo::CreateSharedPointer<wlo::lua::Environment>();
  }
  Application::~Application(){
      reclaim();
  }
- void Application::initialize(Application::Info inf){
-     wlo::FileSystem::initialize();
-     m_console = wlo::CreateUniquePointer<wlo::Console>(m_scriptEnv);
-     wlo::Window::Info window_info;
-     window_info.m_height = 500;
-     window_info.m_width = 500;
-     window_info.m_title = inf.appName;
-     window_info.API = wlo::WindowingAPICode::GLFW;
-     m_main_window = wlo::CreateSharedPointer<Window>(window_info);
-     m_main_window->permit<KeyboardMessage, Application,&Application::recieve>(this) ;//register as an observer with the window, so we recieve events;
 
-     m_renderer = wlo::CreateUniquePointer<wlo::rendering::Renderer>(m_main_window);
-     m_renderer->asSubject().permit<rendering::GPUInfo,Application,&Application::recieve>(this);
-
-   WILO_CORE_INFO("application initialized!");
- }
     void Application::recieve(const wlo::KeyboardMessage& msg){
         if(msg.content.button==wlo::Key::Code::ESCAPE) {
             WILO_CORE_INFO("Application shutting down");
@@ -54,7 +45,7 @@ namespace wlo{
      WILO_CORE_INFO("application running!");
      setup();
      double dt =0;
-     while(!m_main_window->shouldClose()&&!m_shutting_down){
+     while(!m_mainWindow.shouldClose()&&!m_shutting_down){
         auto startTime =std::chrono::high_resolution_clock::now();
         stepSim(dt);
         draw();

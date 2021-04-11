@@ -5,7 +5,7 @@
 #include "willow/rendering/PerspectiveCamera3D.hpp"
 
 namespace wlo{
-    PrespectiveCamera3D::PrespectiveCamera3D()
+    PerspectiveCamera3D::PerspectiveCamera3D()
             :
              m_FOV(45),
              m_pitch(0),
@@ -20,7 +20,7 @@ namespace wlo{
     {
 
     }
-    PrespectiveCamera3D::PrespectiveCamera3D(SharedPointer<Window> wnd, bool resizeWithWindow)
+    PerspectiveCamera3D::PerspectiveCamera3D(Window& wnd, bool resizeWithWindow)
     :       
             m_FOV(45),
             m_pitch(0),
@@ -33,27 +33,27 @@ namespace wlo{
             lastLookX(0.0f),
             lastLookY(0.0f)
     {
-       Window::Info info = wnd->getInfo();
+       Window::Info info = wnd.getInfo();
        m_aspectRatio = float(info.m_width)/info.m_height;
        if(resizeWithWindow)
-           wnd->permit<WindowResized,PrespectiveCamera3D,&PrespectiveCamera3D::resizeOn>(this);
+           wnd.permit<WindowResized,PerspectiveCamera3D,&PerspectiveCamera3D::resizeOn>(this);
     }
 
-    void PrespectiveCamera3D::setFOV(float fov) {
+    void PerspectiveCamera3D::setFOV(float fov) {
         m_FOV = fov;
     }
 
 
-    void PrespectiveCamera3D::snapTo(float width, float height) {
+    void PerspectiveCamera3D::snapTo(float width, float height) {
         m_aspectRatio = width/height;
     }
 
-    void PrespectiveCamera3D::resizeOn(const wlo::WindowResized & msg) {
+    void PerspectiveCamera3D::resizeOn(const wlo::WindowResized & msg) {
        WILO_CORE_INFO("WINDOW RESIZED");
        snapTo(msg.content.width,msg.content.height);
     }
 
-    glm::mat4x4 PrespectiveCamera3D::getTransform() const {
+    glm::mat4x4 PerspectiveCamera3D::getTransform() const {
         glm::vec3 heading = glm::normalize(m_front);//vector pointing to the focus
         glm::vec3 sideways = glm::normalize(glm::cross(heading,{0,1,0}));
         glm::vec3 upDirection = glm::normalize(glm::cross(sideways, heading));
@@ -63,11 +63,11 @@ namespace wlo{
         return projection*view;
     }
 
-    void PrespectiveCamera3D::moveAlongViewAxis(float distance) {
+    void PerspectiveCamera3D::moveAlongViewAxis(float distance) {
         m_position -= glm::normalize(m_front)*distance;
     }
 
-    void PrespectiveCamera3D::look(float x,float y,float sens) {
+    void PerspectiveCamera3D::look(float x, float y, float sens) {
         float sensativity(sens);
         if(firstLook){
             sensativity = 0;
@@ -94,26 +94,34 @@ namespace wlo{
         m_front = glm::normalize(direction);
     }
 
-   void PrespectiveCamera3D::roll(float roll){
+   void PerspectiveCamera3D::roll(float roll){
 //        m_roll +=roll;
 //        glm::vec4 m_up4Vec{m_upDirection,0};
 //        m_upDirection=glm::rotate(glm::mat4x4{1},m_roll,m_front)*m_up4Vec;
    }
 
-   void PrespectiveCamera3D::zoom(float zoom){
+   void PerspectiveCamera3D::zoom(float zoom){
     m_FOV +=zoom; 
     if (m_FOV < 1.0f)
         m_FOV = 1.0f;
     if (m_FOV > 90.0f)
         m_FOV = 90.0f; 
    }
-    void PrespectiveCamera3D::strafe(float distance){
+    void PerspectiveCamera3D::strafe(float distance){
         glm::vec3 sideways = glm::normalize(glm::cross(m_front,m_upDirection));
         m_position+= distance*sideways;
     }
 
-   glm::vec3 PrespectiveCamera3D::getPosition() const{
+   glm::vec3 PerspectiveCamera3D::getPosition() const{
         return m_position; 
    }
+
+    void PerspectiveCamera3D::moveFrameVertical(float distance) {
+        m_position+=distance*m_upDirection;
+    }
+
+    void PerspectiveCamera3D::setPosition(glm::vec3 position) {
+        m_position = position;
+    }
 
 }

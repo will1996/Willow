@@ -7,7 +7,8 @@
 #include "willow/Vulkan/VulkanRoot.hpp"
 #include "willow/Vulkan/VulkanBuffer.hpp"
 #include "willow/Vulkan/VulkanCommandInterface.hpp"
-#include"willow/rendering/DataLayout.hpp"
+#include"include/willow/data/Type.hpp"
+
 namespace wlo::wk {
     struct DeviceBuffer{
         vk::UniqueBuffer buffer;
@@ -30,18 +31,18 @@ namespace wlo::wk {
     public:
         VulkanMemoryManger(VulkanRoot &root,VulkanCommandInterface &commandInterface);
 
-        MappedBuffer allocateMappedBuffer(const rendering::DataLayout& layout
+        MappedBuffer allocateMappedBuffer(const wlo::data::Type& layout
                                           ,size_t count ,
                                           vk::BufferUsageFlagBits usage
                                           );
 
-        DeviceBuffer allocateBuffer(const rendering::DataLayout& layout,
+        DeviceBuffer allocateBuffer(const wlo::data::Type& layout,
                                     size_t count,
                                     vk::BufferUsageFlagBits usage,
                                     vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eDeviceLocal
                                     );
 
-        DeviceImage allocateImage(const rendering::DataLayout& pixelLayout,
+        DeviceImage allocateImage(const wlo::data::Type& pixelLayout,
                                   uint32_t width,
                                   uint32_t height,
                                   vk::ImageLayout imageLayout,

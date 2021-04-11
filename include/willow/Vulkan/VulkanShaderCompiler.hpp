@@ -6,23 +6,24 @@
 #define WILLOW_VULKANSHADERCOMPILER_HPP
 #include"willow/root/Root.hpp"
 #include"VulkanRoot.hpp"
+
 namespace wlo::wk {
     class VulkanShader {
         VulkanShader(std::string filepath);
         vk::ShaderModule m_module;
         vk::PipelineShaderStageCreateInfo m_stageInfo;
-        wlo::rendering::DataLayout m_vertexInputLayout;
-        wlo::rendering::DataLayout m_uniformBufferLayout;
-        wlo::rendering::DataLayout m_pushConstantLayout;
+        std::vector<wlo::data::Type> m_vertexInputLayout;
+        std::vector<wlo::data::Type> m_uniformBufferLayout;
+        std::vector<wlo::data::Type> m_pushConstantLayout;
         friend class VulkanShaderCompiler;
         friend class std::map<std::string, VulkanShader>;
     public:
         VulkanShader() = default;
         const std::string path;
         vk::PipelineShaderStageCreateInfo& pipelineStageInfo();
-        wlo::rendering::DataLayout& vertexInputLayout();
-        wlo::rendering::DataLayout& pushConstantLayout();
-        wlo::rendering::DataLayout& uniformBufferLayout();
+        std::vector<wlo::data::Type>& vertexInputLayout();
+        std::vector<wlo::data::Type>& pushConstantLayout();
+        std::vector<wlo::data::Type>& uniformBufferLayout();
     };
     
     class VulkanShaderCompiler {
@@ -38,9 +39,10 @@ namespace wlo::wk {
         VulkanRoot& m_root;
         std::unordered_map<std::string, VulkanShader> m_shaders;
         std::vector<uint32_t> readSpirvBinary(const std::string& filepath);
-        wlo::rendering::DataLayout getVertexLayout(const std::vector<uint32_t>& code);
-        wlo::rendering::DataLayout getUniformLayout(const std::vector<uint32_t>& code);
-        wlo::rendering::DataLayout getPushConstant(const std::vector<uint32_t>& code);
+
+        std::vector<wlo::data::Type> getVertexLayout(const std::vector<uint32_t>& code);
+        std::vector<wlo::data::Type> getUniformLayout(const std::vector<uint32_t>& code);
+        std::vector<wlo::data::Type> getPushConstant(const std::vector<uint32_t>& code);
     };
 
 }

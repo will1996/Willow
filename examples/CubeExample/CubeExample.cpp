@@ -6,7 +6,7 @@
 #include "willow/messaging/Messages.hpp"
 #include"willow/rendering/Model.hpp"
 #include"willow/root/FileSystem.hpp"
-
+#include "willow/DefaultAssets.hpp"
 class CubeExample : public wlo::Application{
 private:
     const float cameraSpeed = 50.0f;
@@ -20,67 +20,36 @@ private:
         bool pressedRotateRight;
     }inputHandler;
     wlo::rendering::Material cowTexture{
-            .vertexShader= wlo::FileSystem::Assets().append("Shaders").append("vert.spv").string(),
-            .fragmentShader=  wlo::FileSystem::Assets().append("Shaders").append("frag.spv").string(),
+            .vertexShader= wlo::FileSystem::Assets().append("Shaders").append("shader.vert.spv").string(),
+            .fragmentShader=  wlo::FileSystem::Assets().append("Shaders").append("shader.frag.spv").string(),
             .texture = wlo::FileSystem::Assets().append("Textures").append("cow.bmp").string()
     };
+    wlo::rendering::Material kitTexture{
+            .vertexShader= wlo::FileSystem::Shaders().append("shader.vert.spv").string(),
+            .fragmentShader=  wlo::FileSystem::Shaders().append("shader.frag.spv").string(),
+            .texture = wlo::FileSystem::Textures().append("kit.jpeg").string()
+    };
     wlo::rendering::Model<wlo::TexturedVertex3D> cube{
-
-            .vertices = {
-
-              { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
-              { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
-              { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
-              { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
-
-              { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
-              { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
-              { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
-              { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
-
-            },
-
-            .indices = {
-                // front
-                0, 1, 2,
-                2, 3, 0,
-                // right
-                1, 5, 6,
-                6, 2, 1,
-                // back
-                7, 6, 5,
-                5, 4, 7,
-                // left
-                4, 0, 3,
-                3, 7, 4,
-                // bottom
-                4, 5, 1,
-                1, 0, 4,
-                // top
-                3, 2, 6,
-                6, 7, 3
-            },
+            .mesh = wlo::assets::DefaultCube(),
             .material = cowTexture
     };
 
     wlo::rendering::Model<wlo::TexturedVertex3D> kitCube{
-        .vertices = cube.vertices,
-        .indices = cube.indices,
-        .material = cowTexture
-
+        .mesh = wlo::assets::DefaultCube(),
+        .material = kitTexture
     };
 
-    wlo::PrespectiveCamera3D camera;
+    wlo::PerspectiveCamera3D camera;
     wlo::rendering::Scene mainScene;
    std::map<std::string, wlo::rendering::RenderObject *> SceneObjects;
 
 
 public:
-    CubeExample(std::string argv_0):Application(Application::Info("Cube example",1),argv_0),camera(m_main_window)
+    CubeExample(std::string argv_0):Application(Application::Info("Cube example",1),argv_0),camera(m_mainWindow)
 
     {
-        m_main_window->permit<wlo::MouseMoved,CubeExample,&CubeExample::handleMouse>(this);
-        m_main_window->permit<wlo::MouseScrolled,CubeExample,&CubeExample::handleMouse>(this);
+        m_mainWindow.permit<wlo::MouseMoved,CubeExample,&CubeExample::handleMouse>(this);
+        m_mainWindow.permit<wlo::MouseScrolled,CubeExample,&CubeExample::handleMouse>(this);
     }
     void handleMouse(const wlo::MouseMoved& msg){
         camera.look(msg.content.xPos,msg.content.yPos);
@@ -141,13 +110,13 @@ public:
         if(msg.content.button==wlo::Key::Code::TAB) {
             if(msg.content.action==wlo::KeyAction::Pressed){
                 cursorLockedState  = !cursorLockedState;
-                m_main_window->setCursorMode(cursorLockedState);
+                m_mainWindow.setCursorMode(cursorLockedState);
             }
         }
         if(msg.content.button==wlo::Key::Code::I) {
             if(msg.content.action==wlo::KeyAction::Pressed){
                 cursorLockedState  = !cursorLockedState;
-                m_main_window->setCursorMode(cursorLockedState);
+                m_mainWindow.setCursorMode(cursorLockedState);
             }
         }
 
@@ -158,23 +127,15 @@ public:
 
     void setup () override{
         using namespace wlo::rendering;
-        m_renderer->preAllocateScene({
-           .vertexCounts = {{Layout<wlo::TexturedVertex3D>(),8}} ,
-           .materials = {cube.material},
-          .totalIndexCount = 36
+        m_renderer.preAllocateScene({
+           .vertexCounts = {{wlo::data::Type::of<wlo::TexturedVertex3D>(),16}} ,
+           .materials = {cube.material,kitCube.material},
+          .totalIndexCount = 72
         });
-        //SceneObjects["cube0"] = mainScene.add(cube);
-      //  SceneObjects["cube1"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,2,0}));
-      //  SceneObjects["cube2"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,-2,0}));
-      //  SceneObjects["cube3"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,2}));
-      //  SceneObjects["cube4"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{0,0,-2}));
-      //  SceneObjects["cube5"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,0,0}));
-      //  SceneObjects["cube6"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{-2,0,0}));
-      //  SceneObjects["cube7"] = mainScene.add(cube,glm::translate(glm::mat4x4{1},{2,2,0}));
 
-        m_main_window->setCursorMode(true);
-        m_renderer->setMainCamera(camera);
-        m_renderer->setClearColor({ {.9,.9,.9,1} });
+        m_mainWindow.setCursorMode(true);
+        m_renderer.setMainCamera(camera);
+        m_renderer.setClearColor({ {.9,.9,.9,1} });
         WILO_CORE_INFO("Rendering prepared");
     }
 
@@ -198,9 +159,10 @@ public:
     void draw() override{
         using namespace wlo::rendering;
         Frame next{
-            Draw{cube,glm::mat4x4{1}}
+            Draw{cube,glm::mat4x4{1}},
+            Draw{kitCube,glm::translate(glm::mat4x4{1},{0,2,0})}
         };
-        m_renderer->submit(next);
+        m_renderer.submit(next);
     }
 
 

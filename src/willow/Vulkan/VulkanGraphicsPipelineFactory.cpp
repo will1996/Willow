@@ -4,6 +4,7 @@
 //
 
 #include <willow/Vulkan/VulkanGraphicsPipelineFactory.hpp>
+
 using namespace wlo::rendering;
 namespace wlo::wk {
    VulkanGraphicsPipelineFactory::VulkanGraphicsPipelineFactory(VulkanRoot &root,
@@ -15,38 +16,30 @@ namespace wlo::wk {
             { }
 
 
-    std::vector<vk::VertexInputAttributeDescription> tovkVertexAttributes(const wlo::rendering::DataLayout&  layout) {
+    std::vector<vk::VertexInputAttributeDescription> tovkVertexAttributes(const wlo::data::Type&  layout) {
             std::vector<vk::VertexInputAttributeDescription> desc;
             uint32_t bindingLocationCounter = 0;
-            for(auto & [element,offset] : layout.get()){
-                switch(element.type){
-                    case wlo::rendering::DataLayout::DataType::Float:
-                        if(element.count==1)
-                            desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eD32Sfloat,offset));
-                        else if(element.count==2)
+            for(auto & [name,type,offset] : layout.getMembers()){
+                        if(type.compatibleWith(wlo::data::Type::of<wlo::Vec2>()))
                             desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eR32G32Sfloat,offset));
-                        else if(element.count==3)
+                        else if(type.compatibleWith(wlo::data::Type::of<wlo::Vec3>()))
                             desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eR32G32B32Sfloat,offset));
-                        else if(element.count==4)
+                        else if(type.compatibleWith(wlo::data::Type::of<wlo::Vec4>()))
                             desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eR32G32B32A32Sfloat,offset));
                         else
                             throw std::runtime_error("Vertex Input description for Data Layout element type FLOAT with count greater than four unsupported");
-                        break;
-                        default:
-                                throw std::runtime_error("Pipelines may only pass float values");
+                        bindingLocationCounter++;
                 }
-                bindingLocationCounter++;
-            }
             return desc;
    }
 
     vk::UniquePipelineLayout VulkanGraphicsPipelineFactory::createPipelineLayout(wlo::rendering::Material,
                                                                                  vk::UniqueDescriptorSetLayout &descriptorSetLayout,
-                                                                                 wlo::rendering::DataLayout pushLayout) {
+                                                                                 wlo::data::Type pushLayout) {
 
 
         std::vector<vk::PushConstantRange> pushConstantRanges = {
-                vk::PushConstantRange(vk::ShaderStageFlagBits::eVertex,0,pushLayout.memSize())
+                vk::PushConstantRange(vk::ShaderStageFlagBits::eVertex,0,pushLayout.footprint())
         };
 
         // create a PipelineLayout using that DescriptorSetLayout
@@ -55,15 +48,25 @@ namespace wlo::wk {
 
     }
 
+
+    wlo::data::Type makeAnonymousType(std::vector<wlo::data::Type> types) {
+       std::vector<wlo::data::Type::Member > members(types.size());
+       size_t i =0;
+       for(auto & type : types)
+           members[i++] = {"",type};
+       return wlo::data::Type("",members);
+
+   }
+
     wlo::wk::GraphicsPipeline
     wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(wlo::rendering::Material mat,vk::UniqueRenderPass & renderPass) {
 
         VulkanShader vertexShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eVertex,mat.vertexShader);
         VulkanShader fragmentShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eFragment,mat.fragmentShader);
 
-        DataLayout vertexLayout = vertexShader.vertexInputLayout();
-        DataLayout uniformLayout = vertexShader.uniformBufferLayout();
-        DataLayout pushLayout = vertexShader.pushConstantLayout();
+        wlo::data::Type vertexLayout = makeAnonymousType(vertexShader.vertexInputLayout());
+        wlo::data::Type uniformLayout = makeAnonymousType(vertexShader.uniformBufferLayout());
+        wlo::data::Type pushLayout = makeAnonymousType(vertexShader.pushConstantLayout());
 
         auto descriptorSetLayout = createDescriptorSetLayout(mat);
         auto pipelineLayout = createPipelineLayout(mat,descriptorSetLayout,pushLayout);
@@ -92,8 +95,8 @@ namespace wlo::wk {
         VulkanShader & fragmentShader = m_shaderCompiler.fetchShader(mat.fragmentShader);
 
 
-        DataLayout vertexLayout = vertexShader.vertexInputLayout();
-        vk::VertexInputBindingDescription vertexInputBindingDescription(0, vertexLayout.memSize());
+        wlo::data::Type vertexLayout = makeAnonymousType(vertexShader.vertexInputLayout());
+        vk::VertexInputBindingDescription vertexInputBindingDescription(0, vertexLayout.footprint());
         std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions = tovkVertexAttributes(vertexLayout);
 
         vk::PipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo(

@@ -18,15 +18,15 @@ namespace wlo::wk {
         return m_stageInfo;
     }
 
-    wlo::rendering::DataLayout &VulkanShader::vertexInputLayout() {
+    std::vector<wlo::data::Type> &VulkanShader::vertexInputLayout() {
         return m_vertexInputLayout;
     }
 
-    wlo::rendering::DataLayout &VulkanShader::pushConstantLayout() {
+    std::vector<wlo::data::Type> &VulkanShader::pushConstantLayout() {
         return m_pushConstantLayout;
     }
 
-    wlo::rendering::DataLayout &VulkanShader::uniformBufferLayout() {
+    std::vector<wlo::data::Type> &VulkanShader::uniformBufferLayout() {
         return m_uniformBufferLayout;
     }
 
@@ -71,7 +71,7 @@ namespace wlo::wk {
         size_t fileSize = file.tellg();
         file.seekg(0);
         if (fileSize % 4 != 0)
-            throw std::runtime_error("FAILED TO CREATE SHADER THE FILE WAS NOT A SPIRV BINARY");
+            throw std::runtime_error("FAILED TO CREATE SHADER THE FILE  AT "+filepath+" WAS NOT A SPIRV BINARY");
 
         vector<uint32_t> code(fileSize / 4);
         file.read((char *) code.data(), code.size() * 4);
@@ -79,80 +79,86 @@ namespace wlo::wk {
         return code;
     }
 
-    wlo::rendering::DataLayout VulkanShaderCompiler::getVertexLayout(const std::vector<uint32_t> &code) {
+    std::vector<wlo::data::Type> VulkanShaderCompiler::getVertexLayout(const std::vector<uint32_t> &code) {
         spirv_cross::Compiler comp(code.data(), code.size());
         spirv_cross::ShaderResources shaderResources = comp.get_shader_resources();
-        std::vector<DataLayout::Element> vertexInputElements(shaderResources.stage_inputs.size());
+        vector<wlo::data::Type> layoutMembers(shaderResources.stage_inputs.size());
         for (auto &vertexInput: shaderResources.stage_inputs) {
             SPIRType type = comp.get_type(vertexInput.base_type_id);
-            auto attachmentIndex = comp.get_decoration(vertexInput.id,spv::DecorationLocation);
-            cout<<attachmentIndex<<endl;
+            auto attachmentIndex = comp.get_decoration(vertexInput.id, spv::DecorationLocation);
+            cout << attachmentIndex << endl;
+
             cout << "VertexInput found, it is an array with  " << type.vecsize << " elements" << endl;
-            switch (type.basetype) {
-                case SPIRType::BaseType::Float:
-                    vertexInputElements[attachmentIndex] = {DataLayout::DataType::Float, type.vecsize};
-                    break;
-                case SPIRType::BaseType::Int:
-                    vertexInputElements[attachmentIndex] = {DataLayout::DataType::Int, type.vecsize};
-                    break;
-                case SPIRType::BaseType::Boolean:
-                    vertexInputElements[attachmentIndex] = {DataLayout::DataType::Bool, type.vecsize};
-                    break;
-                default:
-                    throw std::runtime_error("Unmappable shader type in VertexLayout [Shader compiler]");
+            if (type.basetype == SPIRType::BaseType::Float) {
+                if (type.vecsize == 2)
+                    layoutMembers[attachmentIndex] = wlo::data::Type::of<wlo::Vec2>();
+                else if (type.vecsize == 3)
+                    layoutMembers[attachmentIndex] = wlo::data::Type::of<wlo::Vec3>();
+                else if(type.vecsize==4)
+                    layoutMembers[attachmentIndex] = wlo::data::Type::of<wlo::Vec4>();
             }
-
+            else
+                throw std::runtime_error("unsupported type from shader");
         }
-        return wlo::rendering::DataLayout(vertexInputElements);
+        return layoutMembers;
     }
 
-    wlo::rendering::DataLayout VulkanShaderCompiler::getUniformLayout(const std::vector<uint32_t> &code) {
+
+    std::vector<wlo::data::Type> VulkanShaderCompiler::getUniformLayout(const std::vector<uint32_t> &code) {
         spirv_cross::Compiler comp(code.data(), code.size());
         spirv_cross::ShaderResources shaderResources = comp.get_shader_resources();
-
-        std::vector<DataLayout::Element> uniformInputElements;
+        vector<wlo::data::Type> layoutMembers(shaderResources.stage_inputs.size());
         for (auto &uniform : shaderResources.uniform_buffers) {
-  //          uint32_t set = comp.get_decoration(uniform.id, spv::DecorationDescriptorSet);
-   //         uint32_t binding = comp.get_decoration(uniform.id, spv::DecorationBinding);
+            //          uint32_t set = comp.get_decoration(uniform.id, spv::DecorationDescriptorSet);
+            //         uint32_t binding = comp.get_decoration(uniform.id, spv::DecorationBinding);
             const SPIRType type = comp.get_type(uniform.base_type_id);
-            for(auto memberTypeID : type.member_types) {
+            for (auto memberTypeID : type.member_types) {
                 auto memberType = comp.get_type(memberTypeID);
-                switch (memberType.basetype) {
-                    case SPIRType::BaseType::Float:
-                        uniformInputElements.push_back({DataLayout::DataType::Float, memberType.vecsize*memberType.columns});
-                        break;
-                    default:
-                        throw std::runtime_error("only floats supported for uniform data");
-                }
+                if (memberType.basetype == SPIRType::BaseType::Float) {
+                    size_t floatCount = memberType.vecsize*memberType.columns;
+                    if (floatCount == 3)
+                        layoutMembers.emplace_back(wlo::data::Type::of<Vec3>());
+                    else if (floatCount == 4)
+                        layoutMembers.emplace_back(wlo::data::Type::of<Vec4>());
+                    else if (floatCount == 9)
+                        layoutMembers.emplace_back(wlo::data::Type::of<Mat3>());
+                    else if (floatCount == 16)
+                        layoutMembers.emplace_back(wlo::data::Type::of<Mat4>());
+                } else
+                    throw std::runtime_error("unsupported type from shader");
             }
         }
-        return wlo::rendering::DataLayout(uniformInputElements);
+        return layoutMembers;
     }
-
-    wlo::rendering::DataLayout VulkanShaderCompiler::getPushConstant(const std::vector<uint32_t> &code) {
+    std::vector<wlo::data::Type> VulkanShaderCompiler::getPushConstant(const std::vector<uint32_t> &code) {
         spirv_cross::Compiler comp(code.data(), code.size());
         spirv_cross::ShaderResources shaderResources = comp.get_shader_resources();
 
-        std::vector<DataLayout::Element> pushConstantElements;
+        vector<wlo::data::Type> layoutMembers;
         for (auto &pushBuffer : shaderResources.push_constant_buffers) {
 //            uint32_t set = comp.get_decoration(pushBuffer.id, spv::DecorationDescriptorSet);
- //           uint32_t binding = comp.get_decoration(pushBuffer.id, spv::DecorationBinding);
+            //           uint32_t binding = comp.get_decoration(pushBuffer.id, spv::DecorationBinding);
             const SPIRType type = comp.get_type(pushBuffer.base_type_id);
-            for(auto memberTypeID : type.member_types) {
+            for (auto memberTypeID : type.member_types) {
                 auto memberType = comp.get_type(memberTypeID);
-                switch (memberType.basetype) {
-                    case SPIRType::BaseType::Float:
-                        pushConstantElements.push_back({DataLayout::DataType::Float, memberType.vecsize*memberType.columns});
-                        break;
-                     default:
-                        throw std::runtime_error("only floats supported for pushConstant data");
-                        
-                }
+
+                if(memberType.basetype==SPIRType::Float){
+                size_t floatCount = memberType.vecsize*memberType.columns;
+                if (floatCount == 3)
+                    layoutMembers.emplace_back(wlo::data::Type::of<Vec3>());
+                else if (floatCount == 4)
+                    layoutMembers.emplace_back(wlo::data::Type::of<Vec4>());
+                else if (floatCount == 9)
+                    layoutMembers.emplace_back(wlo::data::Type::of<Mat3>());
+                else if (floatCount == 16)
+                    layoutMembers.emplace_back(wlo::data::Type::of<Mat4>());
+                 }
+                else
+                    throw std::runtime_error("unsupported type from shader");
+
             }
-
         }
-
-        return wlo::rendering::DataLayout(pushConstantElements);
+        return layoutMembers;
     }
 
     VulkanShader &VulkanShaderCompiler::fetchShader(const std::string &filepath) {

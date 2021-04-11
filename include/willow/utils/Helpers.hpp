@@ -6,6 +6,7 @@
 #define WILLOW_HELPERS_H
 #include<fstream>
 #include<string>
+#include<sstream>
 
 namespace wlo::helpers{
   inline  bool fexists(std::string path) {
@@ -22,6 +23,12 @@ namespace wlo::helpers{
            }
        }
 
+  inline size_t toNumber(const std::string & str){
+        std::stringstream ss(str);
+        size_t value;
+        ss>>value;
+        return value;
+  }
 }
 
 

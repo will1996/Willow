@@ -23,13 +23,13 @@ namespace wlo{
     }
 
     bool InputManager::isPressed(wlo::Key::Code code) const {
-        if(not m_pressedMap.contains(code))
+        if(! m_pressedMap.contains(code))
             return false;
         return m_pressedMap.at(code);
     }
 
     bool InputManager::isPressed(std::string keyName) const{
-       if(not m_keyMap.contains(keyName))
+       if(! m_keyMap.contains(keyName))
            throw std::runtime_error("Attempted to access Named key: "+ keyName+" but this key is not in the map, Typo?");
        return isPressed(m_keyMap.at(keyName));
     }

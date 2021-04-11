@@ -8,14 +8,15 @@
 namespace wlo {
     template<>
     Mesh<TexturedVertex3D> Mesh<TexturedVertex3D>::fromFile(std::string filepath) {
+
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
-        std::string warn, err;
+        std::string  err;
         vector<wlo::Index > indices;
         vector<TexturedVertex3D> vertices;
-        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) {
-            throw std::runtime_error(warn + err);
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials,  &err, filepath.c_str(),"./",false)) {
+            throw std::runtime_error( err);
         }
         for(const auto & shape : shapes){
             for (const auto & index : shape.mesh.indices){

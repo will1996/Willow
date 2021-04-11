@@ -124,12 +124,19 @@ target_link_libraries(WillowRoot PUBLIC Wua)
 target_link_libraries(WillowRoot PUBLIC spdlog)
 
 find_package(glm REQUIRED)
+if(MSVC)
+
+set_target_properties(glm::glm PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "C:\\Program Files\\include")
+else()
 set_target_properties(glm::glm PROPERTIES INTERFACE_INCLUDE_DIRECTORIES /usr/local/include)
+endif()
+
 target_link_libraries(WillowRoot PUBLIC glm::glm)
 
 target_include_directories(WillowRoot PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        
         )
 
 

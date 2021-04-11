@@ -44,7 +44,7 @@ int main(){
    require(Type::of<TexturedVertex3D>().compatibleWith(Type::of<ShaderData>()))
    require(Type::of<TexturedVertex3D>()!=Type::of<ShaderData>())
 
-   require(not Type::of<TexturedVertex3D>().compatibleWith(Type::of<Vertex3D>()))
+   require(! Type::of<TexturedVertex3D>().compatibleWith(Type::of<Vertex3D>()))
     require(Type::of<TexturedVertex3D>()!=(Type::of<Vertex3D>()))
 
 

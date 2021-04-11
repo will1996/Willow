@@ -6,9 +6,9 @@
 #include"willow/DefaultAssets.hpp"
 int main(){
     wlo::rendering::Material cowTexture{
-            .vertexShader= wlo::FileSystem::Root().append("shaders").append("vert.spv"),
-            .fragmentShader=  wlo::FileSystem::Root().append("shaders").append("frag.spv"),
-            .texture = wlo::FileSystem::Root().append("examples").append("Textures").append("cow.bmp")
+            .vertexShader= wlo::FileSystem::Root().append("shaders").append("vert.spv").string(),
+            .fragmentShader=  wlo::FileSystem::Root().append("shaders").append("frag.spv").string(),
+            .texture = wlo::FileSystem::Root().append("examples").append("Textures").append("cow.bmp").string()
     };
 
     wlo::rendering::Model<wlo::TexturedVertex3D> cube{

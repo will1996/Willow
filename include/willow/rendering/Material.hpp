@@ -23,6 +23,7 @@ inline std::ostream& operator<<(std::ostream & o, const wlo::rendering::Material
     o<<"\tVertexShader: "<<material.vertexShader<<std::endl;
     o<<"\tFragmentShader: "<<material.fragmentShader<<std::endl;
     o<<"\tTexture: "<<material.texture<<std::endl;
+    return o;
 }
 
 namespace std{

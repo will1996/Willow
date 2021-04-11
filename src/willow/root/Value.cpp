@@ -29,6 +29,12 @@ Value & Value::operator[](const std::string & memberName) {
     return m_members.at(memberName);
 }
 
+Value& Value::operator=(const Value&& other)
+{
+    m_self->Assign(other.m_self.get());
+    return *this;
+}
+
  Value &Value::operator=(const Value &other) {
      m_self->Assign(other.m_self.get());
      return *this;

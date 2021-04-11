@@ -24,7 +24,7 @@ namespace wlo::lua{
     //types to lua must be composed of types which on some level are represented by floats, ints, or strings.
     void validate(const data::Type &attemptedType){
         if(attemptedType.isPrimitive()||attemptedType==data::Type::of<std::string>()){
-            if(not isInValidSet(attemptedType))
+            if(! isInValidSet(attemptedType))
                 throw std::invalid_argument("Attempted to pass a type containing a primitive of  type: " + attemptedType.name() + " to or from Lua, which is unsupported");
         }
         for(const auto & member : attemptedType.getMembers()){
@@ -105,7 +105,7 @@ namespace wlo::lua{
 
     template<>
     float pop<float>(lua_State*L){
-       if(not lua_isnumber(L,-1))
+       if(! lua_isnumber(L,-1))
            throw std::invalid_argument("Attempted to pop a float, but top of Lua stack is other");
       float ret = lua_tonumber(L,-1);
       lua_remove(L,-1);
@@ -114,7 +114,7 @@ namespace wlo::lua{
 
     template<>
     double pop<double>(lua_State*L){
-        if(not lua_isnumber(L,-1))
+        if(! lua_isnumber(L,-1))
             throw std::invalid_argument("Attempted to pop a double, but top of Lua stack is other");
         double ret = lua_tonumber(L,-1);
         lua_remove(L,-1);
@@ -123,7 +123,7 @@ namespace wlo::lua{
 
     template<>
     int pop<int>(lua_State*L){
-        if(not lua_isinteger(L,-1))
+        if(! lua_isinteger(L,-1))
             throw std::invalid_argument("Attempted to pop an int, but top of Lua stack is other");
         int ret = lua_tointeger(L,-1);
         lua_remove(L,-1);
@@ -132,7 +132,7 @@ namespace wlo::lua{
 
     template<>
     std::string pop<std::string>(lua_State*L){
-        if(not lua_isstring(L,-1))
+        if(! lua_isstring(L,-1))
             throw std::invalid_argument("Attempted to pop a string, but top of Lua stack is other");
         std::string ret = lua_tostring(L,-1);
         lua_remove(L,-1);

@@ -36,8 +36,8 @@ namespace wlo::rendering{
 
         return SceneDescription{
             .vertexCounts = finalVertexCounts,
+            .materials = materials,
             .totalIndexCount = indexCount,
-            .materials = materials
         };
     }
 

@@ -3,8 +3,7 @@
 //
 
 #include "willow/Vulkan/VulkanTextureFactory.hpp"
-#define  STB_IMAGE_IMPLEMENTATION
-#include"willow/external/stb_image.h"
+#include"willow/rendering/Texture.hpp"
 
 namespace wlo::wk {
     wlo::wk::VulkanTextureFactory::VulkanTextureFactory(wlo::wk::VulkanRoot &root,
@@ -15,32 +14,16 @@ namespace wlo::wk {
                 }
 
     void wlo::wk::VulkanTextureFactory::createTexture2D(std::string imageFile) {
-        int texWidth,texHeight,texChannels;
-        stbi_uc* pixels = stbi_load(imageFile.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        WILO_CORE_INFO("loading texture, WARNING texture must have rgba format");
+        Texture tex(imageFile);
 
-        if(pixels==nullptr){
-            throw std::runtime_error("Failed to load image from file: "+imageFile);
-        }
-
-        wlo::data::Type pixelLayout{
-            "BitColor",{
-                        {"r",wlo::data::Type::of<byte>()},
-                        {"g",wlo::data::Type::of<byte>()},
-                        {"b",wlo::data::Type::of<byte>()},
-                        {"a",wlo::data::Type::of<byte>()},
-            }
-        };
         //allocate mapped memory for the memory transfer
-       MappedBuffer stagingBuffer = m_memoryManager.allocateMappedBuffer(pixelLayout,
-                                                                          texWidth*texHeight,
+       MappedBuffer stagingBuffer = m_memoryManager.allocateMappedBuffer(tex.texelFormat(),
+                                                                         tex.width()*tex.height(),
                                                                          vk::BufferUsageFlagBits::eTransferSrc);
         //move image memory to GPU
-       memcpy(stagingBuffer.writePoint, pixels, pixelLayout.footprint() * texWidth * texHeight);
-        //free the host copy of the image data
-       stbi_image_free(pixels);
+       memcpy(stagingBuffer.writePoint, tex.view().source, tex.view().memSize);
 
-       DeviceImage image =  m_memoryManager.allocateImage(pixelLayout,texWidth,texHeight,
+       DeviceImage image =  m_memoryManager.allocateImage(tex.texelFormat(),tex.width(),tex.height(),
                                       vk::ImageLayout::eTransferDstOptimal,
                                       vk::ImageUsageFlagBits::eTransferDst|vk::ImageUsageFlagBits::eSampled);
         m_memoryManager.copy(image,stagingBuffer);

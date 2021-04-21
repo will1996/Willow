@@ -13,6 +13,10 @@ class LuaTester{
         binding.Register<Vec3,&LuaTester::CallMe>("CallMe");
        binding.Register<std::string,&LuaTester::CallMe>("CallMeString");
        binding.Register<std::vector<Vec3> ,&LuaTester::CallMe>("CallMePoints");
+       binding.Register<std::string,int ,&LuaTester::CallMe>("CallMeMulti");
+       binding.Register<std::string,int,float ,&LuaTester::CallMe>("CallMeMulti2");
+       binding.Register<int,wlo::Vec3 ,&LuaTester::CallMe>("CallMeMulti3");
+       binding.Register<std::string,wlo::Vec3 ,&LuaTester::CallMe>("CallMeMulti4");
 
 
    }
@@ -24,6 +28,22 @@ private:
    void CallMe(std::string name){
        cout<<"you called with name "<<name<<endl;
    }
+
+    void CallMe(std::string name,int number){
+        cout<<"you called with name "<<name<<"and a number: "<<number<<endl;
+    }
+
+    void CallMe(std::string name,int number,float number2){
+        cout<<"you called with name "<<name<<"and a number: "<<number<<"and another number"<<number2<<endl;
+    }
+
+    void CallMe(int number,wlo::Vec3 vec){
+        cout<<"you called with number"<<number<<"and a vector"<<glm::to_string(vec)<<endl;
+    }
+    void CallMe(std::string name,wlo::Vec3 vec){
+        cout<<"you called with name"<<name<<"and a vector"<<glm::to_string(vec)<<endl;
+    }
+
     void CallMe(std::vector<Vec3> points){
         cout<<"you called with a vector with:  "<<points.size()<<"elements"<<endl;
         size_t i =0;
@@ -101,5 +121,8 @@ int main(){
     require(PlayerName=="Theodor");
 
     env.runScript(R"(LuaTester:CallMe({x=30.0,y=45.0,z=22.0}))");
-
+    env.runScript(R"(LuaTester:CallMeMulti("hey there",40))");
+    env.runScript(R"(LuaTester:CallMeMulti2("hey there",40,33.33))");
+    env.runScript(R"(LuaTester:CallMeMulti3(40,{x=33.33,y=40.0,z=55.0}))");
+    env.runScript(R"(LuaTester:CallMeMulti4("named vec",{x=33.33,y=40.0,z=55.0}))");
 }

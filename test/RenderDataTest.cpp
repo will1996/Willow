@@ -48,5 +48,9 @@ int main(){
     require(Type::of<TexturedVertex3D>()!=(Type::of<Vertex3D>()))
 
 
+    require(wlo::data::Type::of<uint8_t>().footprint()==sizeof(uint8_t));
+    require(wlo::data::Type::of<uint8_t>().footprint()==sizeof(char));
+    require(wlo::data::Type::of<uint8_t>().footprint()==sizeof(wlo::byte));
+    require(wlo::data::Type::of<uint8_t>()==wlo::data::Type::of<uint8_t>());
 
 }

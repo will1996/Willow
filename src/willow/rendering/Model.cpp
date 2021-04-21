@@ -15,7 +15,7 @@ namespace wlo {
         std::string  err;
         vector<wlo::Index > indices;
         vector<TexturedVertex3D> vertices;
-        if (!tinyobj::LoadObj(&attrib, &shapes, &materials,  &err, filepath.c_str(),"./",false)) {
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials,  &err, filepath.c_str(),"./",true)) {
             throw std::runtime_error( err);
         }
         for(const auto & shape : shapes){

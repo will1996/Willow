@@ -36,6 +36,7 @@ int main(){
     require(wlo::data::Type::of<bool>()!=wlo::data::Type::of<double>());
     require(wlo::data::Type::of<bool>()!=wlo::data::Type::of<char>());
 
+
     require(wlo::data::Type::of<Vec2>().footprint()==sizeof(Vec2));
     require(wlo::data::Type::of<Vec3>().footprint()==sizeof(Vec3));
     require(wlo::data::Type::of<Vec4>().footprint()==sizeof(Vec4));

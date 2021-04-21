@@ -24,7 +24,32 @@ namespace wlo{
                 lua_getglobal(m_env.getL(), m_name.c_str());//retrieve the class table from the global namespace
 
                 lua_pushstring(m_env.getL(), name.c_str());//push a key value pair of the string name
-                lua_pushcclosure(m_env.getL(), call <A,Method>,0);//and the function call<Method>
+                lua_pushcclosure(m_env.getL(), call <Method,A>,0);//and the function call<Method>
+
+                lua_settable(m_env.getL(), -3);//push the pair into the table
+
+                lua_setglobal(m_env.getL(), m_name.c_str());//update the global variable with the new entries
+            }
+            template< typename A,typename A2,void(T::* Method)(A,A2)>
+            //add the member function in the template to this Luatable with the name "name"
+            void Register(std::string name) {
+                lua_getglobal(m_env.getL(), m_name.c_str());//retrieve the class table from the global namespace
+
+                lua_pushstring(m_env.getL(), name.c_str());//push a key value pair of the string name
+                lua_pushcclosure(m_env.getL(), call<Method,A,A2>,0);//and the function call<Method>
+
+                lua_settable(m_env.getL(), -3);//push the pair into the table
+
+                lua_setglobal(m_env.getL(), m_name.c_str());//update the global variable with the new entries
+            }
+
+            template< typename A,typename A2,typename A3,void(T::* Method)(A,A2,A3)>
+            //add the member function in the template to this Luatable with the name "name"
+            void Register(std::string name) {
+                lua_getglobal(m_env.getL(), m_name.c_str());//retrieve the class table from the global namespace
+
+                lua_pushstring(m_env.getL(), name.c_str());//push a key value pair of the string name
+                lua_pushcclosure(m_env.getL(), call<Method,A,A2,A3>,0);//and the function call<Method>
 
                 lua_settable(m_env.getL(), -3);//push the pair into the table
 
@@ -58,7 +83,10 @@ namespace wlo{
         private:
             T* m_instancePtr;
         //invoke the template method on the 'this' pointer, calling a non-static member function
-            template<typename A,void(T::*Method)(A) >
+
+
+
+            template<auto Method, typename A >
         static int call(lua_State* L){
             lua_pushstring(L,"instancePtr");
             lua_gettable(L,1);
@@ -69,6 +97,34 @@ namespace wlo{
             (this_ptr->*Method)(arg);
             return 0;
         }
+            template<auto Method, typename A ,typename A2>
+            static int call(lua_State* L){
+                lua_pushstring(L,"instancePtr");
+                lua_gettable(L,1);
+                T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
+                lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
+                lua_remove(L, 1);//get rid of the call table, while preserving arguments
+                lua::Stack::print(L);
+                auto arg2 = lua::Stack::pop(L,data::Type::of<A2>()).template get<A2>();
+                auto arg1 = lua::Stack::pop(L,data::Type::of<A>()).template get<A>();
+                assert(lua::Stack::isEmpty(L));
+                (this_ptr->*Method)(arg1,arg2);
+                return 0;
+            }
+
+            template<auto Method, typename A ,typename A2,typename A3>
+            static int call(lua_State* L){
+                lua_pushstring(L,"instancePtr");
+                lua_gettable(L,1);
+                T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
+                lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
+                lua_remove(L, 1);//get rid of the call table, while preserving arguments
+                auto arg3 = lua::Stack::pop(L,data::Type::of<A3>()).template get<A3>();
+                auto arg2 = lua::Stack::pop(L,data::Type::of<A2>()).template get<A2>();
+                auto arg1 = lua::Stack::pop(L,data::Type::of<A>()).template get<A>();
+                (this_ptr->*Method)(arg1,arg2,arg3);
+                return 0;
+            }
 
         void runBaseScript(){
             int res = luaL_dofile(m_env.getL(), (wlo::FileSystem::Script("scriptable_base.lua").string().c_str()));

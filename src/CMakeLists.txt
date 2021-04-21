@@ -233,6 +233,7 @@ target_sources(WillowRendering
          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/willow/Vulkan/VulkanCommandInterface.hpp>
          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/willow/rendering/PerspectiveCamera3D.hpp>
          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/willow/rendering/Scene.hpp>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/willow/rendering/Texture.hpp>
 
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/window/Window.hpp>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/rendering/Renderer.hpp>
@@ -252,9 +253,11 @@ target_sources(WillowRendering
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/Vulkan/VulkanCommandInterface.hpp>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/rendering/PerspectiveCamera3D.hpp>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/rendering/Scene.hpp>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/rendering/Texture.hpp>
         PRIVATE
         ../include/willow/external/stb_image.h
             willow/rendering/Scene.cpp
+            willow/rendering/Texture.cpp
             willow/window/GLFWWindow.cpp
             willow/rendering/Model.cpp
             willow/rendering/Renderer.cpp
@@ -288,7 +291,7 @@ target_sources(Willow
         ${WillowHeaders}
         PRIVATE
              willow/application.cpp
-             willow/console/FontMap.cpp
+        willow/console/Font.cpp
              willow/console/wilo_console.cpp
              willow/console/ConsoleCore.cpp
         )

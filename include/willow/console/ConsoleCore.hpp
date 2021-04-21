@@ -7,7 +7,7 @@
 #include"willow/root/Root.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
 #include"willow/input/KeyCodes.hpp"
-#include"FontMap.hpp"
+#include"Font.hpp"
 namespace wlo {
     class ConsoleCore {
     public:
@@ -46,10 +46,10 @@ namespace wlo {
         };
 
         std::vector<char> m_inputBuffer;
-        wlo::FontMap fontMap;
-        std::vector<std::vector<wlo::FontMap::Character> > m_characterBuffer;
+        wlo::Font fontMap;
+        std::vector<std::vector<wlo::Font::Glyph> > m_characterBuffer;
 
-        void insertChar(CursorPos, FontMap::Character);//inserts a character UNDERNEATH the cursor
+        void insertChar(CursorPos, Font::Glyph);//inserts a character UNDERNEATH the cursor
         void removeChar(CursorPos);// deletes a character UNDERNEATH the cursor
 
         CursorPos m_cursorPos;

@@ -170,6 +170,19 @@ namespace wlo::wk {
 
     }
 
+    vk::Format fromLayout(wlo::data::Type t) {
+       if(t==data::Type::of<Pixel4>())
+          return vk::Format::eR8G8B8A8Srgb;
+       else  if(t==data::Type::of<Pixel3>())
+           return vk::Format::eR8G8B8Srgb;
+       else  if(t==data::Type::of<Pixel2>())
+           return vk::Format::eR8G8Srgb;
+       else  if(t==data::Type::of<Pixel1>())
+           return vk::Format::eR8Srgb;
+       else
+           throw std::runtime_error("Unsupported image format, only supporting 8 bit Pixel data, 1-4 channel");
+    }
+
     DeviceImage VulkanMemoryManger::allocateImage(const wlo::data::Type &pixelLayout,
                                                   uint32_t width ,
                                                   uint32_t height,
@@ -181,15 +194,9 @@ namespace wlo::wk {
         imageExtent.width = width;
         imageExtent.depth = 1;
 
-        wlo::data::Type defaultLayout{"BitColor",{
-                {"r",wlo::data::Type::of<byte>()},
-                {"g",wlo::data::Type::of<byte>()},
-                {"b",wlo::data::Type::of<byte>()},
-                {"a",wlo::data::Type::of<byte>()}
-        }};
-        if(pixelLayout!=defaultLayout)
-            throw std::runtime_error("image format unsupported, currently only supporting rbga");
-        vk::Format image_format = vk::Format::eR8G8B8A8Srgb;
+       // if(pixelLayout!=data::Type::of<Pixel4>())
+        //    throw std::runtime_error("image format unsupported, currently only supporting rbga");
+        vk::Format image_format = fromLayout(pixelLayout);
 
         vk::ImageCreateInfo imageCreateInfo(vk::ImageCreateFlags(),vk::ImageType::e2D,image_format,imageExtent);
         imageCreateInfo.usage = usage;

@@ -56,4 +56,8 @@ endfunction()
 add_executable(CubeExample "CubeExample/CubeExample.cpp")
 WillowAddExample(CubeExample)
 
+add_executable(FontRendering "FontRendering/FontRenderer.cpp")
+WillowAddExample(FontRendering
+        )
+
 

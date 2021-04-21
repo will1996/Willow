@@ -13,7 +13,6 @@ namespace wlo {
         glm::vec4 color;
     };
 
-    using BitColor = glm::vec<4,byte>;
 
     struct Vertex2D{
         Vec2 position;
@@ -40,7 +39,11 @@ namespace wlo {
         Vec3 position;
         Vec2 TexCoord;
     };
-   
+
+    using Pixel1 = uint8_t;
+    using Pixel2 = glm::vec<2,uint8_t>;
+    using Pixel3 = glm::vec<3,uint8_t>;
+    using Pixel4 = glm::vec<4,uint8_t>;
 
 }
 
@@ -54,15 +57,6 @@ inline wlo::data::Type wlo::data::Type::of<wlo::Color>(){
     });
 }
 
-template<>
-inline wlo::data::Type wlo::data::Type::of<wlo::BitColor>(){
-    return wlo::data::Type("Color",{
-            {"r",wlo::data::Type::of<wlo::byte>()},
-            {"g",wlo::data::Type::of<wlo::byte>()},
-            {"b",wlo::data::Type::of<wlo::byte>()},
-            {"a",wlo::data::Type::of<wlo::byte>()}
-    });
-}
 template<>
 inline wlo::data::Type wlo::data::Type::of<wlo::Vertex2D>(){
     return wlo::data::Type("Vertex2D",{
@@ -93,7 +87,37 @@ inline wlo::data::Type wlo::data::Type::of<wlo::TexturedVertex3D>(){
     });
 }
 
+template<>
+inline wlo::data::Type wlo::data::Type::of<uint8_t>(){
+    return wlo::data::Type("uint8_t",sizeof(uint8_t) );
+}
 
+template<>
+inline wlo::data::Type wlo::data::Type::of<wlo::Pixel2>(){
+    return wlo::data::Type("Pixel2",{
+            {"r",wlo::data::Type::of<wlo::Pixel1>()},
+            {"g",wlo::data::Type::of<wlo::Pixel1>()},
+    });
+}
+
+template<>
+inline wlo::data::Type wlo::data::Type::of<wlo::Pixel3>(){
+    return wlo::data::Type("Pixel3",{
+            {"r",wlo::data::Type::of<wlo::Pixel1>()},
+            {"g",wlo::data::Type::of<wlo::Pixel1>()},
+            {"b",wlo::data::Type::of<wlo::Pixel1>()},
+    });
+}
+
+template<>
+inline wlo::data::Type wlo::data::Type::of<wlo::Pixel4>(){
+    return wlo::data::Type("Pixel4",{
+            {"r",wlo::data::Type::of<wlo::Pixel1>()},
+            {"g",wlo::data::Type::of<wlo::Pixel1>()},
+            {"b",wlo::data::Type::of<wlo::Pixel1>()},
+            {"a",wlo::data::Type::of<wlo::Pixel1>()},
+    });
+}
 inline    std::ostream& operator <<(std::ostream& os, const wlo::Vertex3D& vert){
     os<<"Vertex {\n"
       <<"Position: "<<glm::to_string(vert.position)<<"\n"

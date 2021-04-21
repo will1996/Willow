@@ -7,6 +7,7 @@
 #include "willow/rendering/PerspectiveCamera3D.hpp"
 #include <glm/glm.hpp>
 #include"willow/rendering/Scene.hpp"
+#include"willow/console/Font.hpp"
 namespace wlo ::rendering{
     class VulkanImplementation;
     struct GPUInfo{
@@ -32,8 +33,8 @@ namespace wlo ::rendering{
         ~Renderer();
         void checkIn();
         void setMainCamera(const PerspectiveCamera3D & );
-
         void preAllocateScene(SceneDescription description);
+        void loadTexture();
         void render(const Scene &);
         void prepare(const Frame &);//needed once before submitting any frame of this class. Frames that use the same input types, number of draw calls, renderpaths needn't be set up again.
         void submit(const Frame &);//upload data to the GPU, build submit command buffers for associated Draws, present

@@ -5,7 +5,7 @@
 #include "willow/console/ConsoleCore.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 namespace wlo {
-    ConsoleCore::ConsoleCore() {
+    ConsoleCore::ConsoleCore():fontMap("hello") {
         m_characterBuffer.resize(1);
     }
 
@@ -76,8 +76,8 @@ namespace wlo {
  //       vertexBuffer.insert(vertexBuffer.begin(), cursorVerts.begin(), cursorVerts.end());
         for (size_t row = 0; row < m_characterBuffer.size(); row++)
             for (size_t col = 0; col < m_characterBuffer[row].size(); col++) {
-                std::vector<wlo::Vertex3D> offsetCharVerts = offsetVerts(m_characterBuffer[row][col].verts, row, col);
-                vertexBuffer.insert(vertexBuffer.end(), offsetCharVerts.begin(), offsetCharVerts.end());
+                //std::vector<wlo::Vertex3D> offsetCharVerts = offsetVerts(m_characterBuffer[row][col].verts, row, col);
+              //  vertexBuffer.insert(vertexBuffer.end(), offsetCharVerts.begin(), offsetCharVerts.end());
             }
 
         return vertexBuffer;
@@ -110,11 +110,6 @@ namespace wlo {
         return outVerts;
     }
 
-    void ConsoleCore::insertChar(ConsoleCore::CursorPos pos, FontMap::Character c) {
-        if (pos.row >= m_characterBuffer.size())
-            m_characterBuffer.push_back(std::vector<FontMap::Character>());
-        m_characterBuffer[pos.row].insert(m_characterBuffer[pos.row].begin() + pos.col, c);
-    }
 
     void ConsoleCore::removeChar(ConsoleCore::CursorPos pos) {
         if (!(pos.col < numColsInRow()))

@@ -149,13 +149,14 @@ namespace wlo::lua{
         if(expected==data::Type::of<int>())
             return data::Value(lua::pop<int>(L));
         data::Value v(expected);
+        if(! lua_istable(L,-1))
+            throw std::invalid_argument("Attempted to pop a table, but top of Lua stack is other");
         for(auto [name,type,offset]:expected.getMembers()){
             lua_pushstring(L,name.c_str());
-            lua_gettable(L,1);
+            lua_gettable(L,-2);
             v[name] = pop(L,type);
         }
         lua_remove(L,-1);//pop the table
-        assert(isEmpty(L));
         return v;
     }
 

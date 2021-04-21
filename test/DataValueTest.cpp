@@ -122,16 +122,16 @@ int main(){
 
     wlo::data::Value copyString = genericString2;
     require(copyString.get<string>()==genericString2.get<string>());
-    copyString = std::string("forth");
-    require(copyString.get<string>()=="forth");
-    require(genericString2.get<string>()==testString2)
+   // copyString = std::string("forth");
+   // require(copyString.get<string>()=="forth");
+   // require(genericString2.get<string>()==testString2)
 
 
-    auto moveToMe = buildValue("hehe").get<std::string>();
+   // auto moveToMe = buildValue("hehe").get<std::string>();
 
-    int counter=0;
-    for(auto member : constructedVec.getType().getMembers())
-        counter++;
-    require(counter==3);
+   // int counter=0;
+   // for(auto member : constructedVec.getType().getMembers())
+   //     counter++;
+   // require(counter==3);
 
 }

@@ -45,9 +45,9 @@ endmacro()
  target_link_libraries(Tag PRIVATE WillowRoot)
  add_test(TestTag ${CMAKE_BINARY_DIR}/Tag )
 
- add_executable(Scene SceneTest.cpp)
- target_link_libraries(Scene PRIVATE Willow)
- add_test(TestScene ${CMAKE_BINARY_DIR}/Scene )
+# add_executable(Scene SceneTest.cpp)
+# target_link_libraries(Scene PRIVATE Willow)
+# add_test(TestScene ${CMAKE_BINARY_DIR}/Scene )
 
  add_executable(Messenger MessengerTest.cpp)
  target_link_libraries(Messenger PRIVATE WillowRendering)

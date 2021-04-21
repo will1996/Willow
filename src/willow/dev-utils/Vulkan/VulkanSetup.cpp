@@ -90,7 +90,9 @@ namespace wlo::wk{
             WILO_CORE_INFO(name)
 
        if(!debugging) {
-           vk::InstanceCreateInfo instanceCreateInfo( vk::InstanceCreateFlags(), &appInfo, validateRequestedLayers(layerNames), validateRequestedExtensions(extensionNames) );
+           auto validLayerNames = validateRequestedLayers(layerNames);
+           auto validExtensionNames = validateRequestedExtensions(extensionNames);
+           vk::InstanceCreateInfo instanceCreateInfo( vk::InstanceCreateFlags(), &appInfo, validLayerNames, validExtensionNames );
            auto instance = vk::createInstance(instanceCreateInfo );
            return instance;
 

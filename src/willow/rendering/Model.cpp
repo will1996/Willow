@@ -4,7 +4,7 @@
 
 #include "willow/rendering/Model.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
-#include<tiny_obj_loader.h>
+#include "willow/external/tiny_obj_loader.h"
 namespace wlo {
     template<>
     Mesh<TexturedVertex3D> Mesh<TexturedVertex3D>::fromFile(std::string filepath) {

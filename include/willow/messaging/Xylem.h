@@ -5,6 +5,7 @@
 #include<typeindex>
 #include<vector>
 #include<cassert>
+#include<stdexcept>
 class Xylem{
 public:
     typedef size_t ID;

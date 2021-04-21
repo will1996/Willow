@@ -3,6 +3,7 @@
 //
 
 #include"willow/rendering/Scene.hpp"
+#include"willow/rendering/Model.hpp"
 #include"willow/DefaultAssets.hpp"
 int main(){
     wlo::rendering::Material cowTexture{

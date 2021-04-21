@@ -52,7 +52,8 @@ add_dependencies(lua lua_build)
 set_property(TARGET lua PROPERTY IMPORTED_LOCATION  ${CMAKE_CURRENT_LIST_DIR}/lua-5.4.2/src/liblua.a)
 target_include_directories(lua INTERFACE ${CMAKE_CURRENT_LIST_DIR}/lua-5.4.2/src)
 
-
+add_library(glm::glm INTERFACE IMPORTED)
+target_include_directories(glm::glm INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
 
 

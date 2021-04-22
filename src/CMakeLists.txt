@@ -88,7 +88,7 @@ target_include_directories(WillowRoot PUBLIC
 
 target_sources(WillowRoot
         PUBLIC
-        ${PROJECT_SOURCE_DIR}/include/willow/input/InputManager.hpp>
+        ${PROJECT_SOURCE_DIR}/include/willow/input/InputManager.hpp
 
        ${PROJECT_SOURCE_DIR}/include/willow/root/Root.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/root/Logger.hpp

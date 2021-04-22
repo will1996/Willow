@@ -13,8 +13,7 @@ namespace wlo::wk {
                 {
                 }
 
-    void wlo::wk::VulkanTextureFactory::createTexture2D(std::string imageFile) {
-        Texture tex(imageFile);
+    void wlo::wk::VulkanTextureFactory::bindHostTexture(const wlo::Texture & tex ) {
 
         //allocate mapped memory for the memory transfer
        MappedBuffer stagingBuffer = m_memoryManager.allocateMappedBuffer(tex.texelFormat(),
@@ -32,18 +31,19 @@ namespace wlo::wk {
         viewInfo.subresourceRange.layerCount = 1;
         viewInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
         image.view = m_root.Device().createImageViewUnique(viewInfo);
-        m_textures.insert({imageFile, std::move(image)});
+        m_textures.insert({tex.id, std::move(image)});
+
 
     }
 
-    bool VulkanTextureFactory::textureCreated(std::string imageFile) {
-        return m_textures.contains(imageFile);
+    bool VulkanTextureFactory::textureCreated(wlo::ID_type texID) {
+        return m_textures.contains(texID);
     }
 
-    DeviceImage &VulkanTextureFactory::fetchTexture(std::string imageFile) {
-        if(!textureCreated(imageFile))
-            throw std::runtime_error("attempted to fetch texture: "+imageFile+"But this texture does not exist, you must first create the texture from the file");
-        return m_textures[imageFile];
+    DeviceImage &VulkanTextureFactory::fetchTexture(wlo::ID_type texID) {
+        if(!textureCreated(texID))
+            throw std::runtime_error("attempted to fetch texture: "+std::to_string(texID)+"But this texture does not exist, you must first create the texture from the file");
+        return m_textures[texID];
     }
 
 }

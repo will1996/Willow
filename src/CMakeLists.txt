@@ -97,6 +97,10 @@ target_sources(WillowRoot
        ${PROJECT_SOURCE_DIR}/include/willow/root/Tag.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/root/WiloConfig.h
        ${PROJECT_SOURCE_DIR}/include/willow/root/WiloConfig.h.in
+
+       ${PROJECT_SOURCE_DIR}/include/willow/Entity.hpp
+
+
        ${PROJECT_SOURCE_DIR}/include/willow/messaging/Messages.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/messaging/MessageSystem.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/messaging/Xylem.h
@@ -184,7 +188,6 @@ add_library(Willow STATIC EXCLUDE_FROM_ALL ../include/willow/DefaultAssets.hpp w
 set_property(TARGET Willow PROPERTY CXX_STANDARD_REQUIRED 20)
 target_link_libraries(Willow PUBLIC WillowRendering)
 target_include_directories(Willow PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/..
         ${CMAKE_CURRENT_LIST_DIR}/../include
         )
 set(WillowHeaders

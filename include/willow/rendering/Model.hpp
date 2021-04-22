@@ -22,10 +22,10 @@ struct Model:Tag{
 struct ModelView:Tag{
     View vertices;
     View indices;
-    Material  material;
+    const Material*  material;
 
     template<typename T>
-    explicit ModelView(Model<T> model):vertices(model.mesh.vertices),indices(model.mesh.indices),material(model.material){}
+    explicit ModelView(Model<T> model):vertices(model.mesh.vertices),indices(model.mesh.indices),material(&model.material){}
 
 };
 

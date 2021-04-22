@@ -33,7 +33,7 @@ namespace wlo::wk {
             return desc;
    }
 
-    vk::UniquePipelineLayout VulkanGraphicsPipelineFactory::createPipelineLayout(wlo::rendering::Material,
+    vk::UniquePipelineLayout VulkanGraphicsPipelineFactory::createPipelineLayout(const wlo::rendering::Material & ,
                                                                                  vk::UniqueDescriptorSetLayout &descriptorSetLayout,
                                                                                  wlo::data::Type pushLayout) {
 
@@ -59,7 +59,7 @@ namespace wlo::wk {
    }
 
     wlo::wk::GraphicsPipeline
-    wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(wlo::rendering::Material mat,vk::UniqueRenderPass & renderPass) {
+    wlo::wk::VulkanGraphicsPipelineFactory::buildGraphicsPipeline(const wlo::rendering::Material & mat,vk::UniqueRenderPass & renderPass) {
 
         VulkanShader vertexShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eVertex,mat.vertexShader);
         VulkanShader fragmentShader = m_shaderCompiler.ShaderFromBinary(vk::ShaderStageFlagBits::eFragment,mat.fragmentShader);
@@ -73,7 +73,7 @@ namespace wlo::wk {
         auto pipeline = createPipeline(mat,renderPass,pipelineLayout);
         return GraphicsPipeline{
            .id = mat.id,
-           .material = mat,
+           .texID =mat.texture.id,
            .vertexLayout = vertexLayout,
            .uniformBufferLayout = uniformLayout,
            .pushConstantLayout = pushLayout,
@@ -88,7 +88,7 @@ namespace wlo::wk {
 
 
     vk::UniquePipeline
-    VulkanGraphicsPipelineFactory::createPipeline(wlo::rendering::Material mat,
+    VulkanGraphicsPipelineFactory::createPipeline(const wlo::rendering::Material & mat ,
                                                   vk::UniqueRenderPass &  renderPass,
                                                   vk::UniquePipelineLayout & pipelineLayout) {
         VulkanShader & vertexShader = m_shaderCompiler.fetchShader(mat.vertexShader);
@@ -196,7 +196,7 @@ namespace wlo::wk {
         return pipeline;
     }
 
-    vk::UniqueDescriptorSetLayout VulkanGraphicsPipelineFactory::createDescriptorSetLayout(wlo::rendering::Material) {
+    vk::UniqueDescriptorSetLayout VulkanGraphicsPipelineFactory::createDescriptorSetLayout(const wlo::rendering::Material &) {
         vk::DescriptorSetLayoutBinding uniformBufferBinding(
                 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 

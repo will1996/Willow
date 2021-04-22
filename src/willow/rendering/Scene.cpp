@@ -19,7 +19,7 @@ namespace wlo::rendering{
     }
 
     SceneDescription Scene::getDescription() {
-        std::unordered_set<Material> materialSet;
+        std::unordered_set<const Material*> materialSet;
         std::unordered_map<wlo::data::Type,size_t> vertexCounts;
         size_t indexCount = 0;
         for(auto & object : m_objects){
@@ -30,8 +30,8 @@ namespace wlo::rendering{
         vector<std::pair<wlo::data::Type,size_t> > finalVertexCounts;
         for(auto pair : vertexCounts)
             finalVertexCounts.push_back(pair);
-        vector<Material > materials;
-        for(auto material : materialSet)
+        vector<const Material *> materials;
+        for(auto & material : materialSet)
             materials.push_back(material);
 
         return SceneDescription{

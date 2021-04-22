@@ -1,7 +1,7 @@
 //
 // Created by W on 12/5/20.
 //
-#include"include/willow/data/Type.hpp"
+#include"willow/data/Type.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
 #include<iostream>
 using namespace wlo;

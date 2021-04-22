@@ -7,7 +7,11 @@
 #include"willow/root/Root.hpp"
 #include"willow/rendering/RenderDataTypes.hpp"
 #include "willow/input/KeyCodes.hpp"
+#include"willow/rendering/Texture.hpp"
 #include<array>
+
+
+
 namespace wlo {
     class Font {
     public:
@@ -20,9 +24,11 @@ namespace wlo {
         };
 
         Font(std::string ttfFile);
+
         const Glyph & operator [](wlo::Key::Code)const;
     private:
         std::unordered_map<wlo::Key::Code, Glyph> m_fontAtlas;
+        Texture m_BitMap;
     };
 }
 

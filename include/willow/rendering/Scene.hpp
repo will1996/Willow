@@ -11,7 +11,7 @@
 namespace wlo::rendering {
     struct SceneDescription {
         std::vector<std::pair<wlo::data::Type,size_t > >vertexCounts;
-        std::vector<Material> materials;
+        std::vector<const Material*> materials;
         size_t totalIndexCount;
     };
 

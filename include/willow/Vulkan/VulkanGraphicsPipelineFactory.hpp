@@ -14,7 +14,7 @@
 namespace wlo::wk {
     struct GraphicsPipeline {
         wlo::ID_type id;
-        wlo::rendering::Material material;
+        wlo::ID_type texID;
         wlo::data::Type vertexLayout;
         wlo::data::Type uniformBufferLayout;
         wlo::data::Type pushConstantLayout;
@@ -25,13 +25,13 @@ namespace wlo::wk {
     class VulkanGraphicsPipelineFactory {
     public:
         VulkanGraphicsPipelineFactory(VulkanRoot & root,VulkanShaderCompiler & compiler,VulkanSwapchain &);
-        GraphicsPipeline buildGraphicsPipeline( wlo::rendering::Material,vk::UniqueRenderPass& renderPass);
+        GraphicsPipeline buildGraphicsPipeline( const wlo::rendering::Material & ,vk::UniqueRenderPass& renderPass);
     private:
-        vk::UniqueDescriptorSetLayout createDescriptorSetLayout(wlo::rendering::Material);
-        vk::UniquePipelineLayout createPipelineLayout(wlo::rendering::Material,
+        vk::UniqueDescriptorSetLayout createDescriptorSetLayout(const wlo::rendering::Material & );
+        vk::UniquePipelineLayout createPipelineLayout(const wlo::rendering::Material & ,
                                                       vk::UniqueDescriptorSetLayout &descriptorSetLayout,
                                                       wlo::data::Type pushLayout);
-        vk::UniquePipeline  createPipeline(wlo::rendering::Material,
+        vk::UniquePipeline  createPipeline(const wlo::rendering::Material & ,
                                                    vk::UniqueRenderPass &,
                                                    vk::UniquePipelineLayout & );
         VulkanRoot & m_root;

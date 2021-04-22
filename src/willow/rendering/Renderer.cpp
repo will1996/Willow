@@ -32,7 +32,7 @@ namespace wlo::rendering{
         vk::UniqueDescriptorPool  m_descriptorPool;
 
         vk::Queue m_presentQueue;
-        std::unordered_map<Material, wk::GraphicsPipeline > m_GraphicsPipelines;
+        std::unordered_map<wlo::ID_type, wk::GraphicsPipeline > m_GraphicsPipelines;
         std::map<wlo::ID_type, vk::UniqueDescriptorSet > m_DescriptorSets;
         std::map<wlo::ID_type, vk::UniqueSampler > m_textureSamplers;
 
@@ -151,9 +151,8 @@ namespace wlo::rendering{
 
         void buildTextures(const SceneDescription & desc){
                 for(auto & material : desc.materials){
-                        std::string texturePath = material.texture;
-                        if(!texturePath.empty()&&!m_textureFactory.textureCreated(texturePath)) {
-                            m_textureFactory.createTexture2D(texturePath);
+                        if(!m_textureFactory.textureCreated(material->texture.id)) {
+                            m_textureFactory.bindHostTexture(material->texture);
                         }
                 }
         }
@@ -174,9 +173,9 @@ namespace wlo::rendering{
 
 
         void buildGraphicsPipelines(const SceneDescription& desc) {
-            for (auto mat : desc.materials) {
-                    m_GraphicsPipelines[mat] = m_pipelineFactory.buildGraphicsPipeline(mat,m_defaultRenderPass);
-                    buildUniformBuffers(m_GraphicsPipelines[mat]);
+            for (auto &  mat : desc.materials) {
+                    m_GraphicsPipelines[mat->id] = m_pipelineFactory.buildGraphicsPipeline(*mat,m_defaultRenderPass);
+                    buildUniformBuffers(m_GraphicsPipelines[mat->id]);
             }
         }
 
@@ -200,22 +199,22 @@ namespace wlo::rendering{
         void buildUniformBuffers(const wk::GraphicsPipeline & pipeline )
         {
             WILO_CORE_INFO("built descriptor sets for material id {0}",pipeline.id);
-            m_UniformBuffers[pipeline.material.id].buffer = m_root.Device().createBufferUnique(
+            m_UniformBuffers[pipeline.id].buffer = m_root.Device().createBufferUnique(
                     vk::BufferCreateInfo{ vk::BufferCreateFlags(),sizeof(glm::mat4x4),vk::BufferUsageFlagBits::eUniformBuffer }
                 );
 
                 vk::MemoryRequirements uniformBufferMemRequirements = m_root.Device().getBufferMemoryRequirements(
-                        m_UniformBuffers[pipeline.material.id].buffer.get()
+                        m_UniformBuffers[pipeline.id].buffer.get()
                                             );
                 uint32_t memoryTypeIndex = m_root.findMemoryType(uniformBufferMemRequirements,
                                                                  vk::MemoryPropertyFlagBits::eHostVisible |
                                                                  vk::MemoryPropertyFlagBits::eHostCoherent);
 
-                m_UniformBuffers[pipeline.material.id].memory = m_root.Device().allocateMemoryUnique(
+                m_UniformBuffers[pipeline.id].memory = m_root.Device().allocateMemoryUnique(
                                 vk::MemoryAllocateInfo{ uniformBufferMemRequirements.size, memoryTypeIndex });
-                m_UniformBuffers[pipeline.material.id].writePoint = (
+                m_UniformBuffers[pipeline.id].writePoint = (
                         static_cast<byte*>(m_root.Device().mapMemory(
-                                m_UniformBuffers[pipeline.material.id].memory.get(),
+                                m_UniformBuffers[pipeline.id].memory.get(),
                                     0,
                                     uniformBufferMemRequirements.size)));
 
@@ -223,23 +222,23 @@ namespace wlo::rendering{
                 glm::mat4x4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
                 glm::mat4x4 mvpc = m_clipMatrix * projection * view;
 
-                memcpy(m_UniformBuffers[pipeline.material.id].writePoint, &mvpc, sizeof(mvpc));
-                m_root.Device().bindBufferMemory(m_UniformBuffers[pipeline.material.id].buffer.get(),
+                memcpy(m_UniformBuffers[pipeline.id].writePoint, &mvpc, sizeof(mvpc));
+                m_root.Device().bindBufferMemory(m_UniformBuffers[pipeline.id].buffer.get(),
                                                  m_UniformBuffers[pipeline.id].memory.get(), 0);
 
                 // allocate a descriptor set
                 std::array<vk::DescriptorSetLayout,1> vkDescriptorSetLayouts{pipeline.vkDescriptorSetLayout.get()};
-                m_DescriptorSets[pipeline.material.id] = std::move(
+                m_DescriptorSets[pipeline.id] = std::move(
                     m_root.Device().allocateDescriptorSetsUnique(vk::DescriptorSetAllocateInfo(*m_descriptorPool, vkDescriptorSetLayouts)).front());
 
 
                 //copy data from the uniform buffer into the descriptor so that it is accessible by the shaders
-                vk::DescriptorBufferInfo descriptorBufferInfo(m_UniformBuffers[pipeline.material.id].buffer.get(), 0, sizeof(glm::mat4x4));
+                vk::DescriptorBufferInfo descriptorBufferInfo(m_UniformBuffers[pipeline.id].buffer.get(), 0, sizeof(glm::mat4x4));
                 m_root.Device().updateDescriptorSets(
-                    vk::WriteDescriptorSet(*m_DescriptorSets[pipeline.material.id], 0, 0, vk::DescriptorType::eUniformBuffer, {}, descriptorBufferInfo),
+                    vk::WriteDescriptorSet(*m_DescriptorSets[pipeline.id], 0, 0, vk::DescriptorType::eUniformBuffer, {}, descriptorBufferInfo),
                     {});
 
-                m_textureSamplers[pipeline.material.id] =
+                m_textureSamplers[pipeline.id] =
                     m_root.Device().createSamplerUnique( vk::SamplerCreateInfo( vk::SamplerCreateFlags(),
                                                                         vk::Filter::eNearest,
                                                                         vk::Filter::eNearest,
@@ -255,7 +254,7 @@ namespace wlo::rendering{
                                                                         0.0f,
                                                                         0.0f,
                                                                         vk::BorderColor::eFloatOpaqueWhite ) );
-           auto & texture =  m_textureFactory.fetchTexture(pipeline.material.texture);
+           auto & texture =  m_textureFactory.fetchTexture(pipeline.texID);
            vk::DescriptorImageInfo samplerWrite(m_textureSamplers[pipeline.id].get(), texture.view.get());
            samplerWrite.imageLayout = texture.layout;
            m_root.Device().updateDescriptorSets(
@@ -305,7 +304,7 @@ namespace wlo::rendering{
             size_t vertexOffset = 0;
             size_t indexOffset = 0;
             for (const Draw& draw : frame.getDraws()) {
-            commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material].vkPipeline.get());
+            commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material.id].vkPipeline.get());
             commandBuffer->setViewport(0,
                 vk::Viewport(0.0f,
                     0.0f,
@@ -317,7 +316,7 @@ namespace wlo::rendering{
             commandBuffer->setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.getSwapSurfaceExtent()));
 
                 commandBuffer->bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material].vkPipelineLayout.get(), 0, *m_DescriptorSets[draw.material.id], nullptr);
+                    vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material.id].vkPipelineLayout.get(), 0, *m_DescriptorSets[draw.material.id], nullptr);
 
                 updateVertexBuffer(draw.vertices, vertexOffset);
                 updateIndexBuffer(draw.indices,indexOffset);
@@ -325,7 +324,7 @@ namespace wlo::rendering{
 
                 commandBuffer->bindVertexBuffers(0, *m_VertexBuffers[draw.vertices.layout].buffer, { vertexOffset });
                 commandBuffer->bindIndexBuffer(*m_IndexBuffer.buffer,indexOffset,vk::IndexType::eUint32);
-                commandBuffer->pushConstants(m_GraphicsPipelines[draw.material].vkPipelineLayout.get(), vk::ShaderStageFlagBits::eVertex, 0,sizeof(glm::mat4x4),&draw.modelMatrix);
+                commandBuffer->pushConstants(m_GraphicsPipelines[draw.material.id].vkPipelineLayout.get(), vk::ShaderStageFlagBits::eVertex, 0,sizeof(glm::mat4x4),&draw.modelMatrix);
                 commandBuffer->drawIndexed(draw.indices.count,1,0,0,0);
 
                 vertexOffset += draw.vertices.memSize;
@@ -423,11 +422,6 @@ namespace wlo::rendering{
     }
 
     void Renderer::drawScene(const Scene & scene) {
-       Frame nextFrame({});
-       for(const auto & object : scene.m_objects) {
-           nextFrame.m_draws.emplace_back(Draw(object.model, object.transform));
-       }
-       submit(nextFrame);
     }
 }
 

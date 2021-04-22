@@ -19,7 +19,7 @@ namespace wlo::rendering{
                const View vertices;
                const View indices;
                const glm::mat4x4 modelMatrix;
-               const Material material;
+               const Material & material;
 
                template<typename T>
                Draw(const Model<T> & model,glm::mat4x4 transform):
@@ -33,7 +33,7 @@ namespace wlo::rendering{
                vertices(model.vertices),
                indices(model.indices),
                modelMatrix(transform),
-               material(model.material)
+               material(*model.material)
                {
 
                }

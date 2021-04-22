@@ -7,20 +7,19 @@
 #include"willow/root/Root.hpp"
 #include"willow/data/View.hpp"
 namespace wlo{
-   class Texture{
+   class Texture:public Tag{
    public:
        Texture() = default;
         Texture(std::string loadFile);
         Texture(data::Type t, size_t x, size_t y = 1, size_t z = 1);
-
        void* data();
-       View view();
-       size_t size();
-       size_t width();
-       size_t height();
-       size_t depth();
+       View view() const;
+       size_t size()const ;
+       size_t width()const ;
+       size_t height()const ;
+       size_t depth()const ;
 
-       data::Type texelFormat();
+       data::Type texelFormat()const;
    private:
       struct AbstractStorage{
           virtual void free() = 0;

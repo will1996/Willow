@@ -17,6 +17,11 @@ int main(){
             .material = cowTexture
     };
 
+    
+
+    wlo::rendering::Scene::RenderObject obj;
+    
+    wlo::rendering::Sc
 
     wlo::rendering::Scene scene;
    auto cube0 =  scene.add(cube);
@@ -29,7 +34,7 @@ int main(){
         std::cout<<"lost pointer on scene object add"<<std::endl;
         return -1;
     }
-
+    
    cube1->transform = glm::rotate(glm::mat4x4{1},90.0f,{0,1,0});
 
     auto transforms = scene.getTransforms();
@@ -64,4 +69,6 @@ int main(){
         std::cout<<"vertex count is wrong, should have been 16, was: "<<sceneDescription.vertexCounts[0].second<<std::endl;
         return -1;
     }
+
+
 }

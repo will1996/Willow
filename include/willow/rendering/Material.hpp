@@ -3,18 +3,19 @@
 #include "willow/root/Root.hpp"
 #include "willow/root/Tag.hpp"
 #include "willow/root/FileSystem.hpp"
+#include "Texture.hpp"
 namespace wlo::rendering {
 
     struct Material : Tag {
         std::string vertexShader;
         std::string fragmentShader;
-        std::string texture;
+        Texture texture;
     };
 }
 inline bool operator==(const wlo::rendering::Material& lhs, const wlo::rendering::Material&rhs){
     return lhs.vertexShader==rhs.vertexShader
            && lhs.fragmentShader==rhs.fragmentShader
-           && lhs.texture==rhs.texture
+           && lhs.texture.id==rhs.texture.id
             ;
 }
 
@@ -22,7 +23,7 @@ inline std::ostream& operator<<(std::ostream & o, const wlo::rendering::Material
     o<<"Material: id "<<material.id<<std::endl;
     o<<"\tVertexShader: "<<material.vertexShader<<std::endl;
     o<<"\tFragmentShader: "<<material.fragmentShader<<std::endl;
-    o<<"\tTexture: "<<material.texture<<std::endl;
+    o<<"\tTexture ID: "<<material.texture.id<<std::endl;
     return o;
 }
 
@@ -35,7 +36,7 @@ namespace std{
         {
             return lhs.vertexShader==rhs.vertexShader
             && lhs.fragmentShader==rhs.fragmentShader
-            && lhs.texture==rhs.texture
+            && lhs.texture.id==rhs.texture.id
             ;
         }
     };
@@ -54,7 +55,7 @@ namespace std{
             // and bit shifting:
             return hash<string>()(mat.vertexShader)
                     ^ ((hash<string>()(mat.fragmentShader)>>1)<<1)
-                        ^ ((hash<string>()(mat.texture)>>2)<<2);
+                        ^ ((hash<size_t>()(mat.texture.id)>>2)<<2);
         }
     };
 

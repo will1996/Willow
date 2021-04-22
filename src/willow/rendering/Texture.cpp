@@ -73,7 +73,7 @@ namespace wlo{
             throw std::runtime_error("Unsupported Pixel Format! for "+t.name());
     }
 
-    View Texture::view(){
+    View Texture::view()const {
         return m_storage->view();
     }
 
@@ -81,25 +81,25 @@ namespace wlo{
         return m_storage->data();
     }
 
-    data::Type Texture::texelFormat() {
+    data::Type Texture::texelFormat() const{
         return m_storage->view().layout;
     }
 
-    size_t Texture::size() {
+    size_t Texture::size() const{
         return m_storage->size();
     }
 
-    size_t Texture::width() {
+    size_t Texture::width() const{
         return m_width;
     }
 
-    size_t Texture::height() {
+    size_t Texture::height() const{
         return m_height;
     }
 
-    size_t Texture::depth() {
+    size_t Texture::depth() const{
         return m_depth;
     }
-
+   
 
 }

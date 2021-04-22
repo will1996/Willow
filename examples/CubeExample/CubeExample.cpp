@@ -19,24 +19,22 @@ private:
         bool pressedRotateLeft;
         bool pressedRotateRight;
     }inputHandler;
-    wlo::rendering::Material cowTexture{
+    wlo::rendering::Model<wlo::TexturedVertex3D> cube{
+            .mesh = wlo::assets::DefaultCube(),
+            .material = {
             .vertexShader= wlo::FileSystem::Assets().append("Shaders").append("shader.vert.spv").string(),
             .fragmentShader=  wlo::FileSystem::Assets().append("Shaders").append("shader.frag.spv").string(),
             .texture = wlo::FileSystem::Assets().append("Textures").append("cow.bmp").string()
-    };
-    wlo::rendering::Material kitTexture{
-            .vertexShader= wlo::FileSystem::Shaders().append("shader.vert.spv").string(),
-            .fragmentShader=  wlo::FileSystem::Shaders().append("shader.frag.spv").string(),
-            .texture = wlo::FileSystem::Textures().append("kit.jpeg").string()
-    };
-    wlo::rendering::Model<wlo::TexturedVertex3D> cube{
-            .mesh = wlo::assets::DefaultCube(),
-            .material = cowTexture
+                }
     };
 
     wlo::rendering::Model<wlo::TexturedVertex3D> kitCube{
         .mesh = wlo::assets::DefaultCube(),
-        .material = kitTexture
+        .material = {
+            .vertexShader= wlo::FileSystem::Shaders().append("shader.vert.spv").string(),
+            .fragmentShader=  wlo::FileSystem::Shaders().append("shader.frag.spv").string(),
+            .texture = wlo::FileSystem::Textures().append("kit.jpeg").string()
+            }
     };
 
     wlo::PerspectiveCamera3D camera;
@@ -129,7 +127,7 @@ public:
         using namespace wlo::rendering;
         m_renderer.preAllocateScene({
            .vertexCounts = {{wlo::data::Type::of<wlo::TexturedVertex3D>(),16}} ,
-           .materials = {cube.material,kitCube.material},
+           .materials = {&cube.material,&kitCube.material},
           .totalIndexCount = 72
         });
 

@@ -7,18 +7,19 @@
 
 #include"willow/Vulkan/VulkanRoot.hpp"
 #include "willow/Vulkan/VulkanMemoryManager.hpp"
+#include "willow/rendering/Texture.hpp"
 namespace wlo::wk {
     class VulkanTextureFactory {
     public:
         VulkanTextureFactory(VulkanRoot& root, VulkanMemoryManger & memoryManger);
-        void createTexture2D(std::string imageFile);
-        bool textureCreated(std::string imageFile);
-        DeviceImage & fetchTexture(std::string imageFile);
+        void bindHostTexture(const Texture& texture);
+        bool textureCreated(wlo::ID_type);
+        DeviceImage & fetchTexture(wlo::ID_type);
     private:
 
         VulkanRoot& m_root;
         VulkanMemoryManger& m_memoryManager;
-        std::unordered_map<std::string,DeviceImage> m_textures;
+        std::unordered_map<wlo::ID_type,DeviceImage> m_textures;
 
     };
 }

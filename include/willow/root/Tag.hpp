@@ -11,6 +11,7 @@ struct Tag {
     wlo::ID_type id;
     Tag() : id(counter++) {}
     Tag(ID_type _id):id(_id){}
+    Tag(const Tag& other) :id(other.id) {}
 };
 }
 #endif //WILLOW_TAG_HPP

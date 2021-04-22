@@ -3,18 +3,13 @@ cmake_minimum_required(VERSION 3.16)
 include(ExternalProject)
 include(FetchContent)
 
+include(GNUInstallDirs)
+
 find_package(Vulkan REQUIRED)
 Set(FETCHCONTENT_QUIET FALSE)
 #Declare all external dependnecies, pull them from github if they aren't already 
 
 
-#FetchContent_Declare(glm_remote
-#        GIT_REPOSITORY https://github.com/g-truc/glm.git
-#        GIT_TAG bf71a834948186f4097caa076cd2663c69a10e1e
-#        GIT_PROGRESS TRUE
-    #    COMPILE_FLAGS -Wno-deprecated-volatile
-        #SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/glm
-#        )
 
 FetchContent_Declare(spdlog_remote
         GIT_REPOSITORY https://github.com/gabime/spdlog.git 
@@ -53,7 +48,10 @@ set_property(TARGET lua PROPERTY IMPORTED_LOCATION  ${CMAKE_CURRENT_LIST_DIR}/lu
 target_include_directories(lua INTERFACE ${CMAKE_CURRENT_LIST_DIR}/lua-5.4.2/src)
 
 add_library(glm::glm INTERFACE IMPORTED)
-target_include_directories(glm::glm INTERFACE ${CMAKE_CURRENT_LIST_DIR})
+target_include_directories(glm::glm INTERFACE 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/willow/external>
+)
 
 
 

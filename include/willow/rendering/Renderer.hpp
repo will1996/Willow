@@ -2,22 +2,23 @@
 #include "willow/messaging/MessageSystem.hpp"
 #include <array>
 #include"RenderDataTypes.hpp"
-#include"Frame.hpp"
 #include"willow/data/Type.hpp"
 #include "willow/rendering/PerspectiveCamera3D.hpp"
 #include <glm/glm.hpp>
 #include"willow/rendering/Scene.hpp"
 #include"willow/console/Font.hpp"
-namespace wlo ::rendering{
+#include"willow/root/EngineComponent.hpp"
+namespace wlo::rendering {
     class VulkanImplementation;
-    struct GPUInfo{
-       size_t totalMemoryUsage; 
-       size_t totalMemoryAvailable;
+    struct GPUInfo {
+        size_t totalMemoryUsage;
+        size_t totalMemoryAvailable;
     };
 
 
 
-    class Renderer : wlo::MessageSystem::Observer{
+    class Renderer : public EngineComponentInstance<Renderer>{
+
     public:
         struct Statistics{
             size_t frameCount; 
@@ -28,24 +29,23 @@ namespace wlo ::rendering{
             DebuggingTools,
         };
 
-        Renderer(Window&,
+        Renderer(ScriptEnvironment &, Window&,
                 std::initializer_list<Features> features = {});
         ~Renderer();
         void checkIn();
         void setMainCamera(const PerspectiveCamera3D & );
         void preAllocateScene(SceneDescription description);
-        void loadTexture();
+
         void render(const Scene &);
-        void prepare(const Frame &);//needed once before submitting any frame of this class. Frames that use the same input types, number of draw calls, renderpaths needn't be set up again.
-        void submit(const Frame &);//upload data to the GPU, build submit command buffers for associated Draws, present
 
         void setClearColor(wlo::Color);
-        wlo::MessageSystem::Subject & asSubject();
         const Statistics & getStats();
 
     private:
+        void rBeginRender();
+        void nRenderComplete();
+
         void drawScene(const Scene & );
-        wlo::MessageSystem::Subject m_subject;
         wlo::UniquePointer<VulkanImplementation> pImpl;
 
     };

@@ -6,7 +6,8 @@
 #define WILLOW_SCENE_HPP
 #include"willow/data/Type.hpp"
 #include "willow/root/Root.hpp"
-#include "willow/rendering/Model.hpp"
+#include"willow/rendering/Material.hpp"
+#include"willow/rendering/Mesh.hpp"
 #include<list>
 namespace wlo::rendering {
     struct SceneDescription {
@@ -15,21 +16,23 @@ namespace wlo::rendering {
         size_t totalIndexCount;
     };
 
-    struct RenderObject:Tag{
-        ModelView model;
+    struct RenderObject{
+        const Mesh& mesh ;
+        const Material& material;
         glm::mat4 transform = glm::mat4x4{1};
     };
 
 class Scene{
    public:
       Scene() = default;
+      Scene(std::vector<RenderObject> renderObjects);
       SceneDescription getDescription();
 
-      template<typename T>
-      RenderObject* add(const Model<T> & model,glm::mat4x4 transform = glm::mat4x4{1}){
-          m_objects.emplace_back(RenderObject{.model = ModelView(model),.transform = transform});
-        return &m_objects.back();
+      Scene& add(const Mesh & mesh,const Material & material,glm::mat4x4 transform = glm::mat4x4{1}){
+          m_objects.emplace_back(RenderObject{.mesh = mesh,.material = material,.transform = transform});
+        return *this;
       }
+
     std::vector<glm::mat4> & getTransforms();
     const std::vector<RenderObject> & getObjects();
    private:

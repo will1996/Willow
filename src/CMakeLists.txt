@@ -85,6 +85,8 @@ target_include_directories(WillowRoot PUBLIC
        ${PROJECT_SOURCE_DIR}/include
         )
 
+        message("WillowRoot include dirs ${PROJECT_SOURCE_DIR}/include")
+
 
 target_sources(WillowRoot
         PUBLIC
@@ -97,6 +99,8 @@ target_sources(WillowRoot
        ${PROJECT_SOURCE_DIR}/include/willow/root/Tag.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/root/WiloConfig.h
        ${PROJECT_SOURCE_DIR}/include/willow/root/WiloConfig.h.in
+       ${PROJECT_SOURCE_DIR}/include/willow/root/EngineComponent.hpp
+       ${PROJECT_SOURCE_DIR}/include/willow/Assets.hpp
 
        ${PROJECT_SOURCE_DIR}/include/willow/Entity.hpp
 
@@ -114,6 +118,8 @@ target_sources(WillowRoot
        ${PROJECT_SOURCE_DIR}/include/willow/data/View.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/data/Value.hpp
 
+        willow/Assets.cpp
+        willow/Game.cpp
         PRIVATE
         willow/root/Type.cpp
         willow/root/Value.cpp
@@ -125,13 +131,13 @@ target_sources(WillowRoot
         willow/messaging/messages.cpp
         willow/scripting/LuaEnvironment.cpp
         willow/scripting/LuaCommunication.cpp
-        )
+         )
 
 
 install(TARGETS spdlog EXPORT Willow DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(TARGETS WillowRoot EXPORT Willow DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-add_library(WillowRendering STATIC EXCLUDE_FROM_ALL ../include/willow/rendering/Mesh.hpp)
+add_library(WillowRendering STATIC EXCLUDE_FROM_ALL ../include/willow/rendering/Mesh.hpp )
 target_link_libraries(WillowRendering PUBLIC WillowRoot)
 target_link_libraries(WillowRendering PUBLIC glfw)
 target_link_libraries(WillowRendering PUBLIC Vulkan::Vulkan)
@@ -149,10 +155,8 @@ target_sources(WillowRendering
          ${PROJECT_SOURCE_DIR}/include/willow/window/Window.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Renderer.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/RenderDataTypes.hpp
-         ${PROJECT_SOURCE_DIR}/include/willow/rendering/Frame.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Geometry.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Buffer.hpp
-         ${PROJECT_SOURCE_DIR}/include/willow/rendering/Model.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Material.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/Vulkan/VulkanSetup.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/Vulkan/VulkanSwapchain.hpp
@@ -170,7 +174,6 @@ target_sources(WillowRendering
             willow/rendering/Scene.cpp
             willow/rendering/Texture.cpp
             willow/window/GLFWWindow.cpp
-            willow/rendering/Model.cpp
             willow/rendering/Renderer.cpp
             willow/rendering/PerspectiveCamera3D.cpp
             willow/dev-utils/Vulkan/VulkanSetup.cpp
@@ -183,7 +186,7 @@ target_sources(WillowRendering
             willow/Vulkan/VulkanCommandInterface.cpp
         )
 
-add_library(Willow STATIC EXCLUDE_FROM_ALL ../include/willow/DefaultAssets.hpp willow/DefaultAssets.cpp)
+add_library(Willow STATIC EXCLUDE_FROM_ALL ../include/willow/DefaultAssets.hpp willow/DefaultAssets.cpp )
 
 set_property(TARGET Willow PROPERTY CXX_STANDARD_REQUIRED 20)
 target_link_libraries(Willow PUBLIC WillowRendering)

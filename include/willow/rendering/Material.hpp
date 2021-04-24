@@ -9,7 +9,7 @@ namespace wlo::rendering {
     struct Material : Tag {
         std::string vertexShader;
         std::string fragmentShader;
-        Texture texture;
+        Texture& texture;
     };
 }
 inline bool operator==(const wlo::rendering::Material& lhs, const wlo::rendering::Material&rhs){

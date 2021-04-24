@@ -10,6 +10,16 @@
 #include "willow/Vulkan/VulkanSetup.hpp"
 #include <GLFW/glfw3.h>
 namespace wlo::rendering{
+
+
+    struct Draw{
+        View vertices;
+        View indices;
+        wlo::Mat4 modelMatrix;
+        const Material& material;
+    };
+
+
     class VulkanImplementation :public wlo::MessageSystem::Observer{
     public:
         Renderer::Statistics statistics;
@@ -279,7 +289,7 @@ namespace wlo::rendering{
         }
 
 
-        void submit(const Frame& frame) {
+        void submit(std::vector<Draw> draws) {
             auto currentTime = std::chrono::high_resolution_clock::now();
             // Get the index of the next available swapchain image:
             vk::UniqueSemaphore       imageAcquiredSemaphore = m_root.Device().createSemaphoreUnique(vk::SemaphoreCreateInfo());
@@ -303,7 +313,7 @@ namespace wlo::rendering{
 
             size_t vertexOffset = 0;
             size_t indexOffset = 0;
-            for (const Draw& draw : frame.getDraws()) {
+            for (const Draw& draw : draws) {
             commandBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipelines[draw.material.id].vkPipeline.get());
             commandBuffer->setViewport(0,
                 vk::Viewport(0.0f,
@@ -372,7 +382,7 @@ namespace wlo::rendering{
 //RENDERER
 
 
-   Renderer::Renderer(Window& window,std::initializer_list<Features> Features){
+   Renderer::Renderer(ScriptEnvironment & env,Window& window,std::initializer_list<Features> Features): EngineComponentInstance<Renderer>("Renderer",this,env){
        wlo::logr::initalize();
        pImpl=wlo::CreateUniquePointer<VulkanImplementation>(Features,window);
    }
@@ -382,46 +392,37 @@ namespace wlo::rendering{
         WILO_CORE_INFO("Renderer deconstructed");
     }
 
-    void Renderer::prepare(const Frame &) {
-    }
 
     void Renderer::setMainCamera(const PerspectiveCamera3D & camera){
         pImpl->camera = &camera;                    
     }
 
-    void Renderer::submit(const Frame & frame) {
-        if(pImpl->camera==nullptr)
-            throw std::runtime_error("main camera not set! call setMainCamera");
-        pImpl->submit(frame);
-    }
 
     void Renderer::setClearColor(wlo::Color color) {
        pImpl->nextClearColor = color.color;
     }
 
-    wlo::MessageSystem::Subject & Renderer::asSubject(){
-       return m_subject; 
-    }
 
     const Renderer::Statistics & Renderer::getStats(){
         return pImpl->statistics;
     }
 
-    void Renderer::checkIn(){
-        GPUInfo  info = pImpl->getGPUInfo();
-        m_subject.notify(info);
-
-    }
 
     void Renderer::preAllocateScene(SceneDescription description) {
        pImpl->prepare(description);
     }
 
     void Renderer::render(const Scene & scene) {
-       drawScene(scene);
+
+        std::vector<Draw> draws; draws.reserve(scene.m_objects.size());
+        for (auto& renderObj : scene.m_objects) {
+
+            draws.push_back(Draw{ .vertices = renderObj.mesh.vertexView(),.indices = renderObj.mesh.indexView(),.modelMatrix = renderObj.transform, .material = renderObj.material });
+        }
+
+
+        pImpl->submit(draws);
     }
 
-    void Renderer::drawScene(const Scene & scene) {
-    }
 }
 

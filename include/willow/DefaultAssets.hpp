@@ -6,7 +6,7 @@
 #define WILLOW_DEFAULTASSETS_HPP
 #include "willow/rendering/Mesh.hpp"
 namespace wlo::assets{
-   Mesh<wlo::TexturedVertex3D> DefaultCube();
+   Mesh DefaultCube();
 
 
 }

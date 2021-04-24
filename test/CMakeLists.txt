@@ -61,3 +61,9 @@ endmacro()
  addTest(LuaDataTest LuaDataTest.cpp WillowRoot)
  addTest(DataVaueTest DataValueTest.cpp WillowRoot)
  addTest(DataTypeTest DataTypeTest.cpp WillowRoot)
+
+ addTest(MeshTest MeshTest.cpp WillowRendering)
+
+
+
+ addTest(AssetsTest AssetsTest.cpp Willow)

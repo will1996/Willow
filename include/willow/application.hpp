@@ -9,6 +9,7 @@
 #include "willow/scripting/LuaEnvironment.hpp"
 #include"willow/input/InputManager.hpp"
 #include"willow/rendering/PerspectiveCamera3D.hpp"
+#include "willow/Assets.hpp"
 namespace wlo{
     /*
     Application is the entry-point to the game engine. Anything extending Application has access to
@@ -47,6 +48,8 @@ class Application: public MessageSystem::Observer{
             Window m_mainWindow;
 
             ScriptEnvironment m_scriptEnv;
+            Assets m_assets;
+
             InputManager m_input;
             rendering::Renderer m_renderer;
             PerspectiveCamera3D m_mainCamera;

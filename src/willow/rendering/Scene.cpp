@@ -23,9 +23,9 @@ namespace wlo::rendering{
         std::unordered_map<wlo::data::Type,size_t> vertexCounts;
         size_t indexCount = 0;
         for(auto & object : m_objects){
-            materialSet.insert(object.model.material);
-            vertexCounts[object.model.vertices.layout]+=object.model.vertices.count;
-            indexCount+=object.model.indices.count;
+            materialSet.insert(&object.material);
+            vertexCounts[object.mesh.vertexView().layout]+=object.mesh.vertexView().count;
+            indexCount+=object.mesh.indexView().count;
         }
         vector<std::pair<wlo::data::Type,size_t> > finalVertexCounts;
         for(auto pair : vertexCounts)

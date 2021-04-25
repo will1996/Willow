@@ -6,10 +6,10 @@ namespace wlo {
 
 	Mesh buildQuad(){
 		std::vector<wlo::TexturedVertex3D> verts = {
-			{{0,0,0},{0,0}},
-			{{1,0,0},{1,0}},
-			{{1,1,0},{1,1}},
-			{{0,1,0},{0,1}},
+			{{-.5,-.5,0},{0,0}},
+			{{.5,-.5,0},{1,0}},
+			{{.5,.5,0},{1,1}},
+			{{-.5,.5,0},{0,1}},
 		};
 		std::vector<wlo::Index> inds = {
 			0,1,2,
@@ -17,6 +17,21 @@ namespace wlo {
 		};
 		return Mesh(verts, inds);
 	}
+
+    Mesh buildQuad(std::vector<wlo::Vec2> customTexCoords){
+	    assert(customTexCoords.size()==4);
+        std::vector<wlo::TexturedVertex3D> verts = {
+                {{-.5,-.5,0},customTexCoords[0]},
+                {{.5,-.5,0},customTexCoords[1]},
+                {{.5,.5,0},customTexCoords[2]},
+                {{-.5,.5,0},customTexCoords[3]},
+        };
+        std::vector<wlo::Index> inds = {
+                0,1,2,
+                2,3,0
+        };
+        return Mesh(verts, inds);
+    }
 
 	Mesh buildCube(){
     std::vector < wlo::TexturedVertex3D> vertices = {
@@ -147,8 +162,12 @@ MeshHandle	Assets::loadMesh(std::string path) {
 		return takeMesh(buildCube());
 	}
 
+    Assets::Handle<Mesh> Assets::TexturedQuad(std::vector<wlo::Vec2> customTextureCoords) {
+	    return takeMesh(buildQuad(customTextureCoords));
+    }
 
-	template<>
+
+    template<>
 		Mesh &Assets::Handle<Mesh>::get(){
 			return assets->fetchMesh(id);
 			}

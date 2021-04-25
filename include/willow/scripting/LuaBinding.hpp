@@ -17,6 +17,18 @@ namespace wlo{
             LuaBinding(std::string name, T* instance_ptr, wlo::ScriptEnvironment& env): m_env(env), m_name(name), m_instancePtr(instance_ptr){
                 LT_instantiate();
             }
+            template< void(T::* Method)()>
+            //add the member function in the template to this Luatable with the name "name"
+            void Register(std::string name) {
+                lua_getglobal(m_env.getL(), m_name.c_str());//retrieve the class table from the global namespace
+
+                lua_pushstring(m_env.getL(), name.c_str());//push a key value pair of the string name
+                lua_pushcclosure(m_env.getL(), call <Method>,0);//and the function call<Method>
+
+                lua_settable(m_env.getL(), -3);//push the pair into the table
+
+                lua_setglobal(m_env.getL(), m_name.c_str());//update the global variable with the new entries
+            }
 
             template< typename A,void(T::* Method)(A)>
             //add the member function in the template to this Luatable with the name "name"
@@ -85,6 +97,16 @@ namespace wlo{
         //invoke the template method on the 'this' pointer, calling a non-static member function
 
 
+            template<auto Method>
+            static int call(lua_State* L){
+                lua_pushstring(L,"instancePtr");
+                lua_gettable(L,1);
+                T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
+                lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
+                lua_remove(L, 1);//get rid of the call table, while preserving arguments
+                (this_ptr->*Method)();
+                return 0;
+            }
 
             template<auto Method, typename A >
         static int call(lua_State* L){

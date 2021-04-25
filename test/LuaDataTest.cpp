@@ -22,6 +22,9 @@ class LuaTester{
    }
 
 private:
+    void CallMe(){
+        cout<<"you called a no arg function!"<<endl;
+   }
     void CallMe(Vec3 i){
        cout<<"you called with value "<<glm::to_string(i)<<endl;
    }

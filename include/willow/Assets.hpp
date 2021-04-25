@@ -19,6 +19,7 @@ namespace wlo {
 		};
 		
 		Handle<Mesh> TexturedQuad();
+        Handle<Mesh> TexturedQuad(std::vector<wlo::Vec2> customTextureCoords);
 		Handle<Mesh> TexturedCube();
 			
 				

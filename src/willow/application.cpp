@@ -8,7 +8,7 @@
 namespace wlo{
  Application::Application(Application::Info info,std::string argv_0)
  :
- m_mainWindow({.m_height = 500,.m_width = 500, .m_title = info.appName,.API = wlo::WindowingAPICode::GLFW,}),
+ m_mainWindow({.m_height = uint32_t(info.windowDimensions.y),.m_width = uint32_t(info.windowDimensions.x), .m_title = info.appName,.API = wlo::WindowingAPICode::GLFW,}),
 m_assets(m_scriptEnv),
  m_mainCamera(m_mainWindow),
  m_renderer(m_scriptEnv,m_mainWindow,{}),

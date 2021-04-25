@@ -12,11 +12,19 @@ namespace wlo {
 			wlo::ID_type id;
 			T& get();
 			Handle(wlo::ID_type ID, Assets* pAssets):id(ID),assets(pAssets){}
+			Handle():id(0),assets(nullptr){
+			}
 		private:
 			Assets* assets;
 		};
 		
-
+		Handle<Mesh> TexturedQuad();
+		Handle<Mesh> TexturedCube();
+			
+				
+		
+		
+	
 
 		Assets(wlo::ScriptEnvironment& env);
 
@@ -24,6 +32,8 @@ namespace wlo {
 		Texture& fetchTexture(wlo::ID_type);
 
 		Handle<Mesh> loadMesh(std::string path);
+		Handle<Mesh> takeMesh(Mesh && mesh);
+
 		Mesh& fetchMesh(wlo::ID_type);
 		
 		Handle<rendering::Material> loadMaterial(wlo::ID_type textureID,
@@ -42,6 +52,7 @@ namespace wlo {
 		std::unordered_map<wlo::ID_type, Texture*> m_textureLookup;
 		std::unordered_map<wlo::ID_type, Mesh*> m_meshLookup;
 		std::unordered_map<wlo::ID_type, rendering::Material*> m_materialLookup;
+
 	};
 
 		using TextureHandle = Assets::Handle<Texture>;

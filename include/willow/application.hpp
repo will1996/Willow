@@ -23,9 +23,9 @@ class Application: public MessageSystem::Observer{
 
             struct Info{
             std::string appName;    
-            bool debugging;
-            int appVersion;
-            Info(std::string name, int version) :appName(name),appVersion(version){}
+            int appVersion = 0;
+            bool debugging = true;
+            wlo::Vec2 windowDimensions = {500,500};
             };
 
             Application(Info,std::string argv_0);//Application must recieve argv[0] in its constructor, it uses this path to

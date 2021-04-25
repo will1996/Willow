@@ -3,9 +3,71 @@
 #include "willow/external/tiny_obj_loader.h"
 
 namespace wlo {
+
+	Mesh buildQuad(){
+		std::vector<wlo::TexturedVertex3D> verts = {
+			{{0,0,0},{0,0}},
+			{{1,0,0},{1,0}},
+			{{1,1,0},{1,1}},
+			{{0,1,0},{0,1}},
+		};
+		std::vector<wlo::Index> inds = {
+			0,1,2,
+			2,3,0
+		};
+		return Mesh(verts, inds);
+	}
+
+	Mesh buildCube(){
+    std::vector < wlo::TexturedVertex3D> vertices = {
+    
+               { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
+               { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
+               { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
+               { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
+
+               { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
+               { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
+               { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
+               { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
+    };
+
+    std::vector<wlo::Index> indices = {
+        // front
+        0, 1, 2,
+        2, 3, 0,
+        // right
+        1, 5, 6,
+        6, 2, 1,
+        // back
+        7, 6, 5,
+        5, 4, 7,
+        // left
+        4, 0, 3,
+        3, 7, 4,
+        // bottom
+        4, 5, 1,
+        1, 0, 4,
+        // top
+        3, 2, 6,
+        6, 7, 3
+
+
+    };
+
+
+    return wlo::Mesh(vertices, indices);
+
+	}
+
+
 	Assets::Assets(wlo::ScriptEnvironment& env):EngineComponentInstance<Assets>("Assets",this,env)
 	{
+
+
+
 	}
+
 	TextureHandle Assets::loadTexture(std::string path)
 	{
 		m_textures.push_back(Texture(path));
@@ -55,6 +117,14 @@ MeshHandle	Assets::loadMesh(std::string path) {
 		return *m_meshLookup.at(id);
 	}
 
+	MeshHandle Assets::takeMesh(Mesh&& mesh)
+	{
+		m_meshes.push_back(std::move(mesh));
+		m_meshLookup[m_meshes.back().id] = &m_meshes.back();
+		return MeshHandle( m_meshes.back().id,this);
+	}
+
+
 	MaterialHandle Assets::loadMaterial(wlo::ID_type textureID, std::string vertexShaderPath, std::string fragmentShaderPath)
 	{
 		m_materials.push_back(rendering::Material{ .vertexShader = vertexShaderPath,.fragmentShader = fragmentShaderPath, .texture = fetchTexture(textureID) });
@@ -65,6 +135,16 @@ MeshHandle	Assets::loadMesh(std::string path) {
 	rendering::Material& Assets::fetchMaterial(wlo::ID_type id)
 	{
 		return *m_materialLookup.at(id);
+	}
+
+	MeshHandle Assets::TexturedQuad()
+	{
+		return takeMesh(buildQuad());
+	}
+	
+	MeshHandle Assets::TexturedCube()
+	{
+		return takeMesh(buildCube());
 	}
 
 

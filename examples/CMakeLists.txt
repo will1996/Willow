@@ -57,7 +57,10 @@ add_executable(CubeExample "CubeExample/CubeExample.cpp")
 WillowAddExample(CubeExample)
 
 add_executable(FontRendering "FontRendering/FontRenderer.cpp")
-WillowAddExample(FontRendering
-        )
+WillowAddExample(FontRendering )
+
+
+add_executable(AsteroidsExample "AsteroidsExample/AsteroidsExample.cpp")
+WillowAddExample(AsteroidsExample)
 
 

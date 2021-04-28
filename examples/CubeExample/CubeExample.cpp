@@ -24,7 +24,7 @@ private:
 
 public:
     CubeExample(std::string argv_0) :
-        Application(Application::Info("Cube example", 1), argv_0),
+        Application(Application::Info{.appName = "Cube example", .appVersion = 1,.debugging = true,.windowDimensions = {600,800}}, argv_0),
         camera(m_mainWindow),
         cowTexture(m_assets.loadTexture(wlo::FileSystem::Texture("cow.bmp").string())),
         cowMaterial(m_assets.loadMaterial(cowTexture.id, wlo::FileSystem::Shader("shader.vert").string(), wlo::FileSystem::Shader("shader.frag").string())),

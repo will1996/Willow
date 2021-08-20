@@ -13,7 +13,7 @@ namespace wlo {
         
     public:
         template<typename T>
-        Mesh(std::vector<T> vertices, std::vector<Index> indices):m_self(wlo::CreateUniquePointer<MeshModel<T>>(vertices,indices)),m_vertexType(wlo::Data::type<T>()),m_vertexCount(m_self->vertexView().count) {
+        Mesh(std::vector<T> vertices, std::vector<Index> indices):m_self(wlo::CreateUniquePointer<MeshModel<T>>(vertices,indices)),m_vertexType(wlo::data::typeOf<T>()),m_vertexCount(m_self->vertexView().count) {
              
         
         }

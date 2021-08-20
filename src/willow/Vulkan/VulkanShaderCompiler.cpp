@@ -89,11 +89,11 @@ namespace wlo::wk {
             cout << "VertexInput found, it is an array with  " << type.vecsize << " elements" << endl;
             if (type.basetype == SPIRType::BaseType::Float) {
                 if (type.vecsize == 2)
-                    layoutMembers[attachmentIndex] = wlo::Data::type<wlo::Vec2>();
+                    layoutMembers[attachmentIndex] = wlo::data::typeOf<wlo::Vec2>();
                 else if (type.vecsize == 3)
-                    layoutMembers[attachmentIndex] = wlo::Data::type<wlo::Vec3>();
+                    layoutMembers[attachmentIndex] = wlo::data::typeOf<wlo::Vec3>();
                 else if(type.vecsize==4)
-                    layoutMembers[attachmentIndex] = wlo::Data::type<wlo::Vec4>();
+                    layoutMembers[attachmentIndex] = wlo::data::typeOf<wlo::Vec4>();
             }
             else
                 throw std::runtime_error("unsupported type from shader");
@@ -115,13 +115,13 @@ namespace wlo::wk {
                 if (memberType.basetype == SPIRType::BaseType::Float) {
                     size_t floatCount = memberType.vecsize*memberType.columns;
                     if (floatCount == 3)
-                        layoutMembers.emplace_back(wlo::Data::type<Vec3>());
+                        layoutMembers.emplace_back(wlo::data::typeOf<Vec3>());
                     else if (floatCount == 4)
-                        layoutMembers.emplace_back(wlo::Data::type<Vec4>());
+                        layoutMembers.emplace_back(wlo::data::typeOf<Vec4>());
                     else if (floatCount == 9)
-                        layoutMembers.emplace_back(wlo::Data::type<Mat3>());
+                        layoutMembers.emplace_back(wlo::data::typeOf<Mat3>());
                     else if (floatCount == 16)
-                        layoutMembers.emplace_back(wlo::Data::type<Mat4>());
+                        layoutMembers.emplace_back(wlo::data::typeOf<Mat4>());
                 } else
                     throw std::runtime_error("unsupported type from shader");
             }
@@ -143,13 +143,13 @@ namespace wlo::wk {
                 if(memberType.basetype==SPIRType::Float){
                 size_t floatCount = memberType.vecsize*memberType.columns;
                 if (floatCount == 3)
-                    layoutMembers.emplace_back(wlo::Data::type<Vec3>());
+                    layoutMembers.emplace_back(wlo::data::typeOf<Vec3>());
                 else if (floatCount == 4)
-                    layoutMembers.emplace_back(wlo::Data::type<Vec4>());
+                    layoutMembers.emplace_back(wlo::data::typeOf<Vec4>());
                 else if (floatCount == 9)
-                    layoutMembers.emplace_back(wlo::Data::type<Mat3>());
+                    layoutMembers.emplace_back(wlo::data::typeOf<Mat3>());
                 else if (floatCount == 16)
-                    layoutMembers.emplace_back(wlo::Data::type<Mat4>());
+                    layoutMembers.emplace_back(wlo::data::typeOf<Mat4>());
                  }
                 else
                     throw std::runtime_error("unsupported type from shader");

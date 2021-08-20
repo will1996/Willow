@@ -4,8 +4,7 @@
 #include"willow/ecs/Systems.hpp"
 #include"willow/data/Data.hpp"
 #include"TestingTools.hpp"
-
-namespace wlo{
+using namespace wlo;
 struct Transform{
     wlo::Vec3 position;
     wlo::Vec3 rotation;
@@ -15,20 +14,28 @@ struct RigidBody{
     wlo::Vec3 acceleration;
 };
 
+template<>
+data::Type data::typeOf<Transform>() {
+    return data::Type("Transform",
+                      {{"position",data::typeOf<Vec3>()},
+                       {"rotation",data::typeOf<Vec3>()},
+                      }
+    );
+}
 
+template<>
+data::Type data::typeOf<RigidBody>() {
+   return  data::Type("RigidBody",
+               {{"velocity",data::typeOf<Vec3>()},
+                {"acceleration",data::typeOf<Vec3>()},
+               }
+    );
+}
 int main(){
-    Data::registerType<Transform>(data::Type("Transform",
-                                             {{"position",Data::type<Vec3>()},
-                                              {"rotation",Data::type<Vec3>()},
-                                              }
-    ));
-    Data::registerType<Transform>(data::Type("RigidBody",
-                                             {{"velocity",Data::type<Vec3>()},
-                                              {"acceleration",Data::type<Vec3>()},
-                                             }
-    ));
 
     wlo::EntityComponentSystem ecs;
+    ecs.registerComponent<RigidBody>();
+    ecs.registerComponent<Transform>();
     wlo::Systems systems;
     ecs.spawnEntity({Transform{.position = {0,0,0}},
                      RigidBody{}});
@@ -37,5 +44,4 @@ int main(){
 
 
 
-}
 }

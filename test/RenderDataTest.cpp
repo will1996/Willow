@@ -1,8 +1,7 @@
 //
 // Created by W on 12/5/20.
 //
-#include"willow/data/Type.hpp"
-#include"willow/rendering/RenderDataTypes.hpp"
+#include"willow/data/Data.hpp"
 #include<iostream>
 using namespace wlo;
 using namespace wlo::data;
@@ -12,45 +11,68 @@ struct ShaderData{
     Vec3 position;
     Vec2 lightDirection;
 };
+struct Vertex3D{
+    Vec3 position;
+};
+
 template<>
-wlo::data::Type wlo::data::Type::of<ShaderData>(){
+Type wlo::data::typeOf<ShaderData>(){
     return wlo::data::Type(
             "ShaderData",
             {
-                    {"",Type::of<Vec3>()},
-                    {"",Type::of<Vec2>()}
+                    {"",data::typeOf<Vec3>()},
+                    {"",data::typeOf<Vec2>()}
             }
-            );
+    );
 }
 
+template<>
+Type wlo::data::typeOf<Vertex3D>(){
+   return  wlo::data::Type(
+           "Vertex3D",
+           {
+                   {"position",data::typeOf<Vec3>()},
+           }
+   );
+}
+
+
 int main(){
+
+
     {
-        require(wlo::data::Type::of<Vertex3D>().footprint() == sizeof(Vertex3D));
-        auto members = wlo::data::Type::of<Vertex3D>().getMembers();
+        require(wlo::data::typeOf<Vertex3D>().footprint() == sizeof(Vertex3D));
+        auto members = wlo::data::typeOf<Vertex3D>().getMembers();
         require(members[0].offset == offsetof(Vertex3D, position));
     }
-
+    cout<<"got here1"<<endl;
     {
-        require(wlo::data::Type::of<TexturedVertex3D>().footprint() == sizeof(TexturedVertex3D));
-        auto members = wlo::data::Type::of<TexturedVertex3D>().getMembers();
+        require(wlo::data::typeOf<TexturedVertex3D>().footprint() == sizeof(TexturedVertex3D));
+        auto members = wlo::data::typeOf<TexturedVertex3D>().getMembers();
         require(members[0].offset == offsetof(TexturedVertex3D, position));
-        require(members[1].offset == offsetof(TexturedVertex3D, TexCoord));
+        require(members[1].offset == offsetof(TexturedVertex3D, tex));
     }
-   require(Type::of<TexturedVertex3D>().compatibleWith( Type::of<TexturedVertex3D>()));
-   require(Type::of<float>().compatibleWith( Type::of<float>()));
-   require(Type::of<int>().compatibleWith( Type::of<int>()));
-   require(Type::of<unsigned int>().compatibleWith( Type::of<unsigned int>()));
 
-   require(Type::of<TexturedVertex3D>().compatibleWith(Type::of<ShaderData>()))
-   require(Type::of<TexturedVertex3D>()!=Type::of<ShaderData>())
+   auto texvert3D = wlo::data::typeOf<TexturedVertex3D>();
+   auto texvert3D2 = wlo::data::typeOf<TexturedVertex3D>();
+   require(texvert3D.compatibleWith(texvert3D2));
+   require(wlo::data::typeOf<float>().compatibleWith( wlo::data::typeOf<float>()));
+   require(wlo::data::typeOf<int>().compatibleWith( wlo::data::typeOf<int>()));
+   require(wlo::data::typeOf<unsigned int>().compatibleWith( wlo::data::typeOf<unsigned int>()));
 
-   require(! Type::of<TexturedVertex3D>().compatibleWith(Type::of<Vertex3D>()))
-    require(Type::of<TexturedVertex3D>()!=(Type::of<Vertex3D>()))
+    cout<<"got here3"<<endl;
+   require(wlo::data::typeOf<TexturedVertex3D>().compatibleWith(wlo::data::typeOf<ShaderData>()))
+   require(wlo::data::typeOf<TexturedVertex3D>()!=wlo::data::typeOf<ShaderData>())
+
+    cout<<"got here4"<<endl;
+   require(! wlo::data::typeOf<TexturedVertex3D>().compatibleWith(wlo::data::typeOf<Vertex3D>()))
+    require(wlo::data::typeOf<TexturedVertex3D>()!=(wlo::data::typeOf<Vertex3D>()))
 
 
-    require(wlo::data::Type::of<uint8_t>().footprint()==sizeof(uint8_t));
-    require(wlo::data::Type::of<uint8_t>().footprint()==sizeof(char));
-    require(wlo::data::Type::of<uint8_t>().footprint()==sizeof(wlo::byte));
-    require(wlo::data::Type::of<uint8_t>()==wlo::data::Type::of<uint8_t>());
+    require(wlo::data::typeOf<uint8_t>().footprint()==sizeof(uint8_t));
+    require(wlo::data::typeOf<uint8_t>().footprint()==sizeof(char));
+    require(wlo::data::typeOf<uint8_t>().footprint()==sizeof(wlo::byte));
+    require(wlo::data::typeOf<uint8_t>()==wlo::data::typeOf<uint8_t>());
 
+    cout<<"got here5"<<endl;
 }

@@ -8,20 +8,25 @@
 #include <filesystem>
 using namespace  wlo::rendering;
 using namespace wlo;
+struct ColorVertex3D{
+    Vec3 position;
+    Vec4 color;
+};
 int main(){
     //first, let's make something to render to:
     Window::Info windowInfo{
             .m_height = 500,
             .m_width = 500,
             .m_title = "rendering setup test",
-            .API = WindowingAPICode::GLFW        ,
+            .API = WindowingAPICode::GLFW
     };
 Window window(windowInfo);//the window is going to be partially owned by the renderer, so make a shared pointer
+
 
 //now, lets create the most basic renderer, it requires a window
 //you can specify optional features here, things like triangle fans, poly lines, ray tracing, ect.  (currently there are none supported
 wlo::rendering::Renderer renderer();
- std::vector<wlo::ColorVertex3D> VertexBuffer(
+ std::vector<ColorVertex3D> VertexBuffer(
             {
                     // red face
                     {.position = {-1.0f, -1.0f, 1.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},

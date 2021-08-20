@@ -14,7 +14,6 @@ wlo::data::Value buildValue(std::string data){
 }
 
 int main(){
-
     int Int= 40;
     wlo::data::Value genericInt = Int;
     auto backInt = genericInt.get<int>();
@@ -54,7 +53,7 @@ int main(){
 
 
 
-   wlo::data::Value constructedVec(wlo::Data::type<wlo::Vec3>());
+   wlo::data::Value constructedVec(wlo::data::typeOf<wlo::Vec3>());
    constructedVec["x"] = 30.5f;
    constructedVec["y"] = 40.5f;
    constructedVec["z"] = 45.5f;
@@ -130,7 +129,7 @@ int main(){
     wlo::data::Value  v;
     v = wlo::Vec3 (1,2,3);
     require(v.get<wlo::Vec3>()==wlo::Vec3(1,2,3));
-    require(v.getType() ==wlo::Data::type<wlo::Vec3>());
+    require(v.getType() ==wlo::data::typeOf<wlo::Vec3>());
 
     //anonymous value constructor
 

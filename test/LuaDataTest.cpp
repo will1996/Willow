@@ -63,17 +63,17 @@ int main(){
     lua::Stack stack(env.getL());
     float x = 34.0f;
     stack.push(x);
-    auto x2 = stack.pop(Data::type<float>()).get<float>();
+    auto x2 = stack.pop(data::typeOf<float>()).get<float>();
     require(x==x2);
 
     int y = 34;
     stack.push(y);
-    auto y2 = stack.pop(Data::type<int>()).get<int>();
+    auto y2 = stack.pop(data::typeOf<int>()).get<int>();
     require(y==y2);
 
     std::string z = "thirty four";
     stack.push(z);
-    auto z2 = stack.pop(Data::type<std::string>()).get<std::string>();
+    auto z2 = stack.pop(data::typeOf<std::string>()).get<std::string>();
     require(z==z2);
 
     cout<<"empty check -1"<<endl;
@@ -99,7 +99,7 @@ int main(){
     require(stack.isEmpty());
 
     stack.push(vec);
-    auto backVec = stack.pop(Data::type<wlo::Vec3>()).get<wlo::Vec3>();
+    auto backVec = stack.pop(data::typeOf<wlo::Vec3>()).get<wlo::Vec3>();
 
     cout<<"empty check 0"<<endl;
     require(stack.isEmpty());

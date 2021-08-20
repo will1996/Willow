@@ -156,7 +156,7 @@ namespace wlo::rendering{
         }
 
         void buildIndexBuffers(const SceneDescription& description){
-            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(wlo::Data::type<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
+            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(wlo::data::typeOf<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
         }
 
         void buildTextures(const SceneDescription & desc){

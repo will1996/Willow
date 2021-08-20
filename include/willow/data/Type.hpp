@@ -11,12 +11,23 @@
         public:
             struct Member{
                 std::string name;
-                SharedPointer<const Type>  type;
+                const Type&  type;
                 size_t offset;
             };
             Type() noexcept;
             Type(std::string name, size_t size);
             Type(std::string name, std::vector<Member> members);
+            Type & operator =(const Type & other){
+                m_name = other.m_name;
+                m_members.clear();
+                for (auto & member : other.m_members )
+                    m_members.push_back(member);
+                m_size = _size();
+                m_isPrimitve = other.isPrimitive();
+                m_isComposite = other.isComposite();
+                m_isContainer = other.isContainer();
+                return *this;
+            }
 //            Type(std::string name, const Type & t);
 
 
@@ -52,7 +63,6 @@
 
 
 
-
     }
 
 
@@ -82,9 +92,9 @@ namespace std {
       if(layout.isPrimitive())
           return hash<string>()(layout.name())^((hash<size_t>()(layout.footprint())));
 
-      size_t hash_value = hash<string>()(layout.getMembers()[0].name)^((hash<wlo::data::Type>()(*layout.getMembers()[0].type)<<1)>>1) ^((layout.getMembers()[0].offset << 2) >> 2);
+      size_t hash_value = hash<string>()(layout.getMembers()[0].name)^((hash<wlo::data::Type>()(layout.getMembers()[0].type)<<1)>>1) ^((layout.getMembers()[0].offset << 2) >> 2);
           for (size_t i = 1; i < layout.getMembers().size(); i++)
-              hash_value ^= hash<string>()(layout.getMembers()[i].name)^((hash<wlo::data::Type>()(*layout.getMembers()[i].type)<<(i+1))>>(i+1)) ^ ((layout.getMembers()[i].offset << (i + 2)) >> (i + 2));
+              hash_value ^= hash<string>()(layout.getMembers()[i].name)^((hash<wlo::data::Type>()(layout.getMembers()[i].type)<<(i+1))>>(i+1)) ^ ((layout.getMembers()[i].offset << (i + 2)) >> (i + 2));
 
     return hash_value;
     }
@@ -109,7 +119,7 @@ namespace std {
   };
 }
 
-
+#include"TypeOf.hpp"
 
 
 

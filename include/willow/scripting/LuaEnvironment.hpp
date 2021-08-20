@@ -24,7 +24,7 @@ namespace wlo{
        template <typename T>
        T getGlobal(std::string name){
            lua_getglobal(m_L,name.c_str());
-           T out = m_stack.pop(Data::type<T>()).template get<T>();
+           T out = m_stack.pop(data::typeOf<T>()).template get<T>();
            lua_settop(m_L,0);//pop table
            return out;
        }
@@ -34,7 +34,7 @@ namespace wlo{
             lua_getglobal(m_L,tableName.c_str());
             lua_pushstring(m_L,entryName.c_str());
             lua_gettable(m_L,1);
-            T out =  m_stack.pop(Data::type<T>()).template get<T>();
+            T out =  m_stack.pop(data::typeOf<T>()).template get<T>();
             lua_settop(m_L,0);
             return out;
         }

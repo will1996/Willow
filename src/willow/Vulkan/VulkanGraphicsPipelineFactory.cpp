@@ -20,11 +20,11 @@ namespace wlo::wk {
             std::vector<vk::VertexInputAttributeDescription> desc;
             uint32_t bindingLocationCounter = 0;
             for(auto & [name,type,offset] : layout.getMembers()){
-                        if(type.compatibleWith(wlo::Data::type<wlo::Vec2>()))
+                        if(type.compatibleWith(wlo::data::typeOf<wlo::Vec2>()))
                             desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eR32G32Sfloat,offset));
-                        else if(type.compatibleWith(wlo::Data::type<wlo::Vec3>()))
+                        else if(type.compatibleWith(wlo::data::typeOf<wlo::Vec3>()))
                             desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eR32G32B32Sfloat,offset));
-                        else if(type.compatibleWith(wlo::Data::type<wlo::Vec4>()))
+                        else if(type.compatibleWith(wlo::data::typeOf<wlo::Vec4>()))
                             desc.push_back(vk::VertexInputAttributeDescription(bindingLocationCounter,0,vk::Format::eR32G32B32A32Sfloat,offset));
                         else
                             throw std::runtime_error("Vertex Input description for Data Layout element type FLOAT with count greater than four unsupported");
@@ -50,10 +50,11 @@ namespace wlo::wk {
 
 
     wlo::data::Type makeAnonymousType(std::vector<wlo::data::Type> types) {
-       std::vector<wlo::data::Type::Member > members(types.size());
+       std::vector<wlo::data::Type::Member > members;
+       members.reserve(types.size());
        size_t i =0;
        for(auto & type : types)
-           members[i++] = {"",type};
+           members.push_back({"",type});
        return wlo::data::Type("",members);
 
    }

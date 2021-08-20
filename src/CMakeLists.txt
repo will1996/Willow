@@ -120,6 +120,7 @@ target_sources(WillowRoot
 
        ${PROJECT_SOURCE_DIR}/include/willow/data/Data.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/data/Type.hpp
+       ${PROJECT_SOURCE_DIR}/include/willow/data/TypeOf.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/data/View.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/data/Value.hpp
 
@@ -196,6 +197,7 @@ add_library(Willow STATIC EXCLUDE_FROM_ALL ../include/willow/DefaultAssets.hpp w
 
 set_property(TARGET Willow PROPERTY CXX_STANDARD_REQUIRED 20)
 target_link_libraries(Willow PUBLIC WillowRendering)
+target_link_libraries(Willow PUBLIC WillowRoot)
 target_include_directories(Willow PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../include
         )

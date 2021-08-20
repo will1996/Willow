@@ -7,7 +7,6 @@
 #include"willow/root/FileSystem.hpp"
 #include "willow/DefaultAssets.hpp"
 #include "willow/rendering/Mesh.hpp"
-#include "willow/rendering/RenderDataTypes.hpp"
 #include"willow/root/Root.hpp"
 #include"willow/ecs/EntityComponentSystem.hpp"
 #include"willow/window/Window.hpp"
@@ -21,29 +20,20 @@ struct RigidBody{
     wlo::Vec3 acceleration;
 };
 
-template<>
-wlo::data::Type wlo::data::Type::of<RigidBody>(){
-    return wlo::data::Type("RigidBody",{{"velocity",wlo::data::Type::of<wlo::Vec3>()},
-                                                        {"acceleration",wlo::data::Type::of<wlo::Vec3>()}
-    });
-}
-
 struct Transform{
     wlo::Vec3 position;
 };
 
-template<>
-wlo::data::Type wlo::data::Type::of<Transform>(){
-    return wlo::data::Type("Transform",{{"position",wlo::data::Type::of<wlo::Vec3>()} });
-}
 struct Gravity{
     wlo::Vec3 vector;
 };
 
-template<>
-wlo::data::Type wlo::data::Type::of<Gravity>(){
-    return wlo::data::Type("Gravity",{{"vector",wlo::data::Type::of<wlo::Vec3>()} });
+namespace wlo::data{
+    RegTwoMemberType(RigidBody,"velocity",Vec3,"acceleration",Vec3);
+    RegOneMemberType(Transform,"position",Vec3);
+    RegOneMemberType(Gravity,"vector",Vec3);
 }
+
 
 
 class CubeExample:public Messenger{

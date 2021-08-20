@@ -2,7 +2,7 @@
 // Created by W on 12/6/20.
 //
 #include"willow/data/Type.hpp"
-
+#include"willow/data/Data.hpp"
 namespace wlo::data {
 
     Type::Type() noexcept :
@@ -32,7 +32,7 @@ namespace wlo::data {
         size_t offset = 0;
         for(auto & member : m_members){
             member.offset = offset;
-            offset+=member.type->footprint();
+            offset+=member.type.footprint();
         }
     }
 
@@ -92,10 +92,10 @@ namespace wlo::data {
         for(size_t i = 0; i< getMembers().size(); i++) {
             auto member = getMembers()[i];
             auto otherMember = other.getMembers()[i];
-            if(member.type->isPrimitive()&&otherMember.type->isPrimitive() &&(member.type->name()!=otherMember.type->name()) )
+            if(member.type.isPrimitive()&&otherMember.type.isPrimitive() &&(member.type.name()!=otherMember.type.name()) )
                         return false;
             else
-                if(!member.type->compatibleWith(*otherMember.type))
+                if(!member.type.compatibleWith(otherMember.type))
                     return false;
         }
 
@@ -108,7 +108,7 @@ namespace wlo::data {
 
         size_t size = 0;
         for(const auto & member : m_members)//for composite types, return the sum of member sizes
-            size+=member.type->_size();
+            size+=member.type.m_size;
         return size;
     }
 

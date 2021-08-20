@@ -9,7 +9,7 @@
 
 
 namespace wlo{
-    Font::Font(std::string ttfFile) :m_BitMap(wlo::data::Type::of<wlo::Pixel1>(),STB_FONT_consolas_bold_12_usascii_BITMAP_WIDTH,STB_FONT_consolas_bold_12_usascii_BITMAP_WIDTH){
+    Font::Font(std::string ttfFile) :m_BitMap(wlo::data::typeOf<wlo::Pixel1>(),STB_FONT_consolas_bold_12_usascii_BITMAP_WIDTH,STB_FONT_consolas_bold_12_usascii_BITMAP_WIDTH){
         const static uint32_t fontWidth = STB_FONT_consolas_bold_12_usascii_BITMAP_WIDTH;
         const static uint32_t fontHeight = STB_FONT_consolas_bold_12_usascii_BITMAP_WIDTH;
         

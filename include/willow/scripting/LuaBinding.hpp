@@ -114,7 +114,7 @@ namespace wlo{
             T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
             lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
             lua_remove(L, 1);//get rid of the call table, while preserving arguments
-            auto arg = lua::Stack::pop(L,Data::type<A>()).template get<A>();
+            auto arg = lua::Stack::pop(L,data::typeOf<A>()).template get<A>();
             (this_ptr->*Method)(arg);
             return 0;
         }
@@ -126,8 +126,8 @@ namespace wlo{
                 lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
                 lua_remove(L, 1);//get rid of the call table, while preserving arguments
                 lua::Stack::print(L);
-                auto arg2 = lua::Stack::pop(L,Data::type<A2>()).template get<A2>();
-                auto arg1 = lua::Stack::pop(L,Data::type<A>()).template get<A>();
+                auto arg2 = lua::Stack::pop(L,data::typeOf<A2>()).template get<A2>();
+                auto arg1 = lua::Stack::pop(L,data::typeOf<A>()).template get<A>();
                 assert(lua::Stack::isEmpty(L));
                 (this_ptr->*Method)(arg1,arg2);
                 return 0;
@@ -140,9 +140,9 @@ namespace wlo{
                 T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
                 lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
                 lua_remove(L, 1);//get rid of the call table, while preserving arguments
-                auto arg3 = lua::Stack::pop(L,Data::type<A3>()).template get<A3>();
-                auto arg2 = lua::Stack::pop(L,Data::type<A2>()).template get<A2>();
-                auto arg1 = lua::Stack::pop(L,Data::type<A>()).template get<A>();
+                auto arg3 = lua::Stack::pop(L,data::typeOf<A3>()).template get<A3>();
+                auto arg2 = lua::Stack::pop(L,data::typeOf<A2>()).template get<A2>();
+                auto arg1 = lua::Stack::pop(L,data::typeOf<A>()).template get<A>();
                 (this_ptr->*Method)(arg1,arg2,arg3);
                 return 0;
             }

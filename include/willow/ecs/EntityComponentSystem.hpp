@@ -87,7 +87,7 @@ namespace wlo{
             auto tag = m_componentTagsByName[v.getType().name()];
             if(tag==0) {
                 for (auto member : v.getType().getMembers()){
-                    auto memberTag = m_componentTagsByName[member.type->name()];
+                    auto memberTag = m_componentTagsByName[member.type.name()];
                     assert(memberTag!=0&&"Value is not itself a component, and has non component members. Therefore has no archetype");
                     tag|=memberTag;
                 }
@@ -122,7 +122,7 @@ namespace wlo{
             componentStorage < T >.resize(0);
             assert(componentCounter < 32 && "Too many component types registered");
             componentTags < T > = ComponentTag(std::pow(2, componentCounter));
-            m_componentTagsByName[Data::type<T>().name()] = componentTags<T>;
+            m_componentTagsByName[data::typeOf<T>().name()] = componentTags<T>;
             m_componentWriters[componentTags < T > ] = [](Entity ent, const data::Value &v) {
                 componentStorage<T>[componentIndices<T>[ent]] = v.get<T>();
             };

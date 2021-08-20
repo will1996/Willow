@@ -26,7 +26,7 @@ int main(){
    require(ecs.componentCount<wlo::Vec3>()==2);
    require(ecs.componentCount<wlo::Vec4>()==1);
 
-    ecs.removeComponent(vec3,Data::type<wlo::Vec3>());
+    ecs.removeComponent(vec3,data::typeOf<wlo::Vec3>());
     require(ecs.archetypeOf(vec3)==0);
     require(ecs.componentCount<wlo::Vec3>()==1);
     ecs.addComponent(vec3,wlo::Vec3(1,2,3));

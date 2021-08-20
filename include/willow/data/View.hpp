@@ -22,7 +22,7 @@ namespace wlo {
 
         template<typename T>
         explicit View(const std::vector<T> &resource):
-                source(reinterpret_cast<const byte*>(resource.data())), layout(wlo::Data::type<T>()), count(resource.size()),
+                source(reinterpret_cast<const byte*>(resource.data())), layout(wlo::data::typeOf<T>()), count(resource.size()),
                 memSize(count * layout.footprint()) {}
 
         template<typename T>

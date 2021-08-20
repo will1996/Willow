@@ -9,15 +9,15 @@ wlo::Mesh wlo::assets::DefaultCube() {
 
     std::vector < wlo::TexturedVertex3D> vertices = {
     
-               { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
-               { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
-               { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
-               { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
+               { .position = {-1.0f, 1.0f, -1.0},.tex = {0,0}},
+               { .position = {1.0f, 1.0f, -1.0},.tex = {1,0}},
+               { .position = {1.0f, -1.0f, -1.0},.tex = {1,1}},
+               { .position = {-1.0f, -1.0f, -1.0},.tex = {0,1}},
 
-               { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
-               { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
-               { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
-               { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
+               { .position = {-1.0f, 1.0f, 1.0},.tex = {0,1}},
+               { .position = {1.0f, 1.0f, 1.0},.tex = {1,1}},
+               { .position = {1.0f, -1.0f, 1.0},.tex = {1,0}},
+               { .position = {-1.0f, -1.0f, 1.0},.tex = {0,0}},
     };
 
     std::vector<wlo::Index> indices = {

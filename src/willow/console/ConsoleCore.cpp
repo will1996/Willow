@@ -9,7 +9,7 @@ namespace wlo {
         m_characterBuffer.resize(1);
     }
 
-    const std::vector<wlo::Vertex3D> ConsoleCore::getVertexBuffer() {
+    const std::vector<wlo::Vec3> ConsoleCore::getVertexBuffer() {
         return buildVertexBuffer();
     }
 
@@ -52,7 +52,7 @@ namespace wlo {
 
     void ConsoleCore::placeChar(wlo::Key::Code code,wlo::Key::Modifier mod) {
         std::cout << "placing char" << std::endl;
-        std::vector<wlo::Vertex3D> verts;
+        std::vector<wlo::Vec3> verts;
 //        insertChar(m_cursorPos, FontMap::Character{wlo::Key::toText(code,mod).c_str()[0], colorVerts(m_cursorModel.verts, {1, 0, 0}), m_cursorModel.inds});
         moveCursor(RIGHT);
     }
@@ -70,13 +70,13 @@ namespace wlo {
     }
 
 
-    std::vector<wlo::Vertex3D> ConsoleCore::buildVertexBuffer() {
-        std::vector<wlo::Vertex3D> vertexBuffer;
-//        std::vector<wlo::Vertex3D> cursorVerts = offsetVertsToCursorPos(m_cursorModel.verts);
+    std::vector<wlo::Vec3> ConsoleCore::buildVertexBuffer() {
+        std::vector<wlo::Vec3> vertexBuffer;
+//        std::vector<wlo::Vec3> cursorVerts = offsetVertsToCursorPos(m_cursorModel.verts);
  //       vertexBuffer.insert(vertexBuffer.begin(), cursorVerts.begin(), cursorVerts.end());
         for (size_t row = 0; row < m_characterBuffer.size(); row++)
             for (size_t col = 0; col < m_characterBuffer[row].size(); col++) {
-                //std::vector<wlo::Vertex3D> offsetCharVerts = offsetVerts(m_characterBuffer[row][col].verts, row, col);
+                //std::vector<wlo::Vec3> offsetCharVerts = offsetVerts(m_characterBuffer[row][col].verts, row, col);
               //  vertexBuffer.insert(vertexBuffer.end(), offsetCharVerts.begin(), offsetCharVerts.end());
             }
 
@@ -97,13 +97,13 @@ namespace wlo {
         return indexBuffer;
     }
 
-    std::vector<wlo::Vertex3D> ConsoleCore::offsetVertsToCursorPos(const std::vector<wlo::Vertex3D> &verts) {
+    std::vector<wlo::Vec3> ConsoleCore::offsetVertsToCursorPos(const std::vector<wlo::Vec3> &verts) {
         return offsetVerts(verts, m_cursorPos.row, m_cursorPos.col);
     }
 
-    std::vector<wlo::Vertex3D>
-    ConsoleCore::offsetVerts(const std::vector<wlo::Vertex3D> &verts, size_t row, size_t col) {
-        std::vector<wlo::Vertex3D> outVerts;
+    std::vector<wlo::Vec3>
+    ConsoleCore::offsetVerts(const std::vector<wlo::Vec3> &verts, size_t row, size_t col) {
+        std::vector<wlo::Vec3> outVerts;
         outVerts.reserve(verts.size());
   //      for (auto vert : verts)
  //           outVerts.push_back(glm::translate(glm::mat4x4(1), glm::vec3(fontWidth * col, fontHeight * row, 0)) * vert);
@@ -118,11 +118,11 @@ namespace wlo {
 
     }
 
-    std::vector<wlo::Vertex3D> ConsoleCore::colorVerts(const std::vector<wlo::Vertex3D> &verts, glm::vec3 color) {
-        std::vector<wlo::Vertex3D> outVerts;
+    std::vector<wlo::Vec3> ConsoleCore::colorVerts(const std::vector<wlo::Vec3> &verts, glm::vec3 color) {
+        std::vector<wlo::Vec3> outVerts;
         outVerts.reserve(verts.size());
         for (const auto &vert : verts) {
-//            outVerts.push_back(wlo::Vertex3D::setColor(vert, color));
+//            outVerts.push_back(wlo::Vec3::setColor(vert, color));
         }
 
         return outVerts;

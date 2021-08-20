@@ -16,10 +16,10 @@ Value::Value(const Value &&other):m_self(other.m_self->copy()),m_members(buildMe
 Value::Value(std::vector<Value> init){
     std::vector<Type::Member> typeInit; typeInit.reserve(init.size());
     for (size_t i =0; i < init.size(); i++)
-        typeInit.push_back({.name = std::to_string(i),.type = init[i].getpType()});
-    auto t =  CreateSharedPointer<const Type>("",typeInit);
+        typeInit.push_back({.name = std::to_string(i),.type = init[i].getType()});
+    Type t("",typeInit);
     m_self = CreateUniquePointer<Model<Type>>(t);
-    m_members = buildMembers(m_self.get(),*t);
+    m_members = buildMembers(m_self.get(),t);
     for (size_t i =0; i < init.size(); i++)
         m_members[std::to_string(i)] = init[i];
 }
@@ -28,32 +28,26 @@ Value::Value(std::vector<Value> init){
 Value::Value(std::vector<std::pair<std::string, Value>> init) {
     std::vector<Type::Member> typeInit; typeInit.reserve(init.size());
     for (const auto [name ,value ] : init)
-        typeInit.push_back({name,value.getpType()});
-    auto t =  CreateSharedPointer<const Type>("",typeInit);
+        typeInit.push_back({name,value.getType()});
+    Type t("",typeInit);
     m_self = CreateUniquePointer<Model<Type>>(t);
-    m_members = buildMembers(m_self.get(),*t);
+    m_members = buildMembers(m_self.get(),t);
     for (const auto [name ,value ] : init)
         m_members[name] = value;
 }
 
 
-Value::Value(SharedPointer<const Type> t):m_self(CreateUniquePointer<Model<Type>>(t)),m_members(buildMembers(m_self.get(),*t)) {
 
-}
-
-//Value::Value(const Type& t):m_self(CreateUniquePointer<Model<Type>>(CreateSharedPointer<const Type>(t))),m_members(buildMembers(m_self.get(),t)) {
-//
-//}
-Value::Value(Type t):m_self(CreateUniquePointer<Model<Type>>(CreateSharedPointer<const Type>(t))),m_members(buildMembers(m_self.get(),t)) {
+Value::Value(const Type &t):m_self(CreateUniquePointer<Model<Type>>(t)),m_members(buildMembers(m_self.get(),t)) {
 
 }
 
 
-Value::Value(SharedPointer<const Type>  type, void * src):m_self(CreateUniquePointer<Model<void*>>(type,src)){
-    m_members = buildMembers(m_self.get(),*type);
+Value::Value(const Type&  type, void * src):m_self(CreateUniquePointer<Model<void*>>(type,src)){
+    m_members = buildMembers(m_self.get(),type);
 }
 
-Value::Value():m_self(CreateUniquePointer<Model<void*>>(Data::ptype<void>(),nullptr)){ }
+Value::Value():m_self(CreateUniquePointer<Model<void*>>(typeOf<void>(),nullptr)){ }
 
 Value & Value::operator[](const std::string & memberName) {
     return m_members.at(memberName);

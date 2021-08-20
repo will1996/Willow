@@ -3,11 +3,10 @@
 //
 
 #include"willow/input/InputManager.hpp"
-
+#include"willow/root/Logger.hpp"
+#include<sstream>
 namespace wlo{
-   InputManager::InputManager(Window& wind) {
-        wind.permit<KeyboardMessage,InputManager,&InputManager::recieveKey>(this);
-        resetPressedMap();
+   InputManager::InputManager() {
    }
 
    void InputManager::recieveKey(const KeyboardMessage & msg) {
@@ -41,6 +40,13 @@ namespace wlo{
     void InputManager::setKeyMap(std::initializer_list<std::pair<std::string, wlo::Key::Code>> mappings) {
             for (const auto &[keyName,code] : mappings)
                 mapKey(keyName,code);
+    }
+
+    void InputManager::connect(Messenger *messenger) {
+       auto pwind = dynamic_cast<Window *>(messenger);
+       if(pwind!=nullptr){
+           pwind->permit<KeyboardMessage,InputManager,&InputManager::recieveKey>(this);
+       }
     }
 
 

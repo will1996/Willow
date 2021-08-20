@@ -1,7 +1,6 @@
 #pragma once
 #include "willow/messaging/MessageSystem.hpp"
 #include <array>
-#include"RenderDataTypes.hpp"
 #include"willow/data/Type.hpp"
 #include "willow/rendering/PerspectiveCamera3D.hpp"
 #include <glm/glm.hpp>
@@ -17,7 +16,7 @@ namespace wlo::rendering {
 
 
 
-    class Renderer : public EngineComponentInstance<Renderer>{
+    class Renderer : public EngineComponent{
 
     public:
         struct Statistics{
@@ -29,16 +28,18 @@ namespace wlo::rendering {
             DebuggingTools,
         };
 
-        Renderer(ScriptEnvironment &, Window&,
-                std::initializer_list<Features> features = {});
+        Renderer(std::initializer_list<Features> features = {});
         ~Renderer();
-        void checkIn();
+        void connect(Messenger *) override;
+        void registerRenderSurface(const Window & wnd);
+        void draw(const RenderStart &);
+        void onScreenResize(const WindowResized & msg);
         void setMainCamera(const PerspectiveCamera3D & );
         void preAllocateScene(SceneDescription description);
 
         void render(const Scene &);
 
-        void setClearColor(wlo::Color);
+        void setClearColor(wlo::Vec4);
         const Statistics & getStats();
 
     private:

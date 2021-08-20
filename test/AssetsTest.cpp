@@ -1,4 +1,4 @@
-#include"willow/Assets.hpp";
+#include"willow/Assets.hpp"
 
 #include"TestingTools.hpp"
 

@@ -4,7 +4,7 @@
 
 #ifndef WILLOW_VALUE_HPP
 #define WILLOW_VALUE_HPP
-#include"Type.hpp"
+#include"Data.hpp"
 #include"willow/utils/Helpers.hpp"
 #include<list>
 
@@ -13,14 +13,16 @@ namespace wlo::data{
    class Value{
 
    public:
-
-
       template<typename T>
         Value( T toWrap):
         m_self(CreateUniquePointer<Model<T>>(toWrap))
-        { m_members = buildMembers(m_self.get(),Type::of<T>());}
+        { m_members = buildMembers(m_self.get(),Data::type<T>());}
 
-       Value(Type type);//generically realize a type
+       Value(SharedPointer<const Type > type);//generically realize a type
+       Value(Type  type);//generically realize a type (allocates)
+
+       Value(std::vector<Value>);
+       Value(std::vector<std::pair<std::string,Value>>);
 
        Value(const Value & other);
 
@@ -30,13 +32,16 @@ namespace wlo::data{
        Value();
 
        Value &operator[](const std::string &);
+       Value &operator[](size_t);
 
        Value & operator = (const Value && other);
 
        Value & operator = (const Value & other);
 
+
+
        template<typename T>
-       T get(){
+       const T & get() const {
            return *static_cast<T*>(getData());
        }
 
@@ -44,28 +49,37 @@ namespace wlo::data{
             return m_self->getData();
         };
 
-       Type getType() const{
+       const Type & getType() const{
            return m_self->getType();
+       }
+       const SharedPointer<const Type> & getpType() const{
+           return m_self->getpType();
        }
 
    private:
-        Value(Type , void *);//member Value constructor, attach a value to existing storage
+        Value(SharedPointer<const Type >, void *);//member Value constructor, attach a value to existing storage
 
        struct Abstract{
         virtual void* getData() = 0;
-        virtual Type getType() = 0;
+        virtual const Type & getType() const = 0;
+        virtual const SharedPointer<const Type> & getpType() const = 0;
         virtual UniquePointer<Abstract> copy()= 0;
         virtual void Assign(Abstract * ) = 0;
         virtual ~Abstract() = default;
        };
 
-       std::map<std::string,Value> buildMembers(Abstract*,Type);
+       std::map<std::string,Value> buildMembers(Abstract*,const Type &);
+
        template<typename T>
         struct Model: public Abstract{
             explicit Model(T toStore): storedData(std::move(toStore)){}
 
-            Type getType() override{
-                return Type::of<T>();
+            const Type  & getType() const override{
+                return Data::type<T>();
+            }
+
+            const SharedPointer<const Type> & getpType() const override {
+                return Data::ptype<T>();
             }
 
            void* getData()override{
@@ -77,8 +91,8 @@ namespace wlo::data{
             }
 
              void Assign(Abstract * other) override{
-                size_t copySize = Type::of<T>().footprint();
-                 assert(other->getType()==Type::of<T>());
+                size_t copySize = Data::type<T>().footprint();
+                 assert(other->getType()==Data::type<T>());
                 memcpy(&storedData,static_cast<T*>(other->getData()),copySize);
             }
 
@@ -88,9 +102,13 @@ namespace wlo::data{
        template<>
        struct Model<Type>: public Abstract{
             //storage constuctor, creates storage for a composite type
-           explicit Model(Type t):type(std::move(t)),storedData(type.footprint()) {}
+           explicit Model(SharedPointer<const Type>  t):type(t),storedData(type->footprint()) {}
 
-           Type getType() override{
+           const Type & getType() const override{
+               return *type;
+           }
+
+           const SharedPointer<const Type> & getpType() const override{
                return type;
            }
 
@@ -103,51 +121,55 @@ namespace wlo::data{
            }
 
            void Assign(Abstract * other) override{
-               if(type==Type()) {//void type stored here
-                   type = other->getType();
-                   storedData.resize(type.footprint());
-                   size_t copySize = type.footprint();
+               if(*type==Data::type<void>()) {//void type stored here
+                   type = other->getpType();
+                   storedData.resize(type->footprint());
+                   size_t copySize = type->footprint();
                    memcpy(storedData.data(), static_cast<byte *>(other->getData()), copySize);
                }
                else{
-                   assert(type==other->getType());
-                   size_t copySize = type.footprint();
+                   assert(*type==other->getType());
+                   size_t copySize = type->footprint();
                    memcpy(storedData.data(), static_cast<byte *>(other->getData()), copySize);
                }
            }
 
-           Type type;
+           SharedPointer<const Type>  type;
            std::vector<byte> storedData;
        };
 
        //pointer Abstract, used for accesing data
        template<>
        struct Model<void *>: public Abstract{
-            Model(Type t, void * src): type(std::move(t)),data(src){};
+            Model(SharedPointer<const Type>  t, void * src): type(t),data(src){};
 
             void* getData() override{return data;}
 
-            Type getType() override{return type;}
+            const  Type &   getType() const override{return *type;}
+
+            const SharedPointer<const Type> & getpType() const override{
+                   return type;
+               }
 
            UniquePointer<Abstract> copy()override{
                return CreateUniquePointer<Model<void *>>(*this);
            }
 
            void Assign(Abstract * other) override{
-                if(type==Type()){//if this is void, then replace me
+                if(*type==Data::type<void>()){//if this is void, then replace me
                     data = other->getData();
-                    type = other->getType();
-                    size_t copySize = type.footprint();
+                    type = other->getpType();
+                    size_t copySize = type->footprint();
                     memcpy(data,static_cast<byte*>(other->getData()),copySize);
                 }//void
                 else {
-                    assert(type==other->getType());
-                    size_t copySize = type.footprint();
+                    assert(*type==other->getType());
+                    size_t copySize = type->footprint();
                     memcpy(data, static_cast<byte *>(other->getData()), copySize);
                 }
            }
 
-            Type type;
+            SharedPointer<const Type >type;
             void* data;
        };
 

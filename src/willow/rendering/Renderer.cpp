@@ -156,7 +156,7 @@ namespace wlo::rendering{
         }
 
         void buildIndexBuffers(const SceneDescription& description){
-            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(wlo::data::Type::of<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
+            m_IndexBuffer = m_memoryManager.allocateMappedBuffer(wlo::Data::type<Index>(), description.totalIndexCount, vk::BufferUsageFlagBits::eIndexBuffer);
         }
 
         void buildTextures(const SceneDescription & desc){
@@ -208,7 +208,6 @@ namespace wlo::rendering{
 
         void buildUniformBuffers(const wk::GraphicsPipeline & pipeline )
         {
-            WILO_CORE_INFO("built descriptor sets for material id {0}",pipeline.id);
             m_UniformBuffers[pipeline.id].buffer = m_root.Device().createBufferUnique(
                     vk::BufferCreateInfo{ vk::BufferCreateFlags(),sizeof(glm::mat4x4),vk::BufferUsageFlagBits::eUniformBuffer }
                 );
@@ -361,7 +360,6 @@ namespace wlo::rendering{
             case vk::Result::eSuboptimalKHR:
                 std::cout << "vk::Queue::presentKHR returned vk::Result::eSuboptimalKHR !\n";
                 break;
-            default: WILO_CORE_ERROR("INVALID RENDER SURFACE");
             }
             auto endTime = std::chrono::high_resolution_clock::now();
             m_frameCount++;
@@ -382,14 +380,29 @@ namespace wlo::rendering{
 //RENDERER
 
 
-   Renderer::Renderer(ScriptEnvironment & env,Window& window,std::initializer_list<Features> Features): EngineComponentInstance<Renderer>("Renderer",this,env){
-       wlo::logr::initalize();
-       pImpl=wlo::CreateUniquePointer<VulkanImplementation>(Features,window);
+   Renderer::Renderer(std::initializer_list<Features> Features) {
    }
 
+    void Renderer::connect(Messenger * messenger) {
+       auto pwind = dynamic_cast<Window *>(messenger);
+       if (pwind!=nullptr) {
+           pImpl = wlo::CreateUniquePointer<VulkanImplementation>(std::initializer_list<Features>(), *pwind);
+       }
+       else{
+            auto pcore = dynamic_cast<Core *>(messenger);
+            if(pcore!=nullptr){
+                this->permit<RenderStart,Renderer,&Renderer::draw>(pcore);
+            }
+
+
+
+
+       }
+
+
+    }
 
     Renderer::~Renderer() {
-        WILO_CORE_INFO("Renderer deconstructed");
     }
 
 
@@ -398,8 +411,8 @@ namespace wlo::rendering{
     }
 
 
-    void Renderer::setClearColor(wlo::Color color) {
-       pImpl->nextClearColor = color.color;
+    void Renderer::setClearColor(wlo::Vec4 color) {
+       pImpl->nextClearColor = color;
     }
 
 
@@ -423,6 +436,11 @@ namespace wlo::rendering{
 
         pImpl->submit(draws);
     }
+
+    void Renderer::draw(const RenderStart &) {
+
+    }
+
 
 }
 

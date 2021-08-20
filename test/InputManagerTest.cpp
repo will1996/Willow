@@ -11,7 +11,7 @@ class WindowDummy: public Window{
 
 int main(){
 WindowDummy wind;
-InputManager input(wind);
+InputManager input;
 if(input.isPressed(wlo::Key::Code::SPACE)) {
     cout<<"keys are not false by default"<<endl;
     return -1;

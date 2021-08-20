@@ -3,9 +3,10 @@
 #include"rendering/Material.hpp"
 #include"rendering/Texture.hpp"
 #include"root/FileSystem.hpp"
+#include<unordered_map>
 #pragma once
 namespace wlo {
-	class Assets : public EngineComponentInstance<Assets> {
+	class Assets : public EngineComponent {
 	public:
 		template<typename T>
 		struct Handle{
@@ -23,11 +24,7 @@ namespace wlo {
 		Handle<Mesh> TexturedCube();
 			
 				
-		
-		
-	
 
-		Assets(wlo::ScriptEnvironment& env);
 
 		Handle<Texture> loadTexture(std::string path);
 		Texture& fetchTexture(wlo::ID_type);

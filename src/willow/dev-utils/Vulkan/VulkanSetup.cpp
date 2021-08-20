@@ -27,16 +27,16 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDebugUtilsMessengerEXT( VkInstance          
 namespace wlo::wk{
     VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
     if(messageType == VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) {
-        WILO_CORE_INFO("[Vulkan] {0}", pCallbackData->pMessage);
+        std::cout<<"[Vulkan General Info] "<< pCallbackData->pMessage;
     }
     else if(messageType == VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) {
-        WILO_CORE_ERROR("[Vulkan] {0}", pCallbackData->pMessage);
+        std::cout<<"[Vulkan Validation Error] "<< pCallbackData->pMessage;
     }
     else if(messageSeverity>=VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        WILO_CORE_WARNING("[Vulkan] {0}", pCallbackData->pMessage);
+        std::cout<<"[Vulkan Warning] "<< pCallbackData->pMessage;
     }
     else {
-        WILO_CORE_INFO("[Vulkan] {0}", pCallbackData->pMessage)
+        std::cout<<"[Vulkan General Info] "<< pCallbackData->pMessage;
     }
 
     return VK_FALSE;
@@ -52,7 +52,7 @@ namespace wlo::wk{
                                          return strcmp(name, ep.extensionName) == 0;
                                      });
             if(iter==availableExtensions.end())
-                WILO_CORE_WARNING("FAILED TO LOAD EXTENSION {0} ASSOCIATED FUNCTIONALITY UNAVAILABLE",name);
+                std::cout<<"FAILED TO LOAD EXTENSION ASSOCIATED FUNCTIONALITY UNAVAILABLE "<<name<<std::endl;
             else
                 finalExtensions.push_back(name);
         }
@@ -85,9 +85,6 @@ namespace wlo::wk{
         uint32_t glfwCount;
         const char ** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwCount);
         extensionNames.insert(extensionNames.end(),glfwExtensions,glfwExtensions+glfwCount);
-        WILO_CORE_INFO("all_loaded extensions (many automatically loaded ");
-        for (auto name : extensionNames)
-            WILO_CORE_INFO(name)
 
        if(!debugging) {
            auto validLayerNames = validateRequestedLayers(layerNames);
@@ -97,7 +94,6 @@ namespace wlo::wk{
            return instance;
 
        }else {
-           WILO_CORE_INFO("Debug utils requested, setting up debugging for Vulkan Instance");
            layerNames.push_back("VK_LAYER_KHRONOS_validation");
 //           layerNames.push_back("VK_LAYER_LUNARG_assistant_layer");
            extensionNames.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -175,7 +171,6 @@ namespace wlo::wk{
              }
          }
 
-        WILO_CORE_ERROR("FAILED TO FIND A DEVICE WITH A QUEUE FAMILY THAT SUPPORTS BOTH GRAPHICS AND PRESENT, Multi-QUEUE FAMILY SUPPORT CURRENTLY UNIMPLEMENTED-> GRAPHICS BOOTSTRAP FAILURE");
         throw std::runtime_error("VULKAN FAILED TO BE SETUP");
 
     }

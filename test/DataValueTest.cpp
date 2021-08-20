@@ -54,7 +54,7 @@ int main(){
 
 
 
-   wlo::data::Value constructedVec(wlo::data::Type::of<wlo::Vec3>());
+   wlo::data::Value constructedVec(wlo::Data::type<wlo::Vec3>());
    constructedVec["x"] = 30.5f;
    constructedVec["y"] = 40.5f;
    constructedVec["z"] = 45.5f;
@@ -122,16 +122,25 @@ int main(){
 
     wlo::data::Value copyString = genericString2;
     require(copyString.get<string>()==genericString2.get<string>());
-   // copyString = std::string("forth");
-   // require(copyString.get<string>()=="forth");
-   // require(genericString2.get<string>()==testString2)
+    copyString = std::string("forth");
+    require(copyString.get<string>()=="forth");
+    require(genericString2.get<string>()==testString2)
+
+    //void value construction -> assigned to real value test
+    wlo::data::Value  v;
+    v = wlo::Vec3 (1,2,3);
+    require(v.get<wlo::Vec3>()==wlo::Vec3(1,2,3));
+    require(v.getType() ==wlo::Data::type<wlo::Vec3>());
+
+    //anonymous value constructor
+
+    wlo::data::Value anonymous({wlo::Vec3(3,2,1),wlo::Vec2(1,2),wlo::Vec3(1,2,3)});
+    require(anonymous[0].get<wlo::Vec3>()==wlo::Vec3(3,2,1))
+    require(anonymous[1].get<wlo::Vec2>()==wlo::Vec2(1,2))
+    require(anonymous[2].get<wlo::Vec3>()==wlo::Vec3(1,2,3))
 
 
-   // auto moveToMe = buildValue("hehe").get<std::string>();
 
-   // int counter=0;
-   // for(auto member : constructedVec.getType().getMembers())
-   //     counter++;
-   // require(counter==3);
+
 
 }

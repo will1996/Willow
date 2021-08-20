@@ -1,6 +1,7 @@
 #include "willow/window/Window.hpp"
 #include<vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+#include"willow/root/Logger.hpp"
 
 namespace wlo{
 
@@ -14,7 +15,6 @@ namespace wlo{
     void Window::initialize(){
         bool result = glfwInit();
         WILO_ASSERT(result);
-        WILO_CORE_INFO("Creating a window with title {0}, and dimensions ({1},{2})",m_info.m_title,m_info.m_height,m_info.m_width);
 
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);//this is required for using Vulkan with this window
@@ -30,7 +30,6 @@ namespace wlo{
         glfwSetWindowUserPointer(p_impl->getWindow(),this);
 
         glfwSetErrorCallback([](int error,const char* error_description){
-            WILO_CORE_ERROR(error_description);
         });
 
         glfwSetKeyCallback(p_impl->getWindow(),[](GLFWwindow* window, int key, int scancode, int action,int mods){
@@ -63,11 +62,11 @@ namespace wlo{
         });
         glfwSetCursorPosCallback(p_impl->getWindow(),[](GLFWwindow* window, double xpos, double ypos){
             Window* instance = (Window*)(glfwGetWindowUserPointer(window));
-            instance -> notifyMouseObservers(MouseMoved{xpos,ypos});
+            instance -> notifyMouseObservers(MouseMoved{.content{xpos,ypos}});
         });
         glfwSetScrollCallback(p_impl->getWindow(),[](GLFWwindow* window, double xpos, double ypos){
             Window* instance = (Window*)(glfwGetWindowUserPointer(window));
-            instance ->notifyMouseObservers(MouseScrolled{xpos,ypos});
+            instance ->notifyMouseObservers(MouseScrolled{.content{xpos,ypos}});
         });
     
         glfwSetWindowSizeCallback(p_impl->getWindow(),[](GLFWwindow* window, int width, int height){
@@ -85,22 +84,23 @@ namespace wlo{
 
             Window* instance = (Window*)(glfwGetWindowUserPointer(window));
             if(Focused==GLFW_FOCUSED) {
-                instance->notifyWindowObservers(WindowGainedFocus{instance->getInfo().m_title,instance->getInfo().m_width,instance->getInfo().m_height});
+                instance->notifyWindowObservers(WindowGainedFocus{});
             }else{
-                instance->notifyWindowObservers(WindowLostFocus{instance->getInfo().m_title,instance->getInfo().m_width,instance->getInfo().m_height});
+                instance->notifyWindowObservers(WindowLostFocus{});
             }
 
             });
         glfwSetWindowCloseCallback(p_impl->getWindow(),[](GLFWwindow* window ){
 
             Window* instance = (Window*)(glfwGetWindowUserPointer(window));
-            instance->notifyWindowObservers(WindowClosed{instance->getInfo().m_title,instance->getInfo().m_width,instance->getInfo().m_height});
+            instance->notifyWindowObservers(WindowClosed{});
         });
 
-        WILO_CORE_INFO("Window initialized!")
+        notify(Logger::Info{.content = std::string("Window initialized!")});
     }
 
     void Window::notifyKeyObservers(const wlo::KeyboardMessage& msg){
+
             this->notify<KeyboardMessage>(msg);
     }
     void Window::notifyMouseObservers(const wlo::MouseButtonMessage& msg){
@@ -152,7 +152,6 @@ namespace wlo{
     }
 
     Window::Window(Window::Info info) {
-        wlo::logr::initalize();
         m_info.m_extraData = info.m_extraData;
         m_info.m_width = info.m_width;
         m_info.m_height = info.m_height;
@@ -170,7 +169,17 @@ namespace wlo{
    }
 
     Window::Window() {
-        wlo::logr::initalize();
+    }
+
+
+    void Window::respond(const ReadInput &) {
+        glfwPollEvents();
+    }
+
+    void Window::connect(Messenger *comp) {
+        auto core = dynamic_cast<Core*>(comp);
+        if(core!=nullptr)
+            core->permit<ReadInput,Window,&Window::respond>(this);
     }
 
 

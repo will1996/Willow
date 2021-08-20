@@ -40,7 +40,6 @@ namespace wlo{
         //m_console_renderer->setClearColor({0,0,0,1});
         //window->permit<WindowResized,Renderer,&Renderer::handleWindowResize>(m_console_renderer.get()) ;//register as an observer with the window, so we recieve events;
 //        window->permit<WindowMessage,Console, &Console::recieve>(this) ;//register as an observer with the window, so we recieve events;
-        WILO_CORE_INFO("console initialized!")
     }
 
     void Console::render() {
@@ -100,9 +99,6 @@ namespace wlo{
     }
 
     void Console::reclaim(){
-        WILO_CORE_INFO("console reclamation started");
-
-        WILO_CORE_INFO("console shutdown properly");
     }
 
     MessageSystem::Subject* Console::asSubject()
@@ -152,7 +148,7 @@ namespace wlo{
     {
         int x = ::lua_tointeger(L, 1);
         int y = ::lua_tointeger(L, 2);
-        notifyMouseObservers(wlo::MouseMoved{double(x),double(y)});
+        notifyMouseObservers(wlo::MouseMoved{.content{double(x),double(y)}});
         return 0;
     }
 

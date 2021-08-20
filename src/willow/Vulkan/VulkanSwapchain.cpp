@@ -24,7 +24,6 @@ namespace wlo::wk{
 
         //create an oldschool VKSurface because glfw is a hoe
         initialize();
-        WILO_CORE_INFO("Swapchain created!");
     }
 
     void VulkanSwapchain::initialize() {
@@ -54,7 +53,6 @@ namespace wlo::wk{
 		m_swapSurfaceExtent = vk::Extent2D{m_window.getInfo().m_width,m_window.getInfo().m_height};
 		reclaim();
 		initialize();
-		WILO_CORE_INFO("Vulkan swapchain reInitialized!")
 	}
 
 

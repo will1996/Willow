@@ -63,7 +63,11 @@ endmacro()
  addTest(DataTypeTest DataTypeTest.cpp WillowRoot)
 
  addTest(MeshTest MeshTest.cpp WillowRendering)
+ addTest(Scratch Scratch.cpp WillowRoot)
+ addTest(ECSTest ECSTest.cpp WillowRoot)
+ addTest(SystemsTest SystemsTest.cpp WillowRoot)
+ addTest(TypeSegfaultTest TypeSegfaultTest.cpp WillowRoot)
 
 
 
- addTest(AssetsTest AssetsTest.cpp Willow)
+ #addTest(AssetsTest AssetsTest.cpp Willow)

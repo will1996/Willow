@@ -100,9 +100,13 @@ target_sources(WillowRoot
        ${PROJECT_SOURCE_DIR}/include/willow/root/WiloConfig.h
        ${PROJECT_SOURCE_DIR}/include/willow/root/WiloConfig.h.in
        ${PROJECT_SOURCE_DIR}/include/willow/root/EngineComponent.hpp
+        ${PROJECT_SOURCE_DIR}/include/willow/ecs/EntityComponentSystem.hpp
+        ${PROJECT_SOURCE_DIR}/include/willow/ecs/Systems.hpp
+        ../include/willow/ecs/EntityComponentSystem.hpp
+        ${PROJECT_SOURCE_DIR}/include/willow/root/Core.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/Assets.hpp
 
-       ${PROJECT_SOURCE_DIR}/include/willow/Entity.hpp
+        ${PROJECT_SOURCE_DIR}/include/willow/Warden.hpp
 
 
        ${PROJECT_SOURCE_DIR}/include/willow/messaging/Messages.hpp
@@ -112,6 +116,7 @@ target_sources(WillowRoot
        ${PROJECT_SOURCE_DIR}/include/willow/scripting/Scripting.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/scripting/LuaEnvironment.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/scripting/LuaCommunication.hpp
+        ${PROJECT_SOURCE_DIR}/include/willow/rendering/Texture.hpp
 
        ${PROJECT_SOURCE_DIR}/include/willow/data/Data.hpp
        ${PROJECT_SOURCE_DIR}/include/willow/data/Type.hpp
@@ -119,14 +124,18 @@ target_sources(WillowRoot
        ${PROJECT_SOURCE_DIR}/include/willow/data/Value.hpp
 
         willow/Assets.cpp
-        willow/Game.cpp
-        PRIVATE
-        willow/root/Type.cpp
+        willow/rendering/Texture.cpp
+        willow/root/Data.cpp
         willow/root/Value.cpp
+        willow/root/Type.cpp
+        PRIVATE
         willow/input/InputManager.cpp
         willow/root/FileSystem.cpp
         willow/root/Logger.cpp
+        willow/root/EntityComponentSystem.cpp
+        willow/root/Systems.cpp
         willow/root/Tag.cpp
+        willow/root/Core.cpp
         willow/messaging/Xylem.cpp
         willow/messaging/messages.cpp
         willow/scripting/LuaEnvironment.cpp
@@ -154,7 +163,6 @@ target_sources(WillowRendering
         PUBLIC
          ${PROJECT_SOURCE_DIR}/include/willow/window/Window.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Renderer.hpp
-         ${PROJECT_SOURCE_DIR}/include/willow/rendering/RenderDataTypes.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Geometry.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Buffer.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Material.hpp
@@ -168,11 +176,9 @@ target_sources(WillowRendering
          ${PROJECT_SOURCE_DIR}/include/willow/Vulkan/VulkanCommandInterface.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/PerspectiveCamera3D.hpp
          ${PROJECT_SOURCE_DIR}/include/willow/rendering/Scene.hpp
-        ${PROJECT_SOURCE_DIR}/include/willow/rendering/Texture.hpp
         PRIVATE
         ../include/willow/external/stb_image.h
             willow/rendering/Scene.cpp
-            willow/rendering/Texture.cpp
             willow/window/GLFWWindow.cpp
             willow/rendering/Renderer.cpp
             willow/rendering/PerspectiveCamera3D.cpp
@@ -194,14 +200,14 @@ target_include_directories(Willow PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/../include
         )
 set(WillowHeaders
-       ${PROJECT_SOURCE_DIR}/include/willow/Application.hpp
+        ${PROJECT_SOURCE_DIR}/include/willow/Application.hpp
        ${PROJECT_SOURCE_DIR}/include/willow.hpp
         )
 target_sources(Willow
         PUBLIC
         ${WillowHeaders}
         PRIVATE
-             willow/application.cpp
+        willow/Application.cpp
              willow/console/Font.cpp
              willow/console/wilo_console.cpp
              willow/console/ConsoleCore.cpp

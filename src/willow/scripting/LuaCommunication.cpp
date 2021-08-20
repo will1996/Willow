@@ -8,27 +8,27 @@
 namespace wlo::lua{
 
     bool isInValidSet(const data::Type & expected){
-        static const vector<data::Type> goodTypes = {
-                data::Type::of<int>(),
-                data::Type::of<float>(),
-                data::Type::of<double>(),
-                data::Type::of<std::string>()
+        static const vector<const SharedPointer<const data::Type>> goodTypes = {
+                Data::ptype<int>(),
+                Data::ptype<float>(),
+                Data::ptype<double>(),
+                Data::ptype<std::string>()
         };
         bool OK = false;
         for(const auto & type : goodTypes)
-            if(expected==type)
+            if(expected==*type)
                 OK = true;
 
         return OK;
     }
     //types to lua must be composed of types which on some level are represented by floats, ints, or strings.
     void validate(const data::Type &attemptedType){
-        if(attemptedType.isPrimitive()||attemptedType==data::Type::of<std::string>()){
+        if(attemptedType.isPrimitive()||attemptedType==Data::type<std::string>()){
             if(! isInValidSet(attemptedType))
                 throw std::invalid_argument("Attempted to pass a type containing a primitive of  type: " + attemptedType.name() + " to or from Lua, which is unsupported");
         }
         for(const auto & member : attemptedType.getMembers()){
-            validate(member.type);
+            validate(*member.type);
         }
     }
 
@@ -43,26 +43,26 @@ namespace wlo::lua{
 
     template<>
     void push<float>(lua_State*L,data::Value valToPush){
-        assert(data::Type::of<float>()==valToPush.getType());
+        assert(Data::type<float>()==valToPush.getType());
         float toPush = valToPush.get<float>();
         lua_pushnumber(L,toPush);
     }
     template<>
     void push<int>(lua_State*L,data::Value valToPush){
-        assert(data::Type::of<int>()==valToPush.getType());
+        assert(Data::type<int>()==valToPush.getType());
         int toPush = valToPush.get<int>();
         lua_pushinteger(L,toPush);
     }
     template<>
     void push<double>(lua_State*L,data::Value valToPush){
-        assert(data::Type::of<double>()==valToPush.getType());
+        assert(Data::type<double>()==valToPush.getType());
         double toPush = valToPush.get<double>();
         lua_pushnumber(L,toPush);
     }
 
     template<>
     void push<std::string>(lua_State*L,data::Value valToPush){
-        assert(data::Type::of<std::string>()==valToPush.getType());
+        assert(Data::type<std::string>()==valToPush.getType());
         std::string toPush = valToPush.get<std::string>();
         lua_pushstring(L,toPush.c_str());
     }
@@ -73,17 +73,17 @@ namespace wlo::lua{
 
     void Stack::push(lua_State *L, data::Value toPush) {
         validate(toPush.getType());
-        if(toPush.getType()==data::Type::of<int>())
+        if(toPush.getType()==Data::type<int>())
             return lua::push<int>(L,toPush);
-        if(toPush.getType()==data::Type::of<float>())
+        if(toPush.getType()==Data::type<float>())
            return  lua::push<float>(L,toPush);
-        if(toPush.getType()==data::Type::of<double>())
+        if(toPush.getType()==Data::type<double>())
             return lua::push<double>(L,toPush);
-        if(toPush.getType()==data::Type::of<std::string>())
+        if(toPush.getType()==Data::type<std::string>())
             return lua::push<std::string>(L,toPush);
         //composite types first create a table, then recusively push members, and set them into the table.
         lua_newtable(L);
-        for(auto member :toPush.getType().getMembers()){
+        for(const auto &member :toPush.getType().getMembers()){
             lua_pushstring(L,member.name.c_str());
             push(L,toPush[member.name]);
             lua_settable(L,1);
@@ -92,7 +92,7 @@ namespace wlo::lua{
 
     }
 
-    data::Value Stack::pop(data::Type expected) {
+    data::Value Stack::pop(const data::Type & expected) {
         return pop(m_state,expected);
     }
 
@@ -140,13 +140,13 @@ namespace wlo::lua{
     }
 
 
-    data::Value Stack::pop(lua_State *L, data::Type expected) {
+    data::Value Stack::pop(lua_State *L, const data::Type & expected) {
         validate(expected);
-        if(expected==data::Type::of<std::string>())
+        if(expected==Data::type<std::string>())
             return data::Value(lua::pop<std::string>(L));
-        if(expected==data::Type::of<float>())
+        if(expected==Data::type<float>())
             return data::Value(lua::pop<float>(L));
-        if(expected==data::Type::of<int>())
+        if(expected==Data::type<int>())
             return data::Value(lua::pop<int>(L));
         data::Value v(expected);
         if(! lua_istable(L,-1))
@@ -154,7 +154,7 @@ namespace wlo::lua{
         for(auto [name,type,offset]:expected.getMembers()){
             lua_pushstring(L,name.c_str());
             lua_gettable(L,-2);
-            v[name] = pop(L,type);
+            v[name] = pop(L,*type);
         }
         lua_remove(L,-1);//pop the table
         return v;
@@ -200,4 +200,5 @@ namespace wlo::lua{
     bool Stack::isEmpty(lua_State *L) {
         return lua_gettop(L)==0;
     }
+
 }

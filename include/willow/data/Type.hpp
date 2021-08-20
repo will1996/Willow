@@ -6,19 +6,18 @@
 #define WILLOW_TYPE_HPP
 #include "willow/root/Root.hpp"
     namespace wlo::data {
-        template<typename T>
-        struct MemberT{
-            std::string name;
-            T type;
-            size_t offset = 0;
-        };
 
         class Type{
         public:
-            Type();
+            struct Member{
+                std::string name;
+                SharedPointer<const Type>  type;
+                size_t offset;
+            };
+            Type() noexcept;
             Type(std::string name, size_t size);
-            Type(std::string name, std::vector<MemberT<Type>> members);
-            Type(std::string name, Type t);
+            Type(std::string name, std::vector<Member> members);
+//            Type(std::string name, const Type & t);
 
 
             //two types are compatible if their memory sizes, and the types of all of their fields are the same,
@@ -35,31 +34,19 @@
             [[nodiscard]] bool isContainer()const;
             [[nodiscard]] size_t footprint() const ;
             [[nodiscard]] const std::string name() const;
-            [[nodiscard]] const std::vector<MemberT<Type>>  getMembers() const;
+            [[nodiscard]] const std::vector<Member>  getMembers() const;
 
-            static size_t sizeOf(Type) ;
 
-           template<typename T>
-            struct Of{
-               Type operator ()();
-            };
 
-            template<typename T>
-           static Type of(){
-               Type t = Of<T>()();
-              return t;
-           }
 
         protected:
             size_t _size() const;
+            std::vector<Member> m_members;
             std::string m_name;
             bool m_isPrimitve;
             bool m_isContainer;
             bool m_isComposite;
             size_t m_size;
-            std::vector<MemberT<Type>> m_members;
-        public:
-            using Member  = MemberT<Type>;
         };
 
 
@@ -95,9 +82,9 @@ namespace std {
       if(layout.isPrimitive())
           return hash<string>()(layout.name())^((hash<size_t>()(layout.footprint())));
 
-      size_t hash_value = hash<string>()(layout.getMembers()[0].name)^((hash<wlo::data::Type>()(layout.getMembers()[0].type)<<1)>>1) ^((layout.getMembers()[0].offset << 2) >> 2);
+      size_t hash_value = hash<string>()(layout.getMembers()[0].name)^((hash<wlo::data::Type>()(*layout.getMembers()[0].type)<<1)>>1) ^((layout.getMembers()[0].offset << 2) >> 2);
           for (size_t i = 1; i < layout.getMembers().size(); i++)
-              hash_value ^= hash<string>()(layout.getMembers()[i].name)^((hash<wlo::data::Type>()(layout.getMembers()[i].type)<<(i+1))>>(i+1)) ^ ((layout.getMembers()[i].offset << (i + 2)) >> (i + 2));
+              hash_value ^= hash<string>()(layout.getMembers()[i].name)^((hash<wlo::data::Type>()(*layout.getMembers()[i].type)<<(i+1))>>(i+1)) ^ ((layout.getMembers()[i].offset << (i + 2)) >> (i + 2));
 
     return hash_value;
     }
@@ -122,97 +109,9 @@ namespace std {
   };
 }
 
-#define RegisterPrimativeType(typename)\
-template<>\
-struct wlo::data::Type::Of<typename>{  \
-wlo::data::Type operator()(){  \
-    return wlo::data::Type(#typename,sizeof(typename)); \
-    }                                      \
-};                                      \
-
-RegisterPrimativeType(unsigned int);
-RegisterPrimativeType(float);
-RegisterPrimativeType(double);
-RegisterPrimativeType(int);
-RegisterPrimativeType(bool);
-RegisterPrimativeType(char);
-RegisterPrimativeType(wlo::byte);
-
-#undef RegisterPrimativeType
-
-
-template<>
-struct wlo::data::Type::Of<std::string>{
-    Type operator()(){
-        return Type("string",sizeof(std::string));
-    }
-};
-
-//Register basic non-primitive Willow Types here:
 
 
 
-template<>
-struct wlo::data::Type::Of<wlo::Vec2>{
-    Type operator()(){
-        return wlo::data::Type("Vec2",{
-                { "x", wlo::data::Type::of<float>()},
-                { "y", wlo::data::Type::of<float>()}
-        });
-    }
-};
-
-template<>
-struct wlo::data::Type::Of<wlo::Vec3>{
-    Type operator()(){
-        return wlo::data::Type("Vec3",{
-                {"x",wlo::data::Type::of<float>()},
-                {"y",wlo::data::Type::of<float>()},
-                {"z",wlo::data::Type::of<float>()}
-        });
-    }
-};
-
-template<>
-struct wlo::data::Type::Of<wlo::Vec4>{
-    Type operator()() {
-        return wlo::data::Type("Vec4", {
-                {"x", wlo::data::Type::of<float>()},
-                {"y", wlo::data::Type::of<float>()},
-                {"z", wlo::data::Type::of<float>()},
-                {"w", wlo::data::Type::of<float>()}
-        });
-    }
-};
 
 
-template<>
-struct wlo::data::Type::Of<wlo::Mat3>{
-    Type operator()() {
-        return wlo::data::Type("Mat3",{
-                {"r0",wlo::data::Type::of<wlo::Vec3>()},
-                {"r1",wlo::data::Type::of<wlo::Vec3>()},
-                {"r2",wlo::data::Type::of<wlo::Vec3>()},
-        });
-    }
-};
-
-template<>
-struct wlo::data::Type::Of<wlo::Mat4>{
-    Type operator()() {
-        return wlo::data::Type("Mat4",{
-                {"r0",wlo::data::Type::of<wlo::Vec4>()},
-                {"r1",wlo::data::Type::of<wlo::Vec4>()},
-                {"r2",wlo::data::Type::of<wlo::Vec4>()},
-                {"r3",wlo::data::Type::of<wlo::Vec4>()},
-        });
-    };
-};
-
-template<typename T, typename A>
-struct wlo::data::Type::Of<std::vector<T,A>>{
-    Type operator ()(){
-    return Type("Vector Of",{{"Contained",Type::of<T>()}});
-    };
-};
 #endif //WILLOW_TYPE_HPP

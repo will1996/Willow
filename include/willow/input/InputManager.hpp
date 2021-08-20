@@ -6,12 +6,14 @@
 #define WILLOW_INPUTMANAGER_HPP
 #include<willow/messaging/MessageSystem.hpp>
 #include<willow/window/Window.hpp>
+#include<unordered_map>
 namespace wlo {
 
-    class InputManager :public Messenger{
+    class InputManager :public EngineComponent{
     public:
 
-        InputManager(Window& wind);
+        InputManager();
+        void connect(Messenger * messenger)override;
         void setKeyMap(std::initializer_list<std::pair<std::string, wlo::Key::Code> > mappings);
         void mapKey(std::string,wlo::Key::Code);
         bool isPressed(wlo::Key::Code) const ;

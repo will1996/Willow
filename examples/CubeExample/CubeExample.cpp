@@ -7,125 +7,106 @@
 #include"willow/root/FileSystem.hpp"
 #include "willow/DefaultAssets.hpp"
 #include "willow/rendering/Mesh.hpp"
-class CubeExample : public wlo::Application{
-private:
-    const float cameraSpeed = 50.0f;
-    bool cursorLockedState = true;
+#include "willow/rendering/RenderDataTypes.hpp"
+#include"willow/root/Root.hpp"
+#include"willow/ecs/EntityComponentSystem.hpp"
+#include"willow/window/Window.hpp"
+#include"willow/input/InputManager.hpp"
+#include"willow/rendering/PerspectiveCamera3D.hpp"
+#include"willow/rendering/Renderer.hpp"
+using namespace  wlo;
 
-
-    wlo::Mesh cubeMesh = wlo::assets::DefaultCube();
-    wlo::PerspectiveCamera3D camera;
-    wlo::rendering::Scene mainScene;
-    wlo::TextureHandle cowTexture;
-    wlo::TextureHandle kitTexture;
-    wlo::MaterialHandle cowMaterial;
-    wlo::MaterialHandle kitMaterial;
-
-
-public:
-    CubeExample(std::string argv_0) :
-        Application(Application::Info{.appName = "Cube example", .appVersion = 1,.debugging = true,.windowDimensions = {600,800}}, argv_0),
-        camera(m_mainWindow),
-        cowTexture(m_assets.loadTexture(wlo::FileSystem::Texture("cow.bmp").string())),
-        cowMaterial(m_assets.loadMaterial(cowTexture.id, wlo::FileSystem::Shader("shader.vert").string(), wlo::FileSystem::Shader("shader.frag").string())),
-        kitTexture(m_assets.loadTexture(wlo::FileSystem::Texture("kit.jpeg").string())),
-        kitMaterial(m_assets.loadMaterial(kitTexture.id, wlo::FileSystem::Shader("shader.vert").string(), wlo::FileSystem::Shader("shader.frag").string()))
-    {
-        m_mainWindow.permit<wlo::MouseMoved,CubeExample,&CubeExample::handleMouse>(this);
-        m_mainWindow.permit<wlo::MouseScrolled,CubeExample,&CubeExample::handleMouse>(this);
-
-
-        m_input.setKeyMap({ 
-            {"Forward",wlo::Key::Code::W},
-            {"Backward",wlo::Key::Code::S},
-            {"Left",wlo::Key::Code::A},
-            {"Right",wlo::Key::Code::D},
-                                });
-
-    }
-    void handleMouse(const wlo::MouseMoved& msg){
-        camera.look(msg.content.xPos,msg.content.yPos);
-    }
-    void handleMouse(const wlo::MouseScrolled& msg){
-        camera.zoom(msg.content.yScroll_Offset);
-    }
-
-    void recieve(const wlo::KeyboardMessage& msg) override{
-
-        if(msg.content.button==wlo::Key::Code::ESCAPE) {
-            WILO_CORE_INFO("Application shutting down");
-            m_shutting_down = true;
-        }
-
-        if(msg.content.button==wlo::Key::Code::TAB) {
-            if(msg.content.action==wlo::KeyAction::Pressed){
-                cursorLockedState  = !cursorLockedState;
-                m_mainWindow.setCursorMode(cursorLockedState);
-            }
-        }
-        if(msg.content.button==wlo::Key::Code::I) {
-            if(msg.content.action==wlo::KeyAction::Pressed){
-                cursorLockedState  = !cursorLockedState;
-                m_mainWindow.setCursorMode(cursorLockedState);
-            }
-        }
-
-
-
-    }
-
-
-    void setup () override{
-        using namespace wlo::rendering;
-        mainScene
-            .add(cubeMesh, cowMaterial.get(), glm::translate(wlo::Mat4{ 1 }, wlo::Vec3{ 0,0,2 }))
-            .add(cubeMesh, kitMaterial.get(), wlo::Mat4{ 1 });
-
-        m_renderer.preAllocateScene(mainScene.getDescription());
-
-
-        //m_renderer.preAllocateScene({
-        //   .vertexCounts = {{wlo::data::Type::of<wlo::TexturedVertex3D>(),16}} ,
-        //   .materials = {&cowMaterial.get(), &kitMaterial.get() },
-        //  .totalIndexCount = 72
-        //});
-
-        m_mainWindow.setCursorMode(true);
-        m_renderer.setMainCamera(camera);
-        m_renderer.setClearColor({ {.8,.8,.8,1} });
-
-
-
-        WILO_CORE_INFO("Rendering prepared");
-    }
-
-    void stepSim (float dt) override{
-        //for(auto [name,pObject]:SceneObjects)
-            //pObject->transform = glm::rotate(glm::mat4(1), timeElapsed()*1.0f,{0,1,0});
-
-        if(m_input.isPressed("Forward"))
-            camera.moveAlongViewAxis(dt*cameraSpeed);
-        if(m_input.isPressed("Backward"))
-            camera.moveAlongViewAxis(-dt*cameraSpeed);
-        if(m_input.isPressed("Left"))
-            camera.strafe(dt*cameraSpeed);
-        if(m_input.isPressed("Right"))
-            camera.strafe(-dt*cameraSpeed);
-    }
-    void draw() override{
-        m_renderer.render(mainScene);
-    }
-
-
-   ~ CubeExample() override{
-        Application::reclaim();
-    }
-
+struct RigidBody{
+    wlo::Vec3 velocity;
+    wlo::Vec3 acceleration;
 };
 
+template<>
+wlo::data::Type wlo::data::Type::of<RigidBody>(){
+    return wlo::data::Type("RigidBody",{{"velocity",wlo::data::Type::of<wlo::Vec3>()},
+                                                        {"acceleration",wlo::data::Type::of<wlo::Vec3>()}
+    });
+}
+
+struct Transform{
+    wlo::Vec3 position;
+};
+
+template<>
+wlo::data::Type wlo::data::Type::of<Transform>(){
+    return wlo::data::Type("Transform",{{"position",wlo::data::Type::of<wlo::Vec3>()} });
+}
+struct Gravity{
+    wlo::Vec3 vector;
+};
+
+template<>
+wlo::data::Type wlo::data::Type::of<Gravity>(){
+    return wlo::data::Type("Gravity",{{"vector",wlo::data::Type::of<wlo::Vec3>()} });
+}
+
+
+class CubeExample:public Messenger{
+public:
+    UniquePointer<EntityComponentSystem> ecs;
+    UniquePointer<Window> window;
+    UniquePointer<InputManager> input;
+    rendering::Renderer renderer;
+    PerspectiveCamera3D camera;
+    bool m_shouldStop = false;
+    CubeExample() {
+        window = CreateUniquePointer<Window>(Window::Info{});
+        input = CreateUniquePointer<InputManager>();
+        ecs = CreateUniquePointer<EntityComponentSystem>();
+        window->permit<WindowClosed,CubeExample,&CubeExample::shutdown>(this);
+        input->connect(window.get());
+        ecs->registerComponent<RigidBody>();
+        ecs->registerComponent<Transform>();
+        ecs->registerComponent<Gravity>();
+        renderer.connect(window.get());
+        renderer.setMainCamera(camera);
+
+        for (size_t i =-100; i < 100; i++){
+            auto ent = ecs->spawnEntity<RigidBody,Transform,Gravity>();
+            ecs->writeEntity(ent,Transform{.position = {i,i,i}});
+            ecs->writeEntity(ent,Gravity{.vector = {0,i,0}});
+        }
+    }
+
+    void shutdown(const WindowClosed & ){
+        m_shouldStop = true;
+    }
+
+    void updatePhysics(){
+        const float dt = 0.0005;
+        auto ents = ecs->getEntitiesOfArchetype<RigidBody,Transform,Gravity>();
+        for (auto ent : ents){
+            auto rb = ecs->getComponent<RigidBody>(ent);
+            auto tform = ecs->getComponent<Transform>(ent);
+            auto gravity = ecs->getComponent<Gravity>(ent);
+            rb.acceleration +=gravity.vector;
+            rb.velocity +=rb.acceleration*dt;
+            tform.position +=rb.velocity;
+        }
+    }
+
+    void draw(){
+
+    }
+
+    void Run( ){
+        while(! window->shouldClose()){
+            updatePhysics();
+            draw();
+        }
+    }
+};
+
+
 int main(int argc, char ** argv){
-    wlo::logr::initalize();
-    wlo::UniquePointer<wlo::Application> example = wlo::CreateUniquePointer<CubeExample>(argv[0]);
-    example->run();
+
+    CubeExample example;
+    example.Run();
+
 }
 

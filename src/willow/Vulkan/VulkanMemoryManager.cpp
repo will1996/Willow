@@ -171,13 +171,13 @@ namespace wlo::wk {
     }
 
     vk::Format fromLayout(wlo::data::Type t) {
-       if(t==data::Type::of<Pixel4>())
+       if(t==Data::type<Pixel4>())
           return vk::Format::eR8G8B8A8Srgb;
-       else  if(t==data::Type::of<Pixel3>())
+       else  if(t==Data::type<Pixel3>())
            return vk::Format::eR8G8B8Srgb;
-       else  if(t==data::Type::of<Pixel2>())
+       else  if(t==Data::type<Pixel2>())
            return vk::Format::eR8G8Srgb;
-       else  if(t==data::Type::of<Pixel1>())
+       else  if(t==Data::type<Pixel1>())
            return vk::Format::eR8Srgb;
        else
            throw std::runtime_error("Unsupported image format, only supporting 8 bit Pixel data, 1-4 channel");
@@ -194,7 +194,7 @@ namespace wlo::wk {
         imageExtent.width = width;
         imageExtent.depth = 1;
 
-       // if(pixelLayout!=data::Type::of<Pixel4>())
+       // if(pixelLayout!=Data::type<Pixel4>())
         //    throw std::runtime_error("image format unsupported, currently only supporting rbga");
         vk::Format image_format = fromLayout(pixelLayout);
 

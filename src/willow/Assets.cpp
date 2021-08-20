@@ -6,10 +6,10 @@ namespace wlo {
 
 	Mesh buildQuad(){
 		std::vector<wlo::TexturedVertex3D> verts = {
-			{{-.5,-.5,0},{0,0}},
-			{{.5,-.5,0},{1,0}},
-			{{.5,.5,0},{1,1}},
-			{{-.5,.5,0},{0,1}},
+			{.position = {-.5,-.5,0.0},.tex={0.0,0.0}},
+			{.position = {.5,-.5,0.0},.tex= {1.0,0.0}},
+			{.position = {.5,.5,0.0},.tex={1.0,1.0}},
+			{.position = {-.5,.5,0.0},.tex={0.0,1.0}},
 		};
 		std::vector<wlo::Index> inds = {
 			0,1,2,
@@ -35,16 +35,16 @@ namespace wlo {
 
 	Mesh buildCube(){
     std::vector < wlo::TexturedVertex3D> vertices = {
-    
-               { .position = {-1.0f, 1.0f, -1.0},.TexCoord = {0,0}},
-               { .position = {1.0f, 1.0f, -1.0},.TexCoord = {1,0}},
-               { .position = {1.0f, -1.0f, -1.0},.TexCoord = {1,1}},
-               { .position = {-1.0f, -1.0f, -1.0},.TexCoord = {0,1}},
 
-               { .position = {-1.0f, 1.0f, 1.0},.TexCoord = {0,1}},
-               { .position = {1.0f, 1.0f, 1.0},.TexCoord = {1,1}},
-               { .position = {1.0f, -1.0f, 1.0},.TexCoord = {1,0}},
-               { .position = {-1.0f, -1.0f, 1.0},.TexCoord = {0,0}},
+               { .position = {-1.0f, 1.0f, -1.0},.tex = {0,0}},
+               { .position = {1.0f, 1.0f, -1.0},.tex = {1,0}},
+               { .position = {1.0f, -1.0f, -1.0},.tex = {1,1}},
+               { .position = {-1.0f, -1.0f, -1.0},.tex = {0,1}},
+
+               { .position = {-1.0f, 1.0f, 1.0},.tex = {0,1}},
+               { .position = {1.0f, 1.0f, 1.0},.tex = {1,1}},
+               { .position = {1.0f, -1.0f, 1.0},.tex = {1,0}},
+               { .position = {-1.0f, -1.0f, 1.0},.tex = {0,0}},
     };
 
     std::vector<wlo::Index> indices = {
@@ -76,12 +76,6 @@ namespace wlo {
 	}
 
 
-	Assets::Assets(wlo::ScriptEnvironment& env):EngineComponentInstance<Assets>("Assets",this,env)
-	{
-
-
-
-	}
 
 	TextureHandle Assets::loadTexture(std::string path)
 	{
@@ -113,7 +107,7 @@ MeshHandle	Assets::loadMesh(std::string path) {
 				 attrib.vertices[3 * index.vertex_index + 1],
 				 attrib.vertices[3 * index.vertex_index + 2]
 				};
-				vertex.TexCoord = {
+				vertex.tex = {
 				   attrib.texcoords[2 * index.texcoord_index + 0],
 				   1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
 				};

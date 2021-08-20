@@ -5,7 +5,7 @@
 
 namespace wlo::data {
 
-    Type::Type() :
+    Type::Type() noexcept :
             m_size(0) ,m_name("void"),m_isPrimitve(true){}
 
     Type::Type(std::string name, size_t size):
@@ -22,7 +22,7 @@ namespace wlo::data {
 
     Type::Type(std::string name, std::vector<Member> members):
     m_name(std::move(name)),
-    m_members(std::move(members)),
+    m_members(members),
     m_size(0),
     m_isPrimitve(false),
     m_isComposite(true),
@@ -32,20 +32,20 @@ namespace wlo::data {
         size_t offset = 0;
         for(auto & member : m_members){
             member.offset = offset;
-            offset+=member.type.footprint();
+            offset+=member.type->footprint();
         }
     }
 
-    Type::Type(std::string name, Type t):m_name(name),
-    m_size(t.footprint()),
-    m_members({{"ContainedTypeInfo",t}}),
-    m_isPrimitve(false),
-    m_isComposite(false),
-    m_isContainer(true)
-    {
-
-    }
-
+//    Type::Type(std::string name, const Type & t):m_name(name),
+//    m_size(t.footprint()),
+//    m_members({{"ContainedTypeInfo",&t}}),
+//    m_isPrimitve(false),
+//    m_isComposite(false),
+//    m_isContainer(true)
+//    {
+//
+//    }
+//
 
     bool Type::isPrimitive() const {
         return m_isPrimitve;
@@ -61,9 +61,6 @@ namespace wlo::data {
         return m_members;
     }
 
-    size_t Type::sizeOf(wlo::data::Type type) {
-       return  type.footprint();
-    }
 
     bool Type::operator==(const Type &other) const {
         if(footprint()!=other.footprint())
@@ -95,10 +92,10 @@ namespace wlo::data {
         for(size_t i = 0; i< getMembers().size(); i++) {
             auto member = getMembers()[i];
             auto otherMember = other.getMembers()[i];
-            if(member.type.isPrimitive()&&otherMember.type.isPrimitive() &&(member.type.name()!=otherMember.type.name()) )
+            if(member.type->isPrimitive()&&otherMember.type->isPrimitive() &&(member.type->name()!=otherMember.type->name()) )
                         return false;
             else
-                if(!member.type.compatibleWith(otherMember.type))
+                if(!member.type->compatibleWith(*otherMember.type))
                     return false;
         }
 
@@ -111,7 +108,7 @@ namespace wlo::data {
 
         size_t size = 0;
         for(const auto & member : m_members)//for composite types, return the sum of member sizes
-            size+=member.type._size();
+            size+=member.type->_size();
         return size;
     }
 
@@ -123,6 +120,7 @@ namespace wlo::data {
     bool Type::isContainer() const {
         return false;
     }
+
 
 
 }

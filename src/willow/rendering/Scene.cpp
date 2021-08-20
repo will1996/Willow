@@ -3,6 +3,8 @@
 //
 #include "willow/rendering/Scene.hpp"
 #include <unordered_set>
+#include <unordered_map>
+
 namespace wlo::rendering{
 
     std::vector<glm::mat4> & Scene::getTransforms(){

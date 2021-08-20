@@ -4,12 +4,12 @@ using namespace wlo;
 class Asteroids : public Application {
 public:
 	Asteroids(std::string argv_0):
-		Application(Application::Info{.appName = "Asteroids",.debugging = true,.windowDimensions = {800,800}},argv_0)
+	    Application(argv_0)
 	{
 	}
-	void setup() override {}
-	void stepSim(float dt) override {}
-	void draw() override {}
+	void setup() {}
+	void stepSim(float dt) {}
+	void draw() {}
 
 };
 

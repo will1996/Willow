@@ -117,8 +117,6 @@ namespace wlo{
         obs->trackSubject<SUBTYPE>(this);
 //        m_triggerFilter[typeid(SUBTYPE)].push_back(uniqueID);//add this observer
 
-        WILO_CORE_INFO("permitting observer with ID {0} triggering on  {1}'s total registered observers:{2} \n",
-                       uniqueID, typeid(SUBTYPE).name(), m_registry<SUBTYPE>.size()+1);
 
         invoker_t <SUBTYPE> inver = &invoker<SUBTYPE, Obs, Method>;
         Invocation inv(obs, inver);
@@ -148,11 +146,15 @@ namespace wlo{
 namespace wlo{
 class Messenger : public MessageSystem::Observer{
 public:
-      explicit Messenger(){
-         wlo::logr::initalize();
-      }
+      Messenger() = default;
+
       wlo::MessageSystem::Subject & asSubject(){
             return m_subject;
+      }
+
+      template<typename T>
+      void notify(const T& msg){
+          return m_subject.notify<T>(msg);
       }
 
     template<typename SUBTYPE, typename Obs, void(Obs::*Method)(const SUBTYPE &)>

@@ -72,7 +72,6 @@ namespace wlo{
             dumpstack();
             std::string errmsg = lua_tostring(m_L, -1);
             lua_pop(m_L,-1);
-            WILO_CORE_ERROR("[LUA] "+errmsg);
             return false;
         }
         return true;

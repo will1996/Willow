@@ -13,8 +13,8 @@ namespace wlo::lua{
 
         void push(data::Value toPush);//push a value onto the stack
         static void push(lua_State * L, data::Value toPush);
-        data::Value pop(data::Type expected);//pop a value from the stack, providing an expected type
-        static data::Value pop(lua_State* L, data::Type expected);
+        data::Value pop(const data::Type & expected);//pop a value from the stack, providing an expected type
+        static data::Value pop(lua_State* L, const data::Type & expected);
 
         void print();
         static void print(lua_State *L );

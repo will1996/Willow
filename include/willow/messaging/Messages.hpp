@@ -8,12 +8,8 @@
 namespace wlo{
 //Messages are lean and mean structs, all operations on them are performed by static functions within the body of the extending class
 //the raw template can be used anywhere for custom implementations, the messaging library can send them.
-template<class T>
 struct Message
-{
-public:
-    T content;
- };
+{ };
 
 enum class KeyAction{
     Pressed,Held,Released
@@ -25,7 +21,8 @@ enum class KeyAction{
      uint32_t repeat_length = 0;
      KeyAction action;
  };
- struct KeyboardMessage : public Message<KeyInfo>{
+ struct KeyboardMessage : public Message{
+    KeyInfo content;
      //True if the keyboard message has the specified modifier, useful for shift, control etc.
      static bool hasModifier(const KeyboardMessage & keyMessage, const Key::Modifier& mod) {
          return Key::hasModifer(keyMessage.content.mod_bundle,mod);
@@ -33,15 +30,15 @@ enum class KeyAction{
  };
  struct KeyPressed : KeyboardMessage{
      KeyPressed(Key::Code button, Key::Modifier mod):
-     KeyboardMessage{{button, mod, 0, KeyAction::Pressed}}{}
+     KeyboardMessage{.content{button, mod, 0, KeyAction::Pressed}}{}
  };
  struct KeyReleased : KeyboardMessage{
      KeyReleased(Key::Code button, Key::Modifier mod):
-     KeyboardMessage{{button, mod, 0, KeyAction::Released}}{}
+     KeyboardMessage{.content{button, mod, 0, KeyAction::Released}}{}
  };
  struct KeyHeld : KeyboardMessage{
      KeyHeld(Key::Code button, Key::Modifier mod):
-     KeyboardMessage{{button, mod, 1, KeyAction::Held}} { }
+     KeyboardMessage{.content{button, mod, 1, KeyAction::Held}} { }
  };
 
  enum class WindowAction{
@@ -55,26 +52,26 @@ enum class KeyAction{
         const WindowAction action;
     };
 
-struct WindowClosed : public Message<WindowInfo>{
-    WindowClosed(std::string title, uint32_t width, uint32_t height):
-    Message<WindowInfo>{{ title, width, height, WindowAction::Closed }}{}
+struct WindowClosed : public Message{
 };
-struct WindowResized : public Message<WindowInfo>{
+struct WindowResized : public Message{
+    WindowInfo content;
     WindowResized(std::string title, uint32_t width, uint32_t height):
-   Message<WindowInfo>{ {title, width, height, WindowAction::Resized }}{}
+   content {title, width, height, WindowAction::Resized }{}
 };
-struct WindowGainedFocus: public Message<WindowInfo>{
-    WindowGainedFocus(std::string title, uint32_t width, uint32_t height):
-    Message<WindowInfo> { {title, width, height, WindowAction::GainedFocus}}{}
+struct WindowGainedFocus: public Message{
 };
-struct WindowLostFocus: public Message<WindowInfo>{
-    WindowLostFocus(std::string title, uint32_t width, uint32_t height):
-    Message<WindowInfo> { {title, width, height, WindowAction::LostFocus}}{}
+struct WindowLostFocus: public Message{
+};
+
+struct CursorState{
+    bool locked;
+};
+struct SetWindowCursorState:public Message{
+    CursorState content;
 };
 
 //MouseMessages
-
-
 struct MousePositionInfo{
     double xPos;
     double yPos;
@@ -95,25 +92,45 @@ struct MouseScrollInfo {
     double yScroll_Offset;
 };
 
-struct MouseButtonMessage : Message<MouseClickInfo>{};
+struct MouseButtonMessage : Message{
+    MouseClickInfo content;
+};
 struct MouseButtonPressed   : MouseButtonMessage{
     MouseButtonPressed(MousePositionInfo pos,Mouse::Code button,Key::Modifier mod ) :
-    MouseButtonMessage{{pos,button,mod,MouseClickAction::Pressed}}{}
+    MouseButtonMessage{.content = {pos,button,mod,MouseClickAction::Pressed}}{}
 };
 struct MouseButtonReleased  : MouseButtonMessage{
     MouseButtonReleased(MousePositionInfo pos,Mouse::Code button,Key::Modifier mod) :
-    MouseButtonMessage{{pos,button,mod,MouseClickAction::Released}}{}
+    MouseButtonMessage{.content = {pos,button,mod,MouseClickAction::Released}}{}
     };
 struct MouseButtonHeld      : MouseButtonMessage{
     MouseButtonHeld(MousePositionInfo pos,Mouse::Code button,Key::Modifier mod ) :
-    MouseButtonMessage{{pos,button,mod,MouseClickAction::Held}}{}
+    MouseButtonMessage{.content = {pos,button,mod,MouseClickAction::Held}}{}
 };
 
-struct MouseScrolled :Message<MouseScrollInfo>{};
+struct MouseScrolled :Message{
+    MouseScrollInfo content;
 
-struct MouseMoved : Message<MousePositionInfo>{};
+};
+
+struct MouseMoved : Message{
+    MousePositionInfo content;
+};
+// control flow messages
+struct EngineStart:Message{};
+struct FrameStart :Message{};
+struct ReadInput :Message{};
+struct RenderDataReady:Message{};
+struct RenderStart :Message{};
+struct EngineStop:Message{};
+struct Shutdown:Message{};
+
+
+
+
 
 }
+
 
 inline std::ostream & operator<<(std::ostream& os, wlo::KeyInfo & data ){
     os<<"[Button: "<< wlo::Key::toText(data.button);
@@ -133,23 +150,19 @@ inline std::ostream & operator<<(std::ostream& os, const wlo::WindowInfo & data 
     return os;
 }
 
-inline std::ostream & operator<<(std::ostream& os, const wlo::Message<wlo::WindowInfo> & msg ){
-    os<<msg.content;
-    return os;
-}
 
 inline std::ostream & operator<<(std::ostream& os, const wlo::WindowClosed & msg ){
-    os<<"Window Closed ->  "<<msg.content;
+    os<<"Window Closed";
     return os;
 }
 
 inline std::ostream & operator<<(std::ostream& os, const wlo::WindowGainedFocus & msg ){
-    os<<"Window Gained Focus ->  "<<msg.content;
+    os<<"Window Gained Focus ->  ";
     return os;
 }
 
 inline std::ostream & operator<<(std::ostream& os, const wlo::WindowLostFocus& msg ){
-    os<<"Window Lost Focus ->  "<<msg.content;
+    os<<"Window Lost Focus ->  ";
     return os;
 }
 

@@ -8,7 +8,6 @@
 namespace wlo::wk{
     VulkanRoot::VulkanRoot(std::initializer_list<wlo::rendering::Renderer::Features> features,Window & window, bool debugUtils) {
         m_instance = wk::createInstance(getInstanceLayers(features),getInstanceExtensions(features),debugUtils);
-        WILO_CORE_INFO("VulkanRoot created Instance");
         if(debugUtils)
             m_debugMessenger = wk::createDebugMessenger(m_instance);
         //create a temporary surface such that the physical and logical devices can be set up with knowledge of the window format
@@ -53,9 +52,7 @@ namespace wlo::wk{
 
     bool physicalDeviceSupportsSurface(vk::SurfaceKHR surface, const vk::PhysicalDevice & device){
             auto supportedFormats = device.getSurfaceFormatsKHR(surface);
-            WILO_CORE_INFO("for this device/surface combination vulkan supports: {0} formats",supportedFormats.size());
             auto supportedPresentModes = device.getSurfacePresentModesKHR(surface);
-        WILO_CORE_INFO("for this device/surface combination vulkan supports: {0} presentmodes",supportedPresentModes.size());
         return !supportedFormats.empty() && !supportedPresentModes.empty();
     }
 
@@ -70,7 +67,6 @@ namespace wlo::wk{
           vk::PhysicalDeviceProperties properties = candidates[i].getProperties();
           //vk::PhysicalDeviceFeatures features = candidates[i].getFeatures();
               if(physicalDeviceSupportsSurface(surface, candidates[i])) {
-                  WILO_CORE_INFO("Vulkan implementation found Physical device which supports window surface");
                   if (properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
                       best = i;
                   } else {
@@ -80,17 +76,13 @@ namespace wlo::wk{
           }
 
         if(best <0){
-            WILO_CORE_WARNING("unable to find ideal vulkan device, some features may not work");
             if(acceptable < 0){
-                WILO_CORE_ERROR("Basic graphics functionality unsupported, renderer setup failure");
                 throw std::runtime_error("Failed to find usable vulkan device");
             }else{
-                WILO_CORE_INFO("Vulkan Root settled for Integrated GPU, but basic vulkan support present");
                 m_physicalDevice = candidates[acceptable];
             }
         }
         else{
-            WILO_CORE_INFO("Vulkan Root using Dedicated Graphics Card");
             m_physicalDevice = candidates[best];
         }
 
@@ -189,7 +181,6 @@ namespace wlo::wk{
            vk::DeviceCreateInfo deviceCreateInfo(vk::DeviceCreateFlags(), graphicsAndPresentQueueCreateInfo, {},
                                                  extensionNames, {});
            m_device = m_physicalDevice.createDevice(deviceCreateInfo);
-           WILO_CORE_INFO("VulkanRoot created a logical device with one queue for graphics and present combined");
        }else{
            vk::DeviceQueueCreateInfo graphicsQueueCreateInfo(vk::DeviceQueueCreateFlags(), graphicsQueueIndex,
                                                                        1, &queuePriorities);
@@ -200,7 +191,6 @@ namespace wlo::wk{
            vk::DeviceCreateInfo deviceCreateInfo(vk::DeviceCreateFlags(), QueueInfos, {},
                                                  extensionNames, {});
            m_device = m_physicalDevice.createDevice(deviceCreateInfo);
-           WILO_CORE_INFO("VulkanRoot created a logical device with two separate queues; one queue for graphics and  one queue for present ");
        }
     }
 

@@ -4,8 +4,7 @@
 
 #ifndef WILLOW_VIEW_HPP
 #define WILLOW_VIEW_HPP
-#include "Type.hpp"
-#include"willow/rendering/RenderDataTypes.hpp"
+#include "Data.hpp"
 #include "willow/root/Tag.hpp"
 namespace wlo {
 
@@ -23,7 +22,7 @@ namespace wlo {
 
         template<typename T>
         explicit View(const std::vector<T> &resource):
-                source(reinterpret_cast<const byte*>(resource.data())), layout(wlo::data::Type::of<T>()), count(resource.size()),
+                source(reinterpret_cast<const byte*>(resource.data())), layout(wlo::Data::type<T>()), count(resource.size()),
                 memSize(count * layout.footprint()) {}
 
         template<typename T>

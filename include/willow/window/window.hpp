@@ -1,9 +1,11 @@
 #pragma once
 #include "willow/messaging/MessageSystem.hpp"
+#include"willow/root/EngineComponent.hpp"
+#include"willow/root/Core.hpp"
 namespace wlo{
 class WindowImpl;
 
-class Window: public MessageSystem::Subject{
+class Window: public EngineComponent{
         public:
         struct Info{
             uint32_t m_height = 600;
@@ -15,6 +17,8 @@ class Window: public MessageSystem::Subject{
           explicit Window(Info info);
           ~Window();
           Info getInfo()const;
+          void connect(Messenger* comp) override;
+          void respond(const ReadInput&);
           void checkIn();
           bool shouldClose(bool queryMeessagesAutomatically = true);
           void* getNativeWindow() const;

@@ -4,8 +4,7 @@
 
 #ifndef WILLOW_MESH_HPP
 #define WILLOW_MESH_HPP
-#include"willow/rendering/RenderDataTypes.hpp"
-#include "willow/root/root.hpp"
+#include "willow/root/Root.hpp"
 #include"willow/data/View.hpp"
 namespace wlo {
 
@@ -14,7 +13,7 @@ namespace wlo {
         
     public:
         template<typename T>
-        Mesh(std::vector<T> vertices, std::vector<Index> indices):m_self(wlo::CreateUniquePointer<MeshModel<T>>(vertices,indices)),m_vertexType(wlo::data::Type::of<T>()),m_vertexCount(m_self->vertexView().count) {
+        Mesh(std::vector<T> vertices, std::vector<Index> indices):m_self(wlo::CreateUniquePointer<MeshModel<T>>(vertices,indices)),m_vertexType(wlo::Data::type<T>()),m_vertexCount(m_self->vertexView().count) {
              
         
         }

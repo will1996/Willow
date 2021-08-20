@@ -20,13 +20,13 @@ namespace wlo{
         switch(texChannels) {
             case 4 : {
                 m_storage = CreateUniquePointer<Storage<wlo::Pixel4>>(texWidth, texHeight, 1);
-                format = data::Type::of<wlo::Pixel4 >();
+                format = Data::type<wlo::Pixel4 >();
                 m_storage->fill(pixels);
                 break;
             }
             case 3 : {
                 m_storage = CreateUniquePointer<Storage<wlo::Pixel4>>(texWidth, texHeight, 1);
-                format = data::Type::of<wlo::Pixel4 >();
+                format = Data::type<wlo::Pixel4 >();
                 m_depth =4;
                 std::vector<wlo::Pixel3> truePixels(texWidth * texHeight);
                 memcpy(truePixels.data(), pixels, truePixels.size() * sizeof(truePixels[0]));
@@ -40,13 +40,13 @@ namespace wlo{
             }
             case 2 : {
                 m_storage = CreateUniquePointer<Storage<wlo::Pixel2>>(texWidth, texHeight, 1);
-                format = data::Type::of<wlo::Pixel2 >();
+                format = Data::type<wlo::Pixel2 >();
                 m_storage->fill(pixels);
                 break;
             }
             case 1 : {
                 m_storage = CreateUniquePointer<Storage<wlo::Pixel1>>(texWidth, texHeight, 1);
-                format = data::Type::of<wlo::Pixel1 >();
+                format = Data::type<wlo::Pixel1 >();
                 m_storage->fill(pixels);
                 break;
             }
@@ -61,13 +61,13 @@ namespace wlo{
     }
 
     Texture::Texture(data::Type t, size_t x, size_t y, size_t z):m_width(x),m_height(y),m_depth(z) {
-        if(t==data::Type::of<wlo::Pixel4>())
+        if(t==Data::type<wlo::Pixel4>())
             m_storage = CreateUniquePointer<Storage<wlo::Pixel4>>(x,y,z);
-        else if(t==data::Type::of<wlo::Pixel3>())
+        else if(t==Data::type<wlo::Pixel3>())
             m_storage = CreateUniquePointer<Storage<wlo::Pixel3>>(x,y,z);
-        else if(t==data::Type::of<wlo::Pixel2>())
+        else if(t==Data::type<wlo::Pixel2>())
             m_storage = CreateUniquePointer<Storage<wlo::Pixel2>>(x,y,z);
-        else if(t==data::Type::of<wlo::Pixel1>())
+        else if(t==Data::type<wlo::Pixel1>())
             m_storage = CreateUniquePointer<Storage<wlo::Pixel1>>(x,y,z);
         else
             throw std::runtime_error("Unsupported Pixel Format! for "+t.name());

@@ -49,7 +49,6 @@ namespace wlo{
     }
 
     void PerspectiveCamera3D::resizeOn(const wlo::WindowResized & msg) {
-       WILO_CORE_INFO("WINDOW RESIZED");
        snapTo(msg.content.width,msg.content.height);
     }
 
@@ -74,7 +73,6 @@ namespace wlo{
             lastLookX = x;
             lastLookY = y;
             firstLook = false;
-            WILO_CORE_INFO("FIRST LOOK");
         }
         float xoffset = lastLookX-x;
         float yoffset = lastLookY-y;

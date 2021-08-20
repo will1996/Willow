@@ -15,7 +15,6 @@
 #include<glm/glm.hpp>
 #include<glm/gtx/string_cast.hpp>
 
-#include "willow/root/Logger.hpp"
 #include "willow/root/WiloConfig.h"
 #include "PlatformCodes.hpp"
 
@@ -67,4 +66,16 @@ namespace wlo {
 
     using Mat3 = glm::mat3;
     using Mat4 = glm::mat4;
+
+    using Pixel1 = uint8_t;
+    using Pixel2 = glm::vec<2,uint8_t>;
+    using Pixel3 = glm::vec<3,uint8_t>;
+    using Pixel4 = glm::vec<4,uint8_t>;
+
+    using Index = uint32_t;
+
+    struct TexturedVertex3D{
+        Vec3 position;
+        Vec2 tex;
+    };
 }

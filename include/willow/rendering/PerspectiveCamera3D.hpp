@@ -6,7 +6,6 @@
 #define WILLOW_PRESPECTIVECAMERA3D_HPP
 #include"glm/glm.hpp"
 #include"willow/window/Window.hpp"
-#include "RenderDataTypes.hpp"
 #include"willow/messaging/MessageSystem.hpp"
 
 #undef near

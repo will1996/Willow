@@ -1,7 +1,6 @@
 #include "lua.hpp"
 #include "willow/root/Root.hpp"
 #include<iostream>
-#include"willow/messaging/MessageSystem.hpp"
 #include "LuaEnvironment.hpp"
 #include"willow/root/FileSystem.hpp"
 #include"willow/data/Type.hpp"
@@ -115,7 +114,7 @@ namespace wlo{
             T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
             lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
             lua_remove(L, 1);//get rid of the call table, while preserving arguments
-            auto arg = lua::Stack::pop(L,data::Type::of<A>()).template get<A>();
+            auto arg = lua::Stack::pop(L,Data::type<A>()).template get<A>();
             (this_ptr->*Method)(arg);
             return 0;
         }
@@ -127,8 +126,8 @@ namespace wlo{
                 lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
                 lua_remove(L, 1);//get rid of the call table, while preserving arguments
                 lua::Stack::print(L);
-                auto arg2 = lua::Stack::pop(L,data::Type::of<A2>()).template get<A2>();
-                auto arg1 = lua::Stack::pop(L,data::Type::of<A>()).template get<A>();
+                auto arg2 = lua::Stack::pop(L,Data::type<A2>()).template get<A2>();
+                auto arg1 = lua::Stack::pop(L,Data::type<A>()).template get<A>();
                 assert(lua::Stack::isEmpty(L));
                 (this_ptr->*Method)(arg1,arg2);
                 return 0;
@@ -141,9 +140,9 @@ namespace wlo{
                 T* this_ptr = static_cast<T*> (lua_touserdata(L,-1));
                 lua_pop(L, 1);//pop the user_data "this" pointer from the top of the stack
                 lua_remove(L, 1);//get rid of the call table, while preserving arguments
-                auto arg3 = lua::Stack::pop(L,data::Type::of<A3>()).template get<A3>();
-                auto arg2 = lua::Stack::pop(L,data::Type::of<A2>()).template get<A2>();
-                auto arg1 = lua::Stack::pop(L,data::Type::of<A>()).template get<A>();
+                auto arg3 = lua::Stack::pop(L,Data::type<A3>()).template get<A3>();
+                auto arg2 = lua::Stack::pop(L,Data::type<A2>()).template get<A2>();
+                auto arg1 = lua::Stack::pop(L,Data::type<A>()).template get<A>();
                 (this_ptr->*Method)(arg1,arg2,arg3);
                 return 0;
             }
@@ -153,7 +152,6 @@ namespace wlo{
             if(res != LUA_OK) {
                 #ifndef NDEBUG
                 std::string msg = lua_tostring(m_env.getL(),-1);
-                WILO_CORE_ERROR("invalid Lua_base script, failed with:  "+ msg);
                 #else
 //                raise runtime_error("invalid Lua_base script please validate your install");
                 #endif
@@ -173,13 +171,13 @@ namespace wlo{
         //failing if a global table of the same name already exists
         void LT_instantiate(){
            //LT_failOnNameConflict();
-           WILO_CORE_INFO("LuaBinding for {0} ...",m_name);
+ //          WILO_CORE_INFO("LuaBinding for {0} ...",m_name);
            lua_newtable(m_env.getL());//push a fresh table onto the stack
            lua_pushstring(m_env.getL(), "instancePtr");//push a key value pair of the string "this"
            lua_pushlightuserdata(m_env.getL(), m_instancePtr);// and the value a pointer to 'this'
            lua_settable(m_env.getL(), 1);//add the pair to the table
            lua_setglobal(m_env.getL(), m_name.c_str());//name the table, and pop it from the stack
-           WILO_CORE_INFO("LuaBinding established for {0}",m_name);
+//           WILO_CORE_INFO("LuaBinding established for {0}",m_name);
            lua_settop(m_env.getL(),0);
         }
 

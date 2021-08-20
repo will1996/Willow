@@ -13,20 +13,53 @@ m_self(other.m_self->copy()),m_members(buildMembers(m_self.get(),other.getType()
 Value::Value(const Value &&other):m_self(other.m_self->copy()),m_members(buildMembers(m_self.get(),other.getType()))
 { }
 
+Value::Value(std::vector<Value> init){
+    std::vector<Type::Member> typeInit; typeInit.reserve(init.size());
+    for (size_t i =0; i < init.size(); i++)
+        typeInit.push_back({.name = std::to_string(i),.type = init[i].getpType()});
+    auto t =  CreateSharedPointer<const Type>("",typeInit);
+    m_self = CreateUniquePointer<Model<Type>>(t);
+    m_members = buildMembers(m_self.get(),*t);
+    for (size_t i =0; i < init.size(); i++)
+        m_members[std::to_string(i)] = init[i];
+}
 
-    Value::Value(Type t):m_self(CreateUniquePointer<Model<Type>>(t)),m_members(buildMembers(m_self.get(),t)) {
+
+Value::Value(std::vector<std::pair<std::string, Value>> init) {
+    std::vector<Type::Member> typeInit; typeInit.reserve(init.size());
+    for (const auto [name ,value ] : init)
+        typeInit.push_back({name,value.getpType()});
+    auto t =  CreateSharedPointer<const Type>("",typeInit);
+    m_self = CreateUniquePointer<Model<Type>>(t);
+    m_members = buildMembers(m_self.get(),*t);
+    for (const auto [name ,value ] : init)
+        m_members[name] = value;
+}
+
+
+Value::Value(SharedPointer<const Type> t):m_self(CreateUniquePointer<Model<Type>>(t)),m_members(buildMembers(m_self.get(),*t)) {
+
+}
+
+//Value::Value(const Type& t):m_self(CreateUniquePointer<Model<Type>>(CreateSharedPointer<const Type>(t))),m_members(buildMembers(m_self.get(),t)) {
+//
+//}
+Value::Value(Type t):m_self(CreateUniquePointer<Model<Type>>(CreateSharedPointer<const Type>(t))),m_members(buildMembers(m_self.get(),t)) {
 
 }
 
 
-Value::Value(Type type, void * src):m_self(CreateUniquePointer<Model<void*>>(type,src)){
-    m_members = buildMembers(m_self.get(),type);
+Value::Value(SharedPointer<const Type>  type, void * src):m_self(CreateUniquePointer<Model<void*>>(type,src)){
+    m_members = buildMembers(m_self.get(),*type);
 }
 
-Value::Value():m_self(CreateUniquePointer<Model<void*>>(Type(),nullptr)){ }
+Value::Value():m_self(CreateUniquePointer<Model<void*>>(Data::ptype<void>(),nullptr)){ }
 
 Value & Value::operator[](const std::string & memberName) {
     return m_members.at(memberName);
+}
+Value &Value::operator[](size_t i) {
+    return m_members.at(getType().getMembers()[i].name);
 }
 
 Value& Value::operator=(const Value&& other)
@@ -40,7 +73,7 @@ Value& Value::operator=(const Value&& other)
      return *this;
  }
 
-std::map<std::string, Value> Value::buildMembers(Value::Abstract * storage, Type t) {
+std::map<std::string, Value> Value::buildMembers(Value::Abstract * storage, const Type & t) {
    std::map<std::string,Value> members;
    for(auto & member: t.getMembers()){
        byte * attachmentPoint = &static_cast<byte*>(storage->getData())[member.offset];

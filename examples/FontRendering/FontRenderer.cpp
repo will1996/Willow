@@ -7,15 +7,15 @@ using namespace wlo;
 class Terminal : public Application {
 public:
 	Terminal(std::string argv_0):
-		Application(Application::Info{.appName = "Willow Editor",.debugging = true,.windowDimensions = {800,800}},argv_0)
+		Application(argv_0)
 	{
 	}
-	void setup() override {
+	void setup() {
 
 
 	}
-	void stepSim(float dt) override {}
-	void draw() override {}
+	void stepSim(float dt) {}
+	void draw() {}
 
 };
 

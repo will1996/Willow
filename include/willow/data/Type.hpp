@@ -9,25 +9,17 @@
 
         class Type{
         public:
-            struct Member{
+            template<typename T>
+            struct MemberT{
                 std::string name;
-                const Type&  type;
+                T  type;
                 size_t offset;
             };
-            Type() noexcept;
+            using Member = MemberT<Type>;
+            Type() ;
             Type(std::string name, size_t size);
             Type(std::string name, std::vector<Member> members);
-            Type & operator =(const Type & other){
-                m_name = other.m_name;
-                m_members.clear();
-                for (auto & member : other.m_members )
-                    m_members.push_back(member);
-                m_size = _size();
-                m_isPrimitve = other.isPrimitive();
-                m_isComposite = other.isComposite();
-                m_isContainer = other.isContainer();
-                return *this;
-            }
+
 //            Type(std::string name, const Type & t);
 
 

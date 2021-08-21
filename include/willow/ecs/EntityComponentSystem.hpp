@@ -141,7 +141,7 @@ namespace wlo{
             std::cout<<"Searching for Archetype "<<archetypeToFind<<std::endl;
             std::vector<Entity> entities;
             for (auto &[entity,archetype] : entityArchetypes){
-                if (archetype==archetypeToFind)
+                if ((archetype&archetypeToFind)==archetypeToFind)
                     entities.push_back(entity);
             }
             return entities;

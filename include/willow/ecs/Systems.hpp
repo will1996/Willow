@@ -14,6 +14,7 @@ namespace wlo {
     };
 
     class Systems : public Messenger{
+    public:
         void setGlobal(const data::Value & );
         void registerSystem(std::string name, System sys);
         void runActiveSystems(EntityComponentSystem& ecs);

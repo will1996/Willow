@@ -48,7 +48,7 @@ namespace wlo::data{
             return m_self->getData();
         };
 
-       const Type & getType() const{
+       Type  getType() const{
            return m_self->getType();
        }
 
@@ -57,7 +57,7 @@ namespace wlo::data{
 
        struct Abstract{
         virtual void* getData() = 0;
-        virtual const Type & getType() const = 0;
+        virtual Type  getType() const = 0;
         virtual UniquePointer<Abstract> copy()= 0;
         virtual void Assign(Abstract * ) = 0;
         virtual ~Abstract() = default;
@@ -69,7 +69,7 @@ namespace wlo::data{
         struct Model: public Abstract{
             explicit Model(T toStore): storedData(std::move(toStore)){}
 
-            const Type  & getType() const override{
+            Type   getType() const override{
                 return typeOf<T>();
             }
 
@@ -96,7 +96,7 @@ namespace wlo::data{
             //storage constuctor, creates storage for a composite type
            explicit Model(const Type&  t):type(t),storedData(type.footprint()) {}
 
-           const Type & getType() const override{
+           Type  getType() const override{
                return type;
            }
 
@@ -134,7 +134,7 @@ namespace wlo::data{
 
             void* getData() override{return data;}
 
-            const  Type &   getType() const override{return type;}
+            Type    getType() const override{return type;}
 
 
            UniquePointer<Abstract> copy()override{

@@ -36,5 +36,10 @@ int main(){
     require(ecs.archetypeOf(vec3)==ecs.archetypeOf(wlo::data::Value({wlo::Vec3(),wlo::Vec2()})));
     require(ecs.componentCount<wlo::Vec2>()==3);
 
+    auto ents = ecs.getEntitiesOfArchetype<Vec3>();
+    require(ents.size()==2);
+
+    require(std::find(ents.begin(),ents.end(),vec3)!=ents.end());
+
 
 }

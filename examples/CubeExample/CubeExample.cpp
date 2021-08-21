@@ -13,7 +13,9 @@
 #include"willow/input/InputManager.hpp"
 #include"willow/rendering/PerspectiveCamera3D.hpp"
 #include"willow/rendering/Renderer.hpp"
+#include"willow/ecs/Systems.hpp"
 using namespace  wlo;
+using namespace  wlo::data;
 
 struct RigidBody{
     wlo::Vec3 velocity;
@@ -27,13 +29,19 @@ struct Transform{
 struct Gravity{
     wlo::Vec3 vector;
 };
-
 namespace wlo::data{
     RegTwoMemberType(RigidBody,"velocity",Vec3,"acceleration",Vec3);
     RegOneMemberType(Transform,"position",Vec3);
     RegOneMemberType(Gravity,"vector",Vec3);
 }
 
+
+System PhysicsIntegrate{
+    .settings = Value(Type("settings",{{"dt",typeOf<float>()}}))
+};
+
+System Render{
+};
 
 
 class CubeExample:public Messenger{

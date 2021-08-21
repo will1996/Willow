@@ -10,6 +10,7 @@ namespace wlo{
 
    void Systems::registerSystem(std::string name, System sys) {
        m_systems[name] = std::move(sys);
+       m_activeSystems.push_back(&m_systems[name]);
    }
 
    void Systems::runActiveSystems(EntityComponentSystem &ecs) {

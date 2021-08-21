@@ -5,7 +5,7 @@
 #include"willow/data/Data.hpp"
 namespace wlo::data {
 
-    Type::Type() noexcept :
+    Type::Type() :
             m_size(0) ,m_name("void"),m_isPrimitve(true){}
 
     Type::Type(std::string name, size_t size):

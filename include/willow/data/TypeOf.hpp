@@ -10,40 +10,45 @@
 #endif
 #define RegPrimitive(typename) \
 template<> struct TypeOf<typename> { \
- const static Type value{#typename, sizeof(typename) };\
+ static Type get(){            \
+ return Type(#typename,sizeof(typename));\
+ }                              \
 };
 #define RegOneMemberType(typename,membername,membertype )\
 template<> struct TypeOf<typename> { \
- const static Type value(#typename,{{membername,TypeOf<membertype>::get()}});\
-                               \
+ static Type get(){            \
+ return Type(#typename,{{membername,TypeOf<membertype>::get()}});\
+ }                              \
 };
 #define RegTwoMemberType(typename,membername1,membertype1,membername2,membertype2 )\
 template<> struct TypeOf<typename> { \
-const static Type value(#typename,{                                                           \
+static Type get(){            \
+ return Type(#typename,{                                                           \
  {membername1,TypeOf<membertype1>::get()},                        \
  {membername2,TypeOf<membertype2>::get()},                        \
  });\
-                               \
+ }                              \
 };
 #define RegThreeMemberType(typename,membername1,membertype1,membername2,membertype2 ,membername3,membertype3)\
 template<> struct TypeOf<typename> { \
- const static Type value(#typename,{                                                           \
+ static Type get(){            \
+ return Type(#typename,{                                                           \
  {membername1,TypeOf<membertype1>::get()},                        \
  {membername2,TypeOf<membertype2>::get()},                        \
  {membername3,TypeOf<membertype3>::get()},                        \
  });\
-                               \
+ }                              \
 };
 #define RegFourMemberType(typename,membername1,membertype1,membername2,membertype2 ,membername3,membertype3,membername4,membertype4)\
 template<> struct TypeOf<typename> { \
- const static Type value (           \
- #typename,{                                                           \
+ static Type get(){            \
+ return Type(#typename,{                                                           \
  {membername1,TypeOf<membertype1>::get()},                        \
  {membername2,TypeOf<membertype2>::get()},                        \
  {membername3,TypeOf<membertype3>::get()},                        \
  {membername4,TypeOf<membertype4>::get()},                        \
  });\
-                               \
+ }                              \
 };
 
 namespace wlo::data{
@@ -51,16 +56,17 @@ namespace wlo::data{
    struct TypeOf{ };
     template<typename T>
     Type typeOf() {
-        return TypeOf<T>::value;
+        return TypeOf<T>::get();
     }
 #ifndef WILLOW_TYPEOF_SPECIALIZATIONS
 #define  WILLOW_TYPEOF_SPECIALIZATIONS
    template<>
    struct TypeOf<void>{
-       static Type value;
+       static Type get(){
+           return Type();
+       }
    };
-    using std::string;
-   RegPrimitive(string)
+   RegPrimitive(std::string)
    RegPrimitive(unsigned int)
    RegPrimitive(float)
    RegPrimitive(double)
@@ -85,8 +91,8 @@ namespace wlo::data{
 #endif // TypeOf specializations
     template<typename T, typename A>
     struct TypeOf<std::vector<T,A>>{
-        Type operator()(){
-            return Type("Vector of",{{"contained",TypeOf<T>()()}});
+        static Type get(){
+            return Type("Vector of",{{"contained",TypeOf<T>::get()}});
         }
     };
 }

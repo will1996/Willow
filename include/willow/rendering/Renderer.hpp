@@ -34,10 +34,9 @@ namespace wlo::rendering {
         void registerRenderSurface(const Window & wnd);
         void draw(const RenderStart &);
         void onScreenResize(const WindowResized & msg);
-        void setMainCamera(const PerspectiveCamera3D & );
         void preAllocateScene(SceneDescription description);
 
-        void render(const Scene &);
+        void render(const Scene &,const wlo::Mat4 & cameraMatrix);
 
         void setClearColor(wlo::Vec4);
         const Statistics & getStats();

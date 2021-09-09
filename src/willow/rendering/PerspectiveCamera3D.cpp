@@ -14,6 +14,7 @@ namespace wlo{
              m_position{0,0,-1},
              m_upDirection{0,1,0},
              m_front{0,0,-1},
+             m_aspectRatio(1.0),
              firstLook(true),
              lastLookX(0.0f),
              lastLookY(0.0f)
@@ -29,6 +30,7 @@ namespace wlo{
             m_position{0,0,3}, 
             m_upDirection{0,1,0},
             m_front{0,0,-1},
+            m_aspectRatio{1.0f},
             firstLook(true),
             lastLookX(0.0f),
             lastLookY(0.0f)

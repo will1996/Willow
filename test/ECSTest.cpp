@@ -41,5 +41,11 @@ int main(){
 
     require(std::find(ents.begin(),ents.end(),vec3)!=ents.end());
 
+    auto writeMe = ecs.spawnEntity(wlo::data::Value({wlo::Vec2(1,2),wlo::Vec3(0,1,2)}));
+    cout<<"Writing entity"<<writeMe<<endl;
+    ecs.writeEntity(writeMe,Vec3{1.0f,2.0f,3.0f});
+    require(ecs.getComponent<Vec3>(writeMe)==Vec3(1.0f,2.0f,3.0f));
+
+
 
 }

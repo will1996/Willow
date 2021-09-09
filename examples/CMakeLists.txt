@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
+add_custom_target(Shaders
+        COMMAND ${CMAKE_COMMAND} -DPROJECT_ROOT=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/CMake/BuildWillowShaders.cmake
+        )
+
 function(WillowAddExample ExampleName)
         message("CREATING WILLOW EXAMPLE: ${ExampleName} ")
         set_target_properties( ${ExampleName}
@@ -54,6 +58,7 @@ function(WillowAddExample ExampleName)
         endforeach(GLSL)
 endfunction()
 add_executable(CubeExample "CubeExample/CubeExample.cpp")
+add_dependencies(CubeExample Shaders)
 WillowAddExample(CubeExample)
 
 add_executable(FontRendering "FontRendering/FontRenderer.cpp")
@@ -62,5 +67,9 @@ WillowAddExample(FontRendering )
 
 add_executable(AsteroidsExample "AsteroidsExample/AsteroidsExample.cpp")
 WillowAddExample(AsteroidsExample)
+
+add_executable(TriangleTest "TriangleTest/TriangleTest.cpp")
+add_dependencies(TriangleTest Shaders)
+WillowAddExample(TriangleTest)
 
 

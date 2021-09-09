@@ -29,7 +29,9 @@ class Scene{
       SceneDescription getDescription();
 
       Scene& add(const Mesh & mesh,const Material & material,glm::mat4x4 transform = glm::mat4x4{1}){
+
           m_objects.emplace_back(RenderObject{.mesh = mesh,.material = material,.transform = transform});
+
         return *this;
       }
 

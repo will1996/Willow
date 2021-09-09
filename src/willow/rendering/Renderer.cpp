@@ -23,7 +23,6 @@ namespace wlo::rendering{
     class VulkanImplementation :public wlo::MessageSystem::Observer{
     public:
         Renderer::Statistics statistics;
-        const PerspectiveCamera3D * camera;
     private:
         const glm::mat4x4 m_clipMatrix = {//vulkan specific clip matrix (used for all camera transforms)
                 1.0f, 0.0f, 0.0f, 0.0f,
@@ -106,7 +105,7 @@ namespace wlo::rendering{
         }
         glm::vec4 nextClearColor;
         VulkanImplementation(std::initializer_list<Renderer::Features> features, Window& window, bool enableDebugging = true) :
-            m_root(features, window, enableDebugging),
+            m_root(features, window, false),
             m_swapchain(m_root, window),
             m_shaderFactory(m_root),
             m_pipelineFactory(m_root,m_shaderFactory,m_swapchain),
@@ -227,11 +226,8 @@ namespace wlo::rendering{
                                     0,
                                     uniformBufferMemRequirements.size)));
 
-                glm::mat4x4 view = glm::lookAt(glm::vec3(-5.0f, 3.0f, -10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-                glm::mat4x4 projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
-                glm::mat4x4 mvpc = m_clipMatrix * projection * view;
-
-                memcpy(m_UniformBuffers[pipeline.id].writePoint, &mvpc, sizeof(mvpc));
+                wlo::Mat4 uniformInit(1);
+                memcpy(m_UniformBuffers[pipeline.id].writePoint, &uniformInit, sizeof(uniformInit));
                 m_root.Device().bindBufferMemory(m_UniformBuffers[pipeline.id].buffer.get(),
                                                  m_UniformBuffers[pipeline.id].memory.get(), 0);
 
@@ -275,7 +271,7 @@ namespace wlo::rendering{
         }
 
         void updateUnifromBuffer(wlo::ID_type pathID,const glm::mat4x4 &uniformView) {
-            glm::mat4x4 mvpc = m_clipMatrix * uniformView;
+            glm::mat4x4 mvpc =  uniformView;
             memcpy(m_UniformBuffers[pathID].writePoint,&mvpc, sizeof(mvpc));
         }
 
@@ -288,7 +284,7 @@ namespace wlo::rendering{
         }
 
 
-        void submit(std::vector<Draw> draws) {
+        void submit(std::vector<Draw> draws,const glm::mat4 cameraTransform) {
             auto currentTime = std::chrono::high_resolution_clock::now();
             // Get the index of the next available swapchain image:
             vk::UniqueSemaphore       imageAcquiredSemaphore = m_root.Device().createSemaphoreUnique(vk::SemaphoreCreateInfo());
@@ -329,7 +325,7 @@ namespace wlo::rendering{
 
                 updateVertexBuffer(draw.vertices, vertexOffset);
                 updateIndexBuffer(draw.indices,indexOffset);
-                updateUnifromBuffer(draw.material.id,camera->getTransform());
+                updateUnifromBuffer(draw.material.id,cameraTransform);
 
                 commandBuffer->bindVertexBuffers(0, *m_VertexBuffers[draw.vertices.layout].buffer, { vertexOffset });
                 commandBuffer->bindIndexBuffer(*m_IndexBuffer.buffer,indexOffset,vk::IndexType::eUint32);
@@ -406,9 +402,6 @@ namespace wlo::rendering{
     }
 
 
-    void Renderer::setMainCamera(const PerspectiveCamera3D & camera){
-        pImpl->camera = &camera;                    
-    }
 
 
     void Renderer::setClearColor(wlo::Vec4 color) {
@@ -422,23 +415,19 @@ namespace wlo::rendering{
 
 
     void Renderer::preAllocateScene(SceneDescription description) {
+
        pImpl->prepare(description);
     }
 
-    void Renderer::render(const Scene & scene) {
-
+    void Renderer::render(const Scene & scene,const wlo::Mat4 & cameraMatrix) {
         std::vector<Draw> draws; draws.reserve(scene.m_objects.size());
         for (auto& renderObj : scene.m_objects) {
-
             draws.push_back(Draw{ .vertices = renderObj.mesh.vertexView(),.indices = renderObj.mesh.indexView(),.modelMatrix = renderObj.transform, .material = renderObj.material });
         }
-
-
-        pImpl->submit(draws);
+        pImpl->submit(draws,cameraMatrix);
     }
 
     void Renderer::draw(const RenderStart &) {
-
     }
 
 

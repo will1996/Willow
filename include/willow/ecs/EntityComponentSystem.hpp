@@ -100,7 +100,7 @@ namespace wlo{
         }
 
         inline void writeEntity(Entity e,data::Value v){
-
+            cout<<"Writing entity "<<e<<endl;
             ComponentTag tag = m_componentTagsByName[v.getType().name()];
             if (tag == 0 ) {
                 std::cout << "Attempted to write entity " << e << "with unregistered component type: "
@@ -138,7 +138,6 @@ namespace wlo{
         template<typename ...Ts>
         std::vector<Entity> getEntitiesOfArchetype(){
             Archetype archetypeToFind = buildArchetype<Ts...>();
-            std::cout<<"Searching for Archetype "<<archetypeToFind<<std::endl;
             std::vector<Entity> entities;
             for (auto &[entity,archetype] : entityArchetypes){
                 if ((archetype&archetypeToFind)==archetypeToFind)

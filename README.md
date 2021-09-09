@@ -1,4 +1,4 @@
-# Willow_cpp
+# Willow
 A from-scratch learning engine written in modern C++. 
 
 Features: 
